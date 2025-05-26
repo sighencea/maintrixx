@@ -6,4 +6,5 @@ body {
   min-height: 100vh;
   margin: 0;
   font-family: 'Roboto', sans-serif; /* Optional: MDL uses Roboto */
+  background-color: #e3f2fd; /* Gentle off-blue */
 }
