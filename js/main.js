@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
       };
 
       console.log('User Data:', JSON.stringify(userData, null, 2));
+      localStorage.setItem('onboardingComplete', 'true'); // Mark onboarding as complete
     }
   });
 });
