@@ -70,9 +70,68 @@ document.addEventListener('DOMContentLoaded', function () {
     console.error('Sign-up form (signupForm) not found.'); // DEBUG
   }
 
-  // Placeholder for Login Logic (to be added in a later step)
-  // const loginForm = document.getElementById('loginForm');
-  // const loginMessage = document.getElementById('loginMessage');
-  // if (loginForm) { /* ... */ }
+  // Login Logic
+  const loginForm = document.getElementById('loginForm');
+  const loginMessage = document.getElementById('loginMessage');
 
-});
+  if (loginForm) {
+    console.log('Login form listener attached.'); // DEBUG
+    loginForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      console.log('Login form submitted.'); // DEBUG
+      loginMessage.textContent = ''; // Clear previous messages
+      loginMessage.className = ''; // Clear previous classes
+
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      console.log('Captured login data:', { email }); // DEBUG (don't log password)
+
+      if (!email || !password) {
+        loginMessage.textContent = 'Please fill in both email and password.';
+        loginMessage.className = 'alert alert-warning';
+        console.log('Validation failed: Missing login fields.'); // DEBUG
+        return;
+      }
+
+      try {
+        if (!window._supabase) {
+          loginMessage.textContent = 'Supabase client not initialized. Check console.';
+          loginMessage.className = 'alert alert-danger';
+          console.error('Supabase client (window._supabase) is not available during login attempt.'); // DEBUG
+          return;
+        }
+        console.log('Attempting Supabase login with:', { email }); // DEBUG
+
+        const { data, error } = await window._supabase.auth.signInWithPassword({
+          email: email,
+          password: password,
+        });
+
+        console.log('Supabase login response:', { data, error }); // DEBUG
+
+        if (error) {
+          loginMessage.textContent = 'Login failed: ' + error.message;
+          loginMessage.className = 'alert alert-danger';
+        } else if (data.user) {
+          loginMessage.textContent = 'Login successful! Redirecting...';
+          loginMessage.className = 'alert alert-success';
+          localStorage.setItem('onboardingComplete', 'true'); // Mark as "onboarded"
+          // Optionally reset form: loginForm.reset();
+          window.location.href = 'pages/dashboard.html'; // Redirect to dashboard
+        } else {
+          // Fallback for unexpected response where there's no error but also no user
+          loginMessage.textContent = 'Login failed. Please check your credentials and try again.';
+          loginMessage.className = 'alert alert-danger';
+          console.warn('Supabase login response did not contain user data but no explicit error.');
+        }
+      } catch (catchError) {
+        console.error('Login catch error:', catchError); // DEBUG
+        loginMessage.textContent = 'An unexpected error occurred during login. Please try again.';
+        loginMessage.className = 'alert alert-danger';
+      }
+    });
+  } else {
+    console.error('Login form (loginForm) not found.'); // DEBUG
+  }
+}); // End of DOMContentLoaded
