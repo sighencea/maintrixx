@@ -64,3 +64,32 @@ body {
   overflow-y: auto; /* Allow scrolling for main content if it overflows */
   position: relative; /* Added to ensure absolute positioning of children is relative to this */
 }
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  justify-content: space-between; /* Aligns items to left and right */
+  align-items: center;
+  padding: 10px 20px; /* Adjust padding as needed */
+  background-color: #f8f9fa; /* Same as sidebar background */
+  border-bottom: 1px solid #dee2e6; /* Optional border */
+  height: 60px; /* Adjust height as needed */
+  box-sizing: border-box;
+}
+
+.top-bar .page-title span {
+  font-size: 1.2em; /* Adjust as needed */
+  color: #495057; /* Darker grey for text, adjust as needed */
+  font-weight: 600; /* Semi-bold */
+}
+
+.top-bar .top-bar-icons a {
+  color: #6B7280; /* Default icon color from sidebar elements */
+  font-size: 1.2em; /* Adjust icon size as needed */
+  margin-left: 15px; /* Space between icons */
+  text-decoration: none;
+}
+
+.top-bar .top-bar-icons a:hover {
+  color: #2563EB; /* Hover color, can match active sidebar item or be different */
+}

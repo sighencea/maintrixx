@@ -23,11 +23,24 @@
   </div>
 
   <div id="mainContent" class="main-content">
+    <div class="top-bar">
+      <div class="page-title">
+        <span>Dashboard</span>
+      </div>
+      <div class="top-bar-icons">
+        <a href="#"><i class="fas fa-bell"></i></a>
+        <a href="#"><i class="fas fa-question-circle"></i></a>
+        {/* The existing sign-out button will remain separate for now, 
+           though it could be integrated here later if desired. */}
+      </div>
+    </div>
+    
+    {/* Existing Sign-Out Button (still absolutely positioned relative to mainContent) */}
     <div style="position: absolute; top: 10px; right: 10px;">
       <button id="signOutButton" class="btn btn-danger">Sign Out</button>
     </div>
-    
-    <div class="container text-center"> {/* This container might need adjustment based on new layout */}
+
+    <div class="container text-center mt-5"> {/* Added mt-5 to push welcome message down from top-bar and sign-out button */}
       <h1 id="welcomeMessage">this is your new dashboard page</h1>
       {/* Potential future dashboard content here */}
     </div>
