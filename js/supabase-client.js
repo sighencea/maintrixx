@@ -1,7 +1,7 @@
 // js/supabase-client.js
 
-const SUPABASE_URL = 'https://njubyuqpavmxqdokxftq.supabase.co'; // YOU MUST REPLACE THIS
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qdWJ5dXFwYXZteHFkb2t4ZnRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjQxMTAsImV4cCI6MjA2Mzg0MDExMH0.LAoiywXkz-Cx9Y178j_YsPu8y7mETWN53tN4jKHo2Tw'; // YOU MUST REPLACE THIS
+const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // YOU MUST REPLACE THIS
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // YOU MUST REPLACE THIS
 
 // Enhanced check to be more explicit about placeholder values
 if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY' || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
