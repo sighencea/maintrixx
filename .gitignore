@@ -1,0 +1,2 @@
+# Ignore Supabase client configuration with user's specific keys
+js/supabase-client.js
