@@ -4,3 +4,63 @@ body {
   /* Flexbox properties will be handled by Bootstrap classes on the body tag directly if needed */
   /* min-height and margin might also be handled by Bootstrap or not be necessary with Bootstrap's full-height containers */
 }
+
+/* Basic Sidebar Styles */
+.sidebar {
+  height: 100vh; /* Full height */
+  width: 250px; /* Adjust width as needed */
+  position: fixed; /* Fixed Sidebar (stays in place on scroll) */
+  top: 0;
+  left: 0;
+  background-color: #f8f9fa; /* Light grey background, adjust as needed */
+  padding-top: 20px;
+  border-right: 1px solid #dee2e6; /* Optional border */
+}
+
+.sidebar .logo {
+  padding: 10px 15px;
+  font-size: 1.5em; /* Adjust as needed */
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sidebar .nav-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar .nav-menu li a {
+  display: flex; /* Use flex for icon and text alignment */
+  align-items: center; /* Vertically center icon and text */
+  padding: 12px 15px;
+  text-decoration: none;
+  font-size: 1em; /* Adjust as needed */
+  color: #6B7280; /* Default text color from user requirement */
+}
+
+.sidebar .nav-menu li a i {
+  margin-right: 10px; /* Space between icon and text */
+  width: 20px; /* Fixed width for icon alignment */
+  text-align: center;
+}
+
+.sidebar .nav-menu li a:hover {
+  background-color: #e9ecef; /* Light hover effect */
+}
+
+.sidebar .nav-menu li a.active {
+  background-color: #E4EBF9; /* Active background from user requirement */
+  color: #2563EB; /* Active text color from user requirement */
+  font-weight: bold; /* Optional: make active text bold */
+}
+
+/* Main Content Area */
+.main-content {
+  margin-left: 250px; /* Same as sidebar width, to avoid overlap */
+  padding: 20px; /* Add some padding */
+  height: 100vh; /* Optional: if you want main content to also be full height */
+  overflow-y: auto; /* Allow scrolling for main content if it overflows */
+  position: relative; /* Added to ensure absolute positioning of children is relative to this */
+}
