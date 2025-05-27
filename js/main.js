@@ -4,72 +4,70 @@ document.addEventListener('DOMContentLoaded', function () {
   const signupMessage = document.getElementById('signupMessage');
 
   if (signupForm) {
+    console.log('Sign-up form listener attached.'); // DEBUG
     signupForm.addEventListener('submit', async function (event) {
       event.preventDefault();
-      signupMessage.textContent = ''; // Clear previous messages
-      signupMessage.className = ''; // Clear previous classes
+      console.log('Sign-up form submitted.'); // DEBUG
+      signupMessage.textContent = ''; 
+      signupMessage.className = ''; 
 
       const firstName = document.getElementById('signupFirstName').value;
       const email = document.getElementById('signupEmail').value;
       const password = document.getElementById('signupPassword').value;
 
+      console.log('Captured sign-up data:', { firstName, email }); // DEBUG (don't log password)
+
       if (!firstName || !email || !password) {
         signupMessage.textContent = 'Please fill in all required fields.';
         signupMessage.className = 'alert alert-warning';
+        console.log('Validation failed: Missing fields.'); // DEBUG
         return;
       }
       if (password.length < 6) {
         signupMessage.textContent = 'Password must be at least 6 characters long.';
         signupMessage.className = 'alert alert-warning';
+        console.log('Validation failed: Password too short.'); // DEBUG
         return;
       }
 
       try {
-        // Ensure Supabase client is available
         if (!window._supabase) {
           signupMessage.textContent = 'Supabase client not initialized. Check console.';
           signupMessage.className = 'alert alert-danger';
-          console.error('Supabase client (window._supabase) is not available.');
+          console.error('Supabase client (window._supabase) is not available during sign-up attempt.'); // DEBUG
           return;
         }
+        console.log('Attempting Supabase sign-up with:', { email, first_name: firstName }); // DEBUG
 
         const { data, error } = await window._supabase.auth.signUp(
-          {
-            email: email,
-            password: password,
-          },
-          {
-            data: { 
-              first_name: firstName
-              // If you add more fields to your sign-up form for profile data, pass them here:
-              // last_name: document.getElementById('signupLastName').value, 
-            }
-          }
+          { email: email, password: password },
+          { data: { first_name: firstName } }
         );
+
+        console.log('Supabase sign-up response:', { data, error }); // DEBUG
 
         if (error) {
           signupMessage.textContent = 'Error: ' + error.message;
           signupMessage.className = 'alert alert-danger';
         } else if (data.user && data.user.identities && data.user.identities.length === 0) {
-          // This condition often means the user exists but email is not confirmed.
-          // Supabase might return a user object with an empty identities array in this scenario.
           signupMessage.textContent = 'An account with this email already exists. If you haven\'t confirmed your email, please check your inbox for the confirmation link.';
           signupMessage.className = 'alert alert-info';
         } else if (data.user) {
           signupMessage.textContent = 'Sign-up successful! Please check your email to confirm your account.';
           signupMessage.className = 'alert alert-success';
-          signupForm.reset(); // Clear the form
+          signupForm.reset();
         } else {
-          // Fallback for unexpected response structure, though data.user should generally be present on success
-          signupMessage.textContent = 'Sign-up successful, but awaiting user confirmation. Please check your email.';
-           signupMessage.className = 'alert alert-info';
+          signupMessage.textContent = 'Sign-up successful, but awaiting user confirmation (unexpected response structure). Please check your email.';
+          signupMessage.className = 'alert alert-info';
         }
       } catch (catchError) {
-        console.error('Sign-up catch error:', catchError);
+        console.error('Sign-up catch error:', catchError); // DEBUG
         signupMessage.textContent = 'An unexpected error occurred. Please try again.';
         signupMessage.className = 'alert alert-danger';
       }
     });
+  } else {
+    console.error('Sign-up form (signupForm) not found.'); // DEBUG
   }
 
   // Placeholder for Login Logic (to be added in a later step)
