@@ -1,48 +1,80 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const startButton = document.getElementById('startOnboarding');
-  const onboardingCarouselElement = document.getElementById('onboardingCarousel');
-  
-  if (!startButton || !onboardingCarouselElement) {
-    console.error('Required elements (startButton or onboardingCarouselElement) not found.');
-    return;
-  }
-  
-  const onboardingCarousel = new bootstrap.Carousel(onboardingCarouselElement, {
-    interval: false, // Disable auto-sliding
-    wrap: false      // Prevent wrapping from last slide to first
-  });
+  // Sign-up Logic
+  const signupForm = document.getElementById('signupForm');
+  const signupMessage = document.getElementById('signupMessage');
 
-  // When the "Let's start" button is clicked:
-  startButton.addEventListener('click', function () {
-    // Hide the welcome message and start button
-    document.querySelector('h1').classList.add('d-none'); // Hides "Welcome!"
-    startButton.classList.add('d-none');
-    
-    // Show the carousel
-    onboardingCarouselElement.classList.remove('d-none');
-    onboardingCarousel.to(0); // Go to the first slide explicitly
-  });
+  if (signupForm) {
+    signupForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      signupMessage.textContent = ''; // Clear previous messages
+      signupMessage.className = ''; // Clear previous classes
 
-  // Listen for the slide event to capture data
-  onboardingCarouselElement.addEventListener('slid.bs.carousel', function (event) {
-    // Check if the previous slide was the Email slide (index 1, as slides are 0-indexed)
-    // and the current slide is the confirmation slide (index 2)
-    if (event.from === 1 && event.to === 2) {
-      const firstNameInput = document.getElementById('firstName');
-      const emailInput = document.getElementById('email');
+      const firstName = document.getElementById('signupFirstName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
 
-      if (!firstNameInput || !emailInput) {
-        console.error('Input fields (firstName or email) not found.');
+      if (!firstName || !email || !password) {
+        signupMessage.textContent = 'Please fill in all required fields.';
+        signupMessage.className = 'alert alert-warning';
+        return;
+      }
+      if (password.length < 6) {
+        signupMessage.textContent = 'Password must be at least 6 characters long.';
+        signupMessage.className = 'alert alert-warning';
         return;
       }
 
-      const userData = {
-        firstName: firstNameInput.value,
-        email: emailInput.value
-      };
+      try {
+        // Ensure Supabase client is available
+        if (!window._supabase) {
+          signupMessage.textContent = 'Supabase client not initialized. Check console.';
+          signupMessage.className = 'alert alert-danger';
+          console.error('Supabase client (window._supabase) is not available.');
+          return;
+        }
 
-      console.log('User Data:', JSON.stringify(userData, null, 2));
-      localStorage.setItem('onboardingComplete', 'true'); // Mark onboarding as complete
-    }
-  });
+        const { data, error } = await window._supabase.auth.signUp(
+          {
+            email: email,
+            password: password,
+          },
+          {
+            data: { 
+              first_name: firstName
+              // If you add more fields to your sign-up form for profile data, pass them here:
+              // last_name: document.getElementById('signupLastName').value, 
+            }
+          }
+        );
+
+        if (error) {
+          signupMessage.textContent = 'Error: ' + error.message;
+          signupMessage.className = 'alert alert-danger';
+        } else if (data.user && data.user.identities && data.user.identities.length === 0) {
+          // This condition often means the user exists but email is not confirmed.
+          // Supabase might return a user object with an empty identities array in this scenario.
+          signupMessage.textContent = 'An account with this email already exists. If you haven\'t confirmed your email, please check your inbox for the confirmation link.';
+          signupMessage.className = 'alert alert-info';
+        } else if (data.user) {
+          signupMessage.textContent = 'Sign-up successful! Please check your email to confirm your account.';
+          signupMessage.className = 'alert alert-success';
+          signupForm.reset(); // Clear the form
+        } else {
+          // Fallback for unexpected response structure, though data.user should generally be present on success
+          signupMessage.textContent = 'Sign-up successful, but awaiting user confirmation. Please check your email.';
+           signupMessage.className = 'alert alert-info';
+        }
+      } catch (catchError) {
+        console.error('Sign-up catch error:', catchError);
+        signupMessage.textContent = 'An unexpected error occurred. Please try again.';
+        signupMessage.className = 'alert alert-danger';
+      }
+    });
+  }
+
+  // Placeholder for Login Logic (to be added in a later step)
+  // const loginForm = document.getElementById('loginForm');
+  // const loginMessage = document.getElementById('loginMessage');
+  // if (loginForm) { /* ... */ }
+
 });
