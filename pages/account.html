@@ -40,7 +40,94 @@
     
 
     <div class="container mt-5">
-      <!-- Account settings content goes here -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Profile Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+              <!-- Placeholder for Avatar -->
+              <i class="fas fa-user-circle fa-7x text-secondary"></i> 
+              <!-- Or an actual placeholder image: 
+              <img src="https://via.placeholder.com/120" class="img-fluid rounded-circle" alt="User Avatar"> 
+              -->
+            </div>
+            <div class="col-md-9">
+              <form>
+                <div class="mb-3">
+                  <label for="fullName" class="form-label">Full Name</label>
+                  <input type="text" class="form-control" id="fullName" value="John Doe (Dummy Data)" readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="emailAddress" class="form-label">Email Address</label>
+                  <input type="email" class="form-control" id="emailAddress" value="john.doe@example.com (Dummy Data)" readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="phoneNumber" class="form-label">Phone Number</label>
+                  <input type="tel" class="form-control" id="phoneNumber" value="+1 234 567 8900 (Dummy Data)" readonly>
+                </div>
+                <button type="button" class="btn btn-primary">Edit Profile</button> 
+                <!-- For now, this button won't do anything -->
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Change Password</h5>
+        </div>
+        <div class="card-body">
+          <form>
+            <div class="mb-3">
+              <label for="currentPassword" class="form-label">Current Password</label>
+              <input type="password" class="form-control" id="currentPassword">
+            </div>
+            <div class="mb-3">
+              <label for="newPassword" class="form-label">New Password</label>
+              <input type="password" class="form-control" id="newPassword">
+            </div>
+            <div class="mb-3">
+              <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+              <input type="password" class="form-control" id="confirmNewPassword">
+            </div>
+            <button type="submit" class="btn btn-success">Change Password</button> 
+            <!-- type="submit" is more appropriate for a form, though no action is wired up -->
+          </form>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Notification Preferences</h5>
+        </div>
+        <div class="card-body">
+          <form>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" value="" id="emailTasks" checked>
+              <label class="form-check-label" for="emailTasks">
+                Email me about new task assignments (Dummy Data)
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" value="" id="smsAlerts">
+              <label class="form-check-label" for="smsAlerts">
+                Send SMS for urgent property alerts (Dummy Data)
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" value="" id="desktopMessages" checked>
+              <label class="form-check-label" for="desktopMessages">
+                Desktop notifications for new messages (Dummy Data)
+              </label>
+            </div>
+            <button type="submit" class="btn btn-info">Save Preferences</button>
+            <!-- type="submit" is more appropriate, though no action is wired up -->
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 
