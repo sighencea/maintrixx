@@ -62,7 +62,7 @@ body {
 /* Main Content Area */
 .main-content {
   margin-left: 250px; /* Same as sidebar width, to avoid overlap */
-  padding: 20px; /* Add some padding */
+  padding: 0; /* Add some padding */
   height: 100vh; /* Optional: if you want main content to also be full height */
   overflow-y: auto; /* Allow scrolling for main content if it overflows */
   position: relative; /* Added to ensure absolute positioning of children is relative to this */
@@ -73,7 +73,7 @@ body {
   display: flex;
   justify-content: space-between; /* Aligns items to left and right */
   align-items: center;
-  padding: 0; /* Adjust padding as needed */
+  padding: 0 20px; /* Adjust padding as needed */
   background-color: #f8f9fa; /* Same as sidebar background */
   border-bottom: 1px solid #dee2e6; /* Optional border */
   height: 60px; /* Adjust height as needed */
@@ -99,7 +99,7 @@ body {
 
 .sidebar .nav-menu li#signOutButtonLi { /* Assuming you add an ID to the LI for easier targeting */
   margin-top: auto; /* Pushes this item to the bottom */
-  padding: 10px 15px; /* Similar padding to other nav items */
+  padding: 10px 15px 20px 15px; /* Similar padding to other nav items */
 }
 
 .sidebar .nav-menu li#signOutButtonLi #signOutButton {
