@@ -40,12 +40,16 @@
     
 
     <div class="container mt-5">
-      <div class="row mb-3">
-        <div class="col text-end">
-          <button class="btn btn-outline-primary" id="markAllReadBtn">Mark all as read</button>
-        </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Notifications</h3>
+        <button class="btn btn-outline-primary" id="markAllReadBtn">Mark all as read</button>
       </div>
-      <ul class="list-group" id="notificationList">
+
+      <h4 class="mt-4">Active Notifications</h4> <!-- Added mt-4 for spacing -->
+      <div id="activeNotificationsPlaceholder" class="text-muted p-3" style="display: none;"> <!-- Added padding and initial display none -->
+        You're all caught up! No new notifications here.
+      </div>
+      <ul class="list-group mb-4" id="activeNotificationsList">
         <li class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#notificationModalTemplate">
           <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">New Property Alert</h5>
@@ -103,6 +107,13 @@
         </li>
       </ul>
 
+      <h4 class="mt-4">Inactive Notifications</h4> <!-- Added mt-4 for spacing -->
+      <div id="inactiveNotificationsPlaceholder" class="text-muted p-3" style="display: none;"> <!-- Added padding and initial display none -->
+        No inactive notifications.
+      </div>
+      <ul class="list-group" id="inactiveNotificationsList">
+        <!-- Read notifications will move here -->
+      </ul>
       <!-- Generic Modal Structure (to be detailed in Phase 2) -->
       <div class="modal fade" id="notificationModalTemplate" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
