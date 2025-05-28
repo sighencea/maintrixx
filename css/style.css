@@ -120,6 +120,49 @@ body {
   background-color: #c82333; /* Darker red on hover */
 }
 
+/* Responsive Sidebar Styles */
+.sidebar {
+  /* ... existing styles ... */
+  transition: transform 0.3s ease-in-out; /* Smooth transition for sliding */
+}
+
+.top-bar .btn#sidebarToggler { /* Style for the toggler button */
+  color: #495057; /* Match page title color or choose appropriately */
+  font-size: 1.2em; /* Similar to other top-bar icons */
+}
+
+@media (max-width: 991.98px) { /* Bootstrap lg breakpoint - anything below large */
+  .sidebar {
+    transform: translateX(-100%); /* Hide sidebar off-screen to the left */
+    /* Or use: left: -250px; if using left/right positioning */
+    z-index: 1050; /* Ensure sidebar is above other content like overlay if added later */
+  }
+
+  .sidebar.active {
+    transform: translateX(0); /* Show sidebar */
+    /* Or use: left: 0; */
+  }
+
+  .main-content {
+    margin-left: 0; /* Main content takes full width when sidebar is hidden */
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 1040; /* Below sidebar (1050), above main content */
+    display: none; /* Hidden by default */
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+  }
+}
+
 /* Custom Card Styles */
 .card .card-body .card-title {
   font-size: 18px;

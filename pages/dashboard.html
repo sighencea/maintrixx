@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
+  <div class="sidebar-overlay d-lg-none"></div> <!-- Add this line -->
   <div id="sidebar" class="sidebar">
     <div class="logo">
       Property Hub
@@ -25,6 +26,9 @@
 
   <div id="mainContent" class="main-content">
     <div class="top-bar">
+      <button class="btn d-lg-none me-2" type="button" id="sidebarToggler" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
       <div class="page-title">
         <span>Dashboard</span>
       </div>
@@ -76,10 +80,11 @@
         </div>
       </div>
       <h3 class="mt-5 mb-3">Recent Activity</h3>
-      <table class="table table-hover align-middle">
-        <tbody>
-          <tr>
-            <td style="width: 50px;">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <tbody>
+            <tr>
+              <td style="width: 50px;">
               <img src="https://via.placeholder.com/40/007bff/FFFFFF?Text=AS" alt="User" class="img-fluid rounded-circle">
             </td>
             <td>Alice Smith</td>
@@ -142,8 +147,9 @@
             <td>Generated financial report for Q3</td>
             <td class="text-muted text-end" style="min-width: 100px;">1w ago</td>
           </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
