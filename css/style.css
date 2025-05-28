@@ -119,3 +119,45 @@ body {
 .sidebar .nav-menu li#signOutButtonLi #signOutButton:hover {
   background-color: #c82333; /* Darker red on hover */
 }
+
+/* Custom Card Styles */
+.card .card-body .card-title {
+  font-size: 18px;
+  font-weight: 400; /* Regular weight */
+  color: #111827;
+}
+
+.card .card-body .card-link {
+  font-size: 14px;
+  font-weight: 400; /* Regular weight */
+  color: #2563EB;
+}
+
+.card .card-body .display-4 {
+  font-size: 36px;
+  font-weight: 400; /* Regular weight */
+  color: #111827;
+  text-align: left; /* Ensure left alignment */
+}
+
+/* Targeting paragraphs in the second card specifically */
+.row > .col-lg-4:nth-child(2) .card .card-body .card-text {
+  font-size: 16px;
+  font-weight: 400; /* Regular weight */
+  color: #111827;
+  text-align: left; /* Ensure left alignment */
+}
+
+/* Ensure the small tags within these paragraphs retain their intended color */
+.row > .col-lg-4:nth-child(2) .card .card-body .card-text small.text-muted {
+  color: #6c757d !important; /* Bootstrap's default muted color */
+}
+
+.row > .col-lg-4:nth-child(2) .card .card-body .card-text small.text-danger {
+  color: #dc3545 !important; /* Bootstrap's default danger color */
+}
+
+/* Targeting paragraphs in the third card specifically for text alignment */
+.row > .col-lg-4:nth-child(3) .card .card-body .card-text {
+  text-align: left; /* Ensure left alignment */
+}
