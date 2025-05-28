@@ -29,6 +29,9 @@ body {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex; /* Add */
+  flex-direction: column; /* Add */
+  height: calc(100% - 70px); /* Adjust 70px based on logo height and some padding, this is to make space for logo */
 }
 
 .sidebar .nav-menu li a {
@@ -92,4 +95,27 @@ body {
 
 .top-bar .top-bar-icons a:hover {
   color: #2563EB; /* Hover color, can match active sidebar item or be different */
+}
+
+.sidebar .nav-menu li#signOutButtonLi { /* Assuming you add an ID to the LI for easier targeting */
+  margin-top: auto; /* Pushes this item to the bottom */
+  padding: 10px 15px; /* Similar padding to other nav items */
+}
+
+.sidebar .nav-menu li#signOutButtonLi #signOutButton {
+  width: 100%; /* Make button take full width of its container li */
+  display: flex; /* To align icon and text if an icon is added later */
+  align-items: center;
+  justify-content: center; /* Center text */
+  padding: 10px; /* Internal padding for the button */
+  text-decoration: none;
+  font-size: 1em;
+  color: white; /* Text color for contrast with red background */
+  background-color: #dc3545; /* Bootstrap danger red */
+  border: none;
+  border-radius: 0.25rem; /* Optional: match bootstrap button rounding */
+}
+
+.sidebar .nav-menu li#signOutButtonLi #signOutButton:hover {
+  background-color: #c82333; /* Darker red on hover */
 }
