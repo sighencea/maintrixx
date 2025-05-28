@@ -204,3 +204,15 @@ body {
 .row > .col-lg-4:nth-child(3) .card .card-body .card-text {
   text-align: left; /* Ensure left alignment */
 }
+
+/* Custom styles for notifications */
+.list-group-item.notification-read {
+  background-color: #f8f9fa; /* A light grey, similar to Bootstrap's .table-light */
+  opacity: 0.75; /* Slightly faded */
+}
+
+.list-group-item.notification-read h5,
+.list-group-item.notification-read p,
+.list-group-item.notification-read small {
+  /* Optional: could make text color lighter if needed, but opacity might be enough */
+}
