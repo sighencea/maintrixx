@@ -127,3 +127,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   } else { console.error('loginForm not found'); }
 });
+
+// Sidebar Toggler Logic
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggler = document.getElementById('sidebarToggler');
+  const sidebarOverlay = document.querySelector('.sidebar-overlay'); // Get the overlay
+
+  if (sidebar && sidebarToggler && sidebarOverlay) { // Check for overlay too
+    sidebarToggler.addEventListener('click', function() {
+      sidebar.classList.toggle('active');
+      sidebarOverlay.classList.toggle('active'); // Toggle overlay's active class
+    });
+
+    // Optional: Close sidebar if overlay is clicked
+    sidebarOverlay.addEventListener('click', function() {
+      sidebar.classList.remove('active');
+      sidebarOverlay.classList.remove('active');
+    });
+  }
+});
