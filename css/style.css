@@ -222,3 +222,57 @@ body {
   object-fit: cover;
   width: 100%; /* Ensure it spans the card width */
 }
+
+/* Property Page Specific Card Styling */
+
+/* Card Title: Font semi bold, 16px, #111827 */
+.properties-page-content .card .card-title {
+  font-weight: 600 !important; /* semi-bold */
+  font-size: 16px !important;
+  color: #111827 !important;
+}
+
+/* Card Address: Font regular, 14px, #6B7280 */
+/* The address paragraph has classes "card-text text-muted small" */
+/* We will create a more specific selector for this. */
+.properties-page-content .card .card-text.text-muted.small {
+  font-weight: 400 !important; /* regular */
+  font-size: 14px !important;
+  color: #6B7280 !important;
+}
+
+/* Card View Details: Font medium, 16px, #2563EB */
+/* The "View Details" link has classes "text-primary small" */
+.properties-page-content .card a.text-primary.small {
+  font-weight: 500 !important; /* medium */
+  font-size: 16px !important;
+  color: #2563EB !important;
+}
+
+/* Custom Task Status Badge Styling */
+.badge-custom-base {
+  font-weight: 400; /* regular */
+  font-size: 14px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding-left: 0.75em; /* Adjust padding as needed with fixed height */
+  padding-right: 0.75em;
+  border-radius: 0.375rem; /* Bootstrap's default rounded-pill is often too round for fixed height text */
+                           /* Using a standard border-radius, or adjust as preferred. */
+}
+
+.badge-custom-red {
+  color: #B91C1C !important;
+  background-color: #FEE2E2 !important;
+}
+
+.badge-custom-yellow {
+  color: #A16207 !important;
+  background-color: #FEF9C3 !important;
+}
+
+.badge-custom-green {
+  color: #15803D !important;
+  background-color: #DCFCE7 !important;
+}
