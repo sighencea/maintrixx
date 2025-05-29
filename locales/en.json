@@ -1,0 +1,79 @@
+{
+  "appTitle": "Property Hub",
+  "nav": {
+    "dashboard": "Dashboard",
+    "properties": "Properties",
+    "tasks": "Tasks",
+    "staff": "Staff",
+    "notifications": "Notifications",
+    "signOut": "Sign Out"
+  },
+  "loginPage": {
+    "title": "Property Hub Login",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "loginButton": "Login",
+    "forgotPassword": "Forgot password?",
+    "magicLink": "Send Magic Link"
+  },
+  "dashboardPage": {
+    "title": "Dashboard - Property Hub",
+    "header": "Dashboard",
+    "cardProperties": {
+      "title": "Properties",
+      "link": "View Properties"
+    },
+    "cardTasks": {
+      "title": "Tasks",
+      "link": "View Tasks",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "overdue": "Overdue"
+    },
+    "cardStaff": {
+      "title": "Staff",
+      "link": "View Staff",
+      "employeeLabel": "Employees",
+      "contractorLabel": "Contractors"
+    },
+    "recentActivity": {
+      "title": "Recent Activity"
+    }
+  },
+  "propertiesPage": {
+    "title": "Properties - Property Hub",
+    "header": "Properties",
+    "searchPlaceholder": "Search properties...",
+    "filterButton": "Filter",
+    "addPropertyButton": "+ Add Property",
+    "card": {
+      "tasksLabel": "Tasks",
+      "noActiveTasks": "No Active Tasks",
+      "viewLink": "View"
+    },
+    "pagination": {
+      "showingInfo": "Showing {start}–{end} of {total} properties"
+    }
+  },
+  "notificationsPage": {
+    "title": "Notifications - Property Hub",
+    "header": "Notifications",
+    "mainHeading": "Notifications",
+    "markAllRead": "Mark all as read",
+    "activeNotificationsHeading": "Active Notifications",
+    "activePlaceholder": "You're all caught up! No new notifications here.",
+    "inactiveNotificationsHeading": "Inactive Notifications",
+    "inactivePlaceholder": "No inactive notifications.",
+    "card": {
+      "markAsRead": "Mark as read",
+      "delete": "Delete"
+    },
+    "modal": {
+      "title": "Notification Details",
+      "bodyPlaceholder": "This is where the full notification content will appear.",
+      "closeButton": "Close"
+    }
+  }
+}

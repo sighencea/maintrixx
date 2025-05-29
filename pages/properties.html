@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Properties</title>
+  <title data-i18n-title="propertiesPage.title">Properties</title>
+  <script src="https://cdn.jsdelivr.net/npm/i18next/i18next.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -11,16 +12,16 @@
 <body>
   <div class="sidebar-overlay d-lg-none"></div> <!-- Add this line -->
   <div id="sidebar" class="sidebar">
-    <div class="logo">
+    <div class="logo" data-i18n="appTitle">
       Property Hub
     </div>
     <ul class="nav-menu">
-      <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-      <li><a href="properties.html" class="active"><i class="fas fa-building"></i><span>Properties</span></a></li>
-      <li><a href="#"><i class="fas fa-tasks"></i><span>Tasks</span></a></li>
-      <li><a href="#"><i class="fas fa-users"></i><span>Staff</span></a></li>
-      <li><a href="notifications.html"><i class="fas fa-bell"></i><span>Notifications</span></a></li>
-      <li id="signOutButtonLi"><button id="signOutButton" class="btn btn-danger">Sign Out</button></li>
+      <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span data-i18n="nav.dashboard">Dashboard</span></a></li>
+      <li><a href="properties.html" class="active"><i class="fas fa-building"></i><span data-i18n="nav.properties">Properties</span></a></li>
+      <li><a href="#"><i class="fas fa-tasks"></i><span data-i18n="nav.tasks">Tasks</span></a></li>
+      <li><a href="#"><i class="fas fa-users"></i><span data-i18n="nav.staff">Staff</span></a></li>
+      <li><a href="notifications.html"><i class="fas fa-bell"></i><span data-i18n="nav.notifications">Notifications</span></a></li>
+      <li id="signOutButtonLi"><button id="signOutButton" class="btn btn-danger" data-i18n="nav.signOut">Sign Out</button></li>
     </ul>
   </div>
 
@@ -30,7 +31,7 @@
         <i class="fas fa-bars"></i>
       </button>
       <div class="page-title">
-        <span>Properties</span>
+        <span data-i18n="propertiesPage.header">Properties</span>
       </div>
       <div class="top-bar-icons">
         <a href="notifications.html"><i class="fas fa-bell"></i></a>
@@ -41,11 +42,11 @@
     <div class="container mt-4 p-4 properties-page-content">
       <!-- Search and Action Buttons -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <input type="text" placeholder="Search properties..." class="form-control w-50">
+        <input type="text" placeholder="Search properties..." class="form-control w-50" data-i18n="propertiesPage.searchPlaceholder">
         <div class="d-flex align-items-center">
-          <button class="btn btn-outline-secondary me-2"><i class="fas fa-filter me-1"></i>Filter</button>
+          <button class="btn btn-outline-secondary me-2" data-i18n="propertiesPage.filterButton"><i class="fas fa-filter me-1"></i>Filter</button>
           <button class="btn btn-outline-secondary me-2">☰</button>
-          <button class="btn btn-primary">+ Add Property</button>
+          <button class="btn btn-primary" data-i18n="propertiesPage.addPropertyButton">+ Add Property</button>
         </div>
       </div>
     
@@ -59,8 +60,8 @@
               <h3 class="card-title">Sunset Apartments</h3>
               <p class="card-text text-muted small">123 Maple Street, Seattle, WA</p>
               <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
-                <span class="badge-custom-base badge-custom-red">3 Tasks</span>
-                <a href="#" class="text-primary small">View</a>
+                <span class="badge-custom-base badge-custom-red">3 <span data-i18n="propertiesPage.card.tasksLabel">Tasks</span></span>
+                <a href="#" class="text-primary small" data-i18n="propertiesPage.card.viewLink">View</a>
               </div>
             </div>
           </div>
@@ -74,8 +75,8 @@
               <h3 class="card-title">Pine Valley Complex</h3>
               <p class="card-text text-muted small">456 Oak Avenue, Portland, OR</p>
               <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
-                <span class="badge-custom-base badge-custom-yellow">5 Tasks</span>
-                <a href="#" class="text-primary small">View</a>
+                <span class="badge-custom-base badge-custom-yellow">5 <span data-i18n="propertiesPage.card.tasksLabel">Tasks</span></span>
+                <a href="#" class="text-primary small" data-i18n="propertiesPage.card.viewLink">View</a>
               </div>
             </div>
           </div>
@@ -89,8 +90,8 @@
               <h3 class="card-title">Riverside Towers</h3>
               <p class="card-text text-muted small">789 River Road, Vancouver, BC</p>
               <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
-                <span class="badge-custom-base badge-custom-green">No Active Tasks</span>
-                <a href="#" class="text-primary small">View</a>
+                <span class="badge-custom-base badge-custom-green" data-i18n="propertiesPage.card.noActiveTasks">No Active Tasks</span>
+                <a href="#" class="text-primary small" data-i18n="propertiesPage.card.viewLink">View</a>
               </div>
             </div>
           </div>
@@ -104,8 +105,8 @@
               <h3 class="card-title">Highland Park Residences</h3>
               <p class="card-text text-muted small">321 Hill Street, San Francisco, CA</p>
               <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
-                <span class="badge-custom-base badge-custom-red">2 Tasks</span>
-                <a href="#" class="text-primary small">View</a>
+                <span class="badge-custom-base badge-custom-red">2 <span data-i18n="propertiesPage.card.tasksLabel">Tasks</span></span>
+                <a href="#" class="text-primary small" data-i18n="propertiesPage.card.viewLink">View</a>
               </div>
             </div>
           </div>
@@ -119,8 +120,8 @@
               <h3 class="card-title">Ocean View Condos</h3>
               <p class="card-text text-muted small">654 Beach Blvd, San Diego, CA</p>
               <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
-                <span class="badge-custom-base badge-custom-green">No Active Tasks</span>
-                <a href="#" class="text-primary small">View</a>
+                <span class="badge-custom-base badge-custom-green" data-i18n="propertiesPage.card.noActiveTasks">No Active Tasks</span>
+                <a href="#" class="text-primary small" data-i18n="propertiesPage.card.viewLink">View</a>
               </div>
             </div>
           </div>
@@ -134,8 +135,8 @@
               <h3 class="card-title">Metropolitan Heights</h3>
               <p class="card-text text-muted small">987 City Center, Los Angeles, CA</p>
               <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
-                <span class="badge-custom-base badge-custom-yellow">4 Tasks</span>
-                <a href="#" class="text-primary small">View</a>
+                <span class="badge-custom-base badge-custom-yellow">4 <span data-i18n="propertiesPage.card.tasksLabel">Tasks</span></span>
+                <a href="#" class="text-primary small" data-i18n="propertiesPage.card.viewLink">View</a>
               </div>
             </div>
           </div>
@@ -144,7 +145,7 @@
     
       <!-- Pagination -->
       <div class="d-flex justify-content-between align-items-center mt-5">
-        <p class="text-muted small mb-0">Showing 1–6 of 24 properties</p>
+        <p class="text-muted small mb-0" data-i18n="propertiesPage.pagination.showingInfo">Showing 1–6 of 24 properties</p>
         <nav aria-label="Properties navigation">
           <ul class="pagination mb-0">
             <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
@@ -162,5 +163,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="../js/dashboard_check.js"></script> 
   <script src="../js/main.js"></script>
+  <script type="module" src="../js/i18n.js"></script>
 </body>
 </html>
