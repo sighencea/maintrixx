@@ -14,7 +14,7 @@ body {
   left: 0;
   background-color: #F9FAFB !important; /* Light grey background, adjust as needed */
   padding-top: 20px;
-  border-right: 1px solid #dee2e6; /* Optional border */
+  border-right: 1px solid #E5E7EB; /* Optional border */
 }
 
 .sidebar .logo {
@@ -75,8 +75,8 @@ body {
   justify-content: space-between; /* Aligns items to left and right */
   align-items: center;
   padding: 0 20px; /* Adjust padding as needed */
-  background-color: #F9FAFB !important; /* Same as sidebar background */
-  border-bottom: 1px solid #dee2e6; /* Optional border */
+  background-color: #FFFFFF !important; /* Updated value */
+  border-bottom: 1px solid #E5E7EB; /* Optional border */
   height: 60px; /* Adjust height as needed */
   box-sizing: border-box;
 }
@@ -231,6 +231,7 @@ body {
 /* Property Page Specific Card Styling */
 .properties-page-content .card {
   border-radius: 8px !important;
+  border: 1px solid #E5E7EB !important; /* Added/Updated */
   /* Bootstrap's .card already has border-radius. This custom rule makes it more specific.
      h-100 and shadow-sm are applied via HTML classes and should not be affected. */
 }
@@ -289,4 +290,73 @@ body {
 .badge-custom-green {
   color: #15803D !important;
   background-color: #DCFCE7 !important;
+}
+
+/* Global Border Color Overrides to #E5E7EB */
+
+/* Form Inputs */
+.form-control {
+  border: 1px solid #E5E7EB !important;
+}
+
+.form-control:focus {
+  border-color: #E5E7EB !important;
+  box-shadow: 0 0 0 0.2rem rgba(229, 231, 235, 0.25) !important; /* Adjusted focus shadow to match new border */
+}
+
+/* Buttons - Specifically targeting .btn-outline-secondary as used */
+/* and other general button outline scenarios if applicable */
+.btn-outline-secondary {
+  border-color: #E5E7EB !important;
+}
+
+/* To maintain some distinction on hover, we might allow Bootstrap's default hover behavior,
+   or customize it. If hover should also strictly keep the #E5E7EB border, add:
+.btn-outline-secondary:hover {
+  border-color: #E5E7EB !important;
+}
+Let's assume for now hover border can change slightly as per Bootstrap default for feedback,
+unless user specifies hover border must also be #E5E7EB.
+The original request was "stroke of all borders", not necessarily hover/active states.
+*/
+
+/* Pagination */
+.pagination .page-link {
+  border-color: #E5E7EB !important;
+}
+
+.page-item.active .page-link {
+  border-color: #E5E7EB !important; /* Overriding active state border as well */
+}
+/* Also for hover/focus on pagination links, if strictness is needed:
+.page-link:hover {
+    border-color: #E5E7EB !important;
+}
+.page-link:focus {
+    border-color: #E5E7EB !important;
+    box-shadow: 0 0 0 0.2rem rgba(229, 231, 235, 0.25) !important;
+}
+*/
+
+/* Tables */
+/* Ensuring all table related borders are updated */
+.table {
+  border-color: #E5E7EB !important;
+}
+.table th,
+.table td,
+.table thead th,
+.table tbody + tbody { /* These are common selectors Bootstrap uses for table borders */
+  border-color: #E5E7EB !important;
+}
+
+/* Dropdown Menus */
+.dropdown-menu {
+  border-color: #E5E7EB !important;
+}
+
+/* Add any other specific component overrides here if they become apparent */
+/* For example, Bootstrap Modals (.modal-content) also have borders */
+.modal-content {
+    border-color: #E5E7EB !important;
 }
