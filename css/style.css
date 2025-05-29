@@ -21,7 +21,7 @@ body {
   padding: 10px 15px;
   font-size: 1.5em; /* Adjust as needed */
   font-weight: bold;
-  text-align: center;
+  text-align: left; /* Updated */
   margin-bottom: 20px;
 }
 
@@ -54,9 +54,10 @@ body {
 }
 
 .sidebar .nav-menu li a.active {
-  background-color: #E4EBF9; /* Active background from user requirement */
-  color: #2563EB; /* Active text color from user requirement */
-  font-weight: bold; /* Optional: make active text bold */
+  background-color: #E4EBF9;
+  color: #2563EB;
+  /* font-weight: bold; */ /* Removed */
+  border-left: 4px solid #2563EB; /* Added */
 }
 
 /* Main Content Area */
