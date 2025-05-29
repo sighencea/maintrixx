@@ -12,7 +12,7 @@ body {
   position: fixed; /* Fixed Sidebar (stays in place on scroll) */
   top: 0;
   left: 0;
-  background-color: #f8f9fa; /* Light grey background, adjust as needed */
+  background-color: #F9FAFB !important; /* Light grey background, adjust as needed */
   padding-top: 20px;
   border-right: 1px solid #dee2e6; /* Optional border */
 }
@@ -66,6 +66,7 @@ body {
   height: 100vh; /* Optional: if you want main content to also be full height */
   overflow-y: auto; /* Allow scrolling for main content if it overflows */
   position: relative; /* Added to ensure absolute positioning of children is relative to this */
+  background-color: #FFFFFF;
 }
 
 /* Top Bar Styles */
@@ -74,7 +75,7 @@ body {
   justify-content: space-between; /* Aligns items to left and right */
   align-items: center;
   padding: 0 20px; /* Adjust padding as needed */
-  background-color: #f8f9fa; /* Same as sidebar background */
+  background-color: #F9FAFB !important; /* Same as sidebar background */
   border-bottom: 1px solid #dee2e6; /* Optional border */
   height: 60px; /* Adjust height as needed */
   box-sizing: border-box;
@@ -218,12 +219,21 @@ body {
 }
 
 .property-card-img {
-  height: 200px;
+  height: 192px; /* Updated */
   object-fit: cover;
   width: 100%; /* Ensure it spans the card width */
+  border-top-left-radius: 8px; /* Added/Updated */
+  border-top-right-radius: 8px; /* Added/Updated */
+  border-bottom-left-radius: 0px; /* Added/Updated */
+  border-bottom-right-radius: 0px; /* Added/Updated */
 }
 
 /* Property Page Specific Card Styling */
+.properties-page-content .card {
+  border-radius: 8px !important;
+  /* Bootstrap's .card already has border-radius. This custom rule makes it more specific.
+     h-100 and shadow-sm are applied via HTML classes and should not be affected. */
+}
 
 /* Card Title: Font semi bold, 16px, #111827 */
 .properties-page-content .card .card-title {
@@ -247,6 +257,11 @@ body {
   font-weight: 500 !important; /* medium */
   font-size: 16px !important;
   color: #2563EB !important;
+  text-decoration: none !important; /* Added */
+}
+
+.properties-page-content .card a.text-primary.small:hover {
+  text-decoration: none !important; /* Added */
 }
 
 /* Custom Task Status Badge Styling */
@@ -258,8 +273,7 @@ body {
   align-items: center;
   padding-left: 0.75em; /* Adjust padding as needed with fixed height */
   padding-right: 0.75em;
-  border-radius: 0.375rem; /* Bootstrap's default rounded-pill is often too round for fixed height text */
-                           /* Using a standard border-radius, or adjust as preferred. */
+  border-radius: 9999px; /* Updated value */
 }
 
 .badge-custom-red {
