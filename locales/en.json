@@ -75,5 +75,86 @@
       "bodyPlaceholder": "This is where the full notification content will appear.",
       "closeButton": "Close"
     }
+  },
+  "accountPage": {
+    "title": "Account Settings - Property Hub",
+    "header": "Account Settings",
+    "profile": {
+      "title": "Profile Information",
+      "fullNameLabel": "Full Name",
+      "emailLabel": "Email Address",
+      "phoneLabel": "Phone Number",
+      "languageLabel": "Language",
+      "langEn": "English",
+      "langDe": "German",
+      "editButton": "Edit Profile"
+    },
+    "password": {
+      "title": "Change Password",
+      "currentLabel": "Current Password",
+      "newLabel": "New Password",
+      "confirmLabel": "Confirm New Password",
+      "changeButton": "Change Password"
+    },
+    "company": {
+      "title": "Company Settings",
+      "logoLabel": "Company Logo",
+      "logoHelpText": "Upload a new logo (e.g., PNG, JPG up to 2MB). Display only, no actual upload.",
+      "nameLabel": "Company Name",
+      "phoneLabel": "Company Phone",
+      "emailLabel": "Company Contact Email",
+      "streetLabel": "Street Address",
+      "cityLabel": "City",
+      "stateLabel": "State/Province",
+      "zipLabel": "Zip/Postal Code",
+      "countryLabel": "Country",
+      "websiteLabel": "Company Website (Optional)",
+      "taxIdLabel": "Tax ID / VAT Number (Optional)",
+      "saveButton": "Save Company Settings"
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "emailTasks": "Email me about new task assignments",
+      "smsAlerts": "Send SMS for urgent property alerts",
+      "desktopMessages": "Desktop notifications for new messages",
+      "saveButton": "Save Preferences"
+    }
+  },
+  "mainJs": {
+    "signup": {
+      "fillFields": "Please fill in all required fields.",
+      "passwordLength": "Password must be at least 6 characters long.",
+      "supabaseInitError": "Supabase client not initialized. Check console.",
+      "errorMessage": "Error: {{message}}",
+      "accountExists": "Account exists, check email for confirmation.",
+      "success": "Sign-up successful! Please check your email to confirm.",
+      "successUnexpected": "Sign-up successful, awaiting confirmation (unexpected response). Check email.",
+      "unexpectedError": "Unexpected sign-up error."
+    },
+    "login": {
+      "fillFields": "Please fill in both email and password.",
+      "supabaseInitError": "Supabase client not initialized. Check console.",
+      "loginFailed": "Login failed: {{message}}",
+      "loginFailedCheckCredentials": "Login failed. Check credentials.",
+      "success": "Login successful! Redirecting...",
+      "unexpectedError": "Unexpected login error."
+    }
+  },
+  "notificationsJs": {
+    "markUnread": "Mark as unread",
+    "markRead": "Mark as read"
+  },
+  "dashboardCheckJs": {
+    "loginRequiredAlert": "You need to be logged in to view this page. Redirecting to login...",
+    "signOutSupabaseError": "Error: Supabase client not available for sign out.",
+    "signOutErrorAlert": "Error signing out: {{message}}",
+    "signOutSuccessAlert": "You have been successfully signed out.",
+    "signOutUnexpectedError": "An unexpected error occurred during sign out.",
+    "profileSupabaseError": "Could not load user profile (Supabase client error).",
+    "profileLoadError": "Error loading your profile.",
+    "profileLoadErrorMessage": "Could not load profile: {{message}}",
+    "welcomeMessage": "Welcome, {{displayName}}! This is your new dashboard page.",
+    "welcomeProfileNotFound": "Welcome! Profile not found. This is your new dashboard page.",
+    "profileUnexpectedError": "An unexpected error occurred loading your profile."
   }
 }

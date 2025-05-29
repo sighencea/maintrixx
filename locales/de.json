@@ -75,5 +75,86 @@
       "bodyPlaceholder": "Hier erscheint der vollständige Inhalt der Benachrichtigung.",
       "closeButton": "Schließen"
     }
+  },
+  "accountPage": {
+    "title": "Kontoeinstellungen - Immobilien Hub",
+    "header": "Kontoeinstellungen",
+    "profile": {
+      "title": "Profilinformationen",
+      "fullNameLabel": "Vollständiger Name",
+      "emailLabel": "E-Mail-Addresse",
+      "phoneLabel": "Telefonnummer",
+      "languageLabel": "Sprache",
+      "langEn": "Englisch",
+      "langDe": "Deutsch",
+      "editButton": "Profil bearbeiten"
+    },
+    "password": {
+      "title": "Passwort ändern",
+      "currentLabel": "Aktuelles Passwort",
+      "newLabel": "Neues Passwort",
+      "confirmLabel": "Neues Passwort bestätigen",
+      "changeButton": "Passwort ändern"
+    },
+    "company": {
+      "title": "Firmeneinstellungen",
+      "logoLabel": "Firmenlogo",
+      "logoHelpText": "Laden Sie ein neues Logo hoch (z.B. PNG, JPG bis zu 2MB). Nur Anzeige, kein tatsächlicher Upload.",
+      "nameLabel": "Firmenname",
+      "phoneLabel": "Firmentelefon",
+      "emailLabel": "Firmenkontakt E-Mail",
+      "streetLabel": "Straßenadresse",
+      "cityLabel": "Stadt",
+      "stateLabel": "Staat/Provinz",
+      "zipLabel": "PLZ/Postleitzahl",
+      "countryLabel": "Land",
+      "websiteLabel": "Firmenwebseite (Optional)",
+      "taxIdLabel": "Steuer-ID / USt-IdNr. (Optional)",
+      "saveButton": "Firmeneinstellungen speichern"
+    },
+    "notifications": {
+      "title": "Benachrichtigungseinstellungen",
+      "emailTasks": "E-Mail bei neuen Aufgaben Zuweisungen",
+      "smsAlerts": "SMS für dringende Immobilien Warnungen senden",
+      "desktopMessages": "Desktop-Benachrichtigungen für neue Nachrichten",
+      "saveButton": "Einstellungen speichern"
+    }
+  },
+  "mainJs": {
+    "signup": {
+      "fillFields": "Bitte füllen Sie alle Pflichtfelder aus.",
+      "passwordLength": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "supabaseInitError": "Supabase-Client nicht initialisiert. Überprüfen Sie die Konsole.",
+      "errorMessage": "Fehler: {{message}}",
+      "accountExists": "Konto existiert bereits, überprüfen Sie Ihre E-Mails zur Bestätigung.",
+      "success": "Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mails zur Bestätigung.",
+      "successUnexpected": "Registrierung erfolgreich, warte auf Bestätigung (unerwartete Antwort). E-Mail prüfen.",
+      "unexpectedError": "Unerwarteter Registrierungsfehler."
+    },
+    "login": {
+      "fillFields": "Bitte geben Sie sowohl E-Mail als auch Passwort ein.",
+      "supabaseInitError": "Supabase-Client nicht initialisiert. Überprüfen Sie die Konsole.",
+      "loginFailed": "Anmeldung fehlgeschlagen: {{message}}",
+      "loginFailedCheckCredentials": "Anmeldung fehlgeschlagen. Überprüfen Sie Ihre Anmeldedaten.",
+      "success": "Anmeldung erfolgreich! Weiterleitung...",
+      "unexpectedError": "Unerwarteter Anmeldefehler."
+    }
+  },
+  "notificationsJs": {
+    "markUnread": "Als ungelesen markieren",
+    "markRead": "Als gelesen markieren"
+  },
+  "dashboardCheckJs": {
+    "loginRequiredAlert": "Sie müssen angemeldet sein, um diese Seite anzuzeigen. Weiterleitung zur Anmeldung...",
+    "signOutSupabaseError": "Fehler: Supabase-Client für die Abmeldung nicht verfügbar.",
+    "signOutErrorAlert": "Fehler beim Abmelden: {{message}}",
+    "signOutSuccessAlert": "Sie wurden erfolgreich abgemeldet.",
+    "signOutUnexpectedError": "Während der Abmeldung ist ein unerwarteter Fehler aufgetreten.",
+    "profileSupabaseError": "Benutzerprofil konnte nicht geladen werden (Supabase-Client-Fehler).",
+    "profileLoadError": "Fehler beim Laden Ihres Profils.",
+    "profileLoadErrorMessage": "Profil konnte nicht geladen werden: {{message}}",
+    "welcomeMessage": "Willkommen, {{displayName}}! Dies ist Ihre neue Dashboard-Seite.",
+    "welcomeProfileNotFound": "Willkommen! Profil nicht gefunden. Dies ist Ihre neue Dashboard-Seite.",
+    "profileUnexpectedError": "Beim Laden Ihres Profils ist ein unerwarteter Fehler aufgetreten."
   }
 }

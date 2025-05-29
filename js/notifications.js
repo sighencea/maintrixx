@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (targetButton.classList.contains('mark-as-read-btn')) {
       event.stopPropagation(); 
       notificationItem.classList.add('notification-read');
-      targetButton.textContent = 'Mark as unread';
+      targetButton.textContent = i18next.t('notificationsJs.markUnread');
       targetButton.classList.remove('mark-as-read-btn', 'btn-outline-secondary');
       targetButton.classList.add('mark-as-unread-btn', 'btn-secondary');
       
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (targetButton.classList.contains('mark-as-unread-btn')) {
       event.stopPropagation(); 
       notificationItem.classList.remove('notification-read');
-      targetButton.textContent = 'Mark as read';
+      targetButton.textContent = i18next.t('notificationsJs.markRead');
       targetButton.classList.remove('mark-as-unread-btn', 'btn-secondary');
       targetButton.classList.add('mark-as-read-btn', 'btn-outline-secondary');
 
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Find the "Mark as read" button within this item
         const button = item.querySelector('.mark-as-read-btn'); // Only target unread buttons
         if (button) {
-          button.textContent = 'Mark as unread';
+          button.textContent = i18next.t('notificationsJs.markUnread');
           button.classList.remove('mark-as-read-btn', 'btn-outline-secondary');
           button.classList.add('mark-as-unread-btn', 'btn-secondary');
         }
