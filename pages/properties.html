@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Properties</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <div class="sidebar-overlay d-lg-none"></div> <!-- Add this line -->
+  <div id="sidebar" class="sidebar">
+    <div class="logo">
+      Property Hub
+    </div>
+    <ul class="nav-menu">
+      <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+      <li><a href="properties.html" class="active"><i class="fas fa-building"></i><span>Properties</span></a></li>
+      <li><a href="#"><i class="fas fa-tasks"></i><span>Tasks</span></a></li>
+      <li><a href="#"><i class="fas fa-users"></i><span>Staff</span></a></li>
+      <li><a href="notifications.html"><i class="fas fa-bell"></i><span>Notifications</span></a></li>
+      <li id="signOutButtonLi"><button id="signOutButton" class="btn btn-danger">Sign Out</button></li>
+    </ul>
+  </div>
+
+  <div id="mainContent" class="main-content">
+    <div class="top-bar">
+      <button class="btn d-lg-none me-2" type="button" id="sidebarToggler" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="page-title">
+        <span>Properties</span>
+      </div>
+      <div class="top-bar-icons">
+        <a href="notifications.html"><i class="fas fa-bell"></i></a>
+        <a href="account.html"><i class="fas fa-user-cog"></i></a>
+      </div>
+    </div>
+    
+    <div class="container mt-5 p-4">
+      <!-- Search and Action Buttons -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <input type="text" placeholder="Search properties..." class="form-control w-33">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-secondary me-2">Filter</button>
+          <button class="btn btn-outline-secondary me-2">☰</button>
+          <button class="btn btn-primary">+ Add Property</button>
+        </div>
+      </div>
+    
+      <!-- Properties Grid -->
+      <div class="row g-4">
+        <!-- Property Card 1 -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <img src="../assets/images/sunset.svg" alt="Sunset Apartments" class="card-img-top property-card-img">
+            <div class="card-body d-flex flex-column">
+              <h3 class="card-title">Sunset Apartments</h3>
+              <p class="card-text text-muted small">123 Maple Street, Seattle, WA</p>
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                <span class="badge bg-danger rounded-pill px-3 py-1">3 Tasks</span>
+                <a href="#" class="text-primary small">View Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Property Card 2 -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <img src="../assets/images/pine-valley.svg" alt="Pine Valley Complex" class="card-img-top property-card-img">
+            <div class="card-body d-flex flex-column">
+              <h3 class="card-title">Pine Valley Complex</h3>
+              <p class="card-text text-muted small">456 Oak Avenue, Portland, OR</p>
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                <span class="badge bg-warning text-dark rounded-pill px-3 py-1">5 Tasks</span>
+                <a href="#" class="text-primary small">View Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Property Card 3 -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <img src="../assets/images/riverside.svg" alt="Riverside Towers" class="card-img-top property-card-img">
+            <div class="card-body d-flex flex-column">
+              <h3 class="card-title">Riverside Towers</h3>
+              <p class="card-text text-muted small">789 River Road, Vancouver, BC</p>
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                <span class="badge bg-success rounded-pill px-3 py-1">No Active Tasks</span>
+                <a href="#" class="text-primary small">View Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Property Card 4 -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <img src="../assets/images/highland.svg" alt="Highland Park Residences" class="card-img-top property-card-img">
+            <div class="card-body d-flex flex-column">
+              <h3 class="card-title">Highland Park Residences</h3>
+              <p class="card-text text-muted small">321 Hill Street, San Francisco, CA</p>
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                <span class="badge bg-danger rounded-pill px-3 py-1">2 Tasks</span>
+                <a href="#" class="text-primary small">View Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Property Card 5 -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <img src="../assets/images/ocean-view.svg" alt="Ocean View Condos" class="card-img-top property-card-img">
+            <div class="card-body d-flex flex-column">
+              <h3 class="card-title">Ocean View Condos</h3>
+              <p class="card-text text-muted small">654 Beach Blvd, San Diego, CA</p>
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                <span class="badge bg-success rounded-pill px-3 py-1">No Active Tasks</span>
+                <a href="#" class="text-primary small">View Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Property Card 6 -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <img src="../assets/images/metropolitan.svg" alt="Metropolitan Heights" class="card-img-top property-card-img">
+            <div class="card-body d-flex flex-column">
+              <h3 class="card-title">Metropolitan Heights</h3>
+              <p class="card-text text-muted small">987 City Center, Los Angeles, CA</p>
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                <span class="badge bg-warning text-dark rounded-pill px-3 py-1">4 Tasks</span>
+                <a href="#" class="text-primary small">View Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Pagination -->
+      <div class="d-flex justify-content-between align-items-center mt-5">
+        <p class="text-muted small mb-0">Showing 1–6 of 24 properties</p>
+        <nav aria-label="Properties navigation">
+          <ul class="pagination mb-0">
+            <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">4</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="../js/supabase-client.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../js/dashboard_check.js"></script> 
+  <script src="../js/main.js"></script>
+</body>
+</html>

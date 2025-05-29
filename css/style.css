@@ -216,3 +216,9 @@ body {
 .list-group-item.notification-read small {
   /* Optional: could make text color lighter if needed, but opacity might be enough */
 }
+
+.property-card-img {
+  height: 200px;
+  object-fit: cover;
+  width: 100%; /* Ensure it spans the card width */
+}
