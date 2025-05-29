@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Account Settings</title>
+  <title data-i18n-title="accountPage.title">Account Settings</title>
   <script src="https://cdn.jsdelivr.net/npm/i18next/i18next.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
@@ -12,16 +12,16 @@
 <body>
   <div class="sidebar-overlay d-lg-none"></div> <!-- Add this line -->
   <div id="sidebar" class="sidebar">
-    <div class="logo">
+    <div class="logo" data-i18n="appTitle">
       Property Hub
     </div>
     <ul class="nav-menu">
-      <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-      <li><a href="properties.html"><i class="fas fa-building"></i><span>Properties</span></a></li>
-      <li><a href="#"><i class="fas fa-tasks"></i><span>Tasks</span></a></li>
-      <li><a href="#"><i class="fas fa-users"></i><span>Staff</span></a></li>
-      <li><a href="notifications.html"><i class="fas fa-bell"></i><span>Notifications</span></a></li>
-      <li id="signOutButtonLi"><button id="signOutButton" class="btn btn-danger">Sign Out</button></li>
+      <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span data-i18n="nav.dashboard">Dashboard</span></a></li>
+      <li><a href="properties.html"><i class="fas fa-building"></i><span data-i18n="nav.properties">Properties</span></a></li>
+      <li><a href="#"><i class="fas fa-tasks"></i><span data-i18n="nav.tasks">Tasks</span></a></li>
+      <li><a href="#"><i class="fas fa-users"></i><span data-i18n="nav.staff">Staff</span></a></li>
+      <li><a href="notifications.html"><i class="fas fa-bell"></i><span data-i18n="nav.notifications">Notifications</span></a></li>
+      <li id="signOutButtonLi"><button id="signOutButton" class="btn btn-danger" data-i18n="nav.signOut">Sign Out</button></li>
     </ul>
   </div>
 
@@ -31,7 +31,7 @@
         <i class="fas fa-bars"></i>
       </button>
       <div class="page-title">
-        <span>Account Settings</span>
+        <span data-i18n="accountPage.header">Account Settings</span>
       </div>
       <div class="top-bar-icons">
         <a href="notifications.html"><i class="fas fa-bell"></i></a>
@@ -43,7 +43,7 @@
     <div class="container mt-5">
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0">Profile Information</h5>
+          <h5 class="mb-0" data-i18n="accountPage.profile.title">Profile Information</h5>
         </div>
         <div class="card-body">
           <div class="row align-items-center">
@@ -57,18 +57,25 @@
             <div class="col-md-9">
               <form>
                 <div class="mb-3">
-                  <label for="fullName" class="form-label">Full Name</label>
+                  <label for="fullName" class="form-label" data-i18n="accountPage.profile.fullNameLabel">Full Name</label>
                   <input type="text" class="form-control" id="fullName" value="John Doe (Dummy Data)" readonly>
                 </div>
                 <div class="mb-3">
-                  <label for="emailAddress" class="form-label">Email Address</label>
+                  <label for="emailAddress" class="form-label" data-i18n="accountPage.profile.emailLabel">Email Address</label>
                   <input type="email" class="form-control" id="emailAddress" value="john.doe@example.com (Dummy Data)" readonly>
                 </div>
                 <div class="mb-3">
-                  <label for="phoneNumber" class="form-label">Phone Number</label>
+                  <label for="phoneNumber" class="form-label" data-i18n="accountPage.profile.phoneLabel">Phone Number</label>
                   <input type="tel" class="form-control" id="phoneNumber" value="+1 234 567 8900 (Dummy Data)" readonly>
                 </div>
-                <button type="button" class="btn btn-primary">Edit Profile</button> 
+                <div class="mb-3">
+                  <label for="languageSelector" class="form-label" data-i18n="accountPage.profile.languageLabel">Language</label>
+                  <select class="form-select" id="languageSelector">
+                    <option value="en" data-i18n="accountPage.profile.langEn">English</option>
+                    <option value="de" data-i18n="accountPage.profile.langDe">German</option>
+                  </select>
+                </div>
+                <button type="button" class="btn btn-primary" data-i18n="accountPage.profile.editButton">Edit Profile</button> 
                 <!-- For now, this button won't do anything -->
               </form>
             </div>
@@ -78,23 +85,23 @@
 
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0">Change Password</h5>
+          <h5 class="mb-0" data-i18n="accountPage.password.title">Change Password</h5>
         </div>
         <div class="card-body">
           <form>
             <div class="mb-3">
-              <label for="currentPassword" class="form-label">Current Password</label>
+              <label for="currentPassword" class="form-label" data-i18n="accountPage.password.currentLabel">Current Password</label>
               <input type="password" class="form-control" id="currentPassword">
             </div>
             <div class="mb-3">
-              <label for="newPassword" class="form-label">New Password</label>
+              <label for="newPassword" class="form-label" data-i18n="accountPage.password.newLabel">New Password</label>
               <input type="password" class="form-control" id="newPassword">
             </div>
             <div class="mb-3">
-              <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+              <label for="confirmNewPassword" class="form-label" data-i18n="accountPage.password.confirmLabel">Confirm New Password</label>
               <input type="password" class="form-control" id="confirmNewPassword">
             </div>
-            <button type="submit" class="btn btn-success">Change Password</button> 
+            <button type="submit" class="btn btn-success" data-i18n="accountPage.password.changeButton">Change Password</button> 
             <!-- type="submit" is more appropriate for a form, though no action is wired up -->
           </form>
         </div>
@@ -102,103 +109,103 @@
 
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0">Company Settings</h5>
+          <h5 class="mb-0" data-i18n="accountPage.company.title">Company Settings</h5>
         </div>
         <div class="card-body">
           <form>
             <div class="row">
               <div class="col-md-12 mb-3">
-                <label class="form-label">Company Logo</label>
+                <label class="form-label" data-i18n="accountPage.company.logoLabel">Company Logo</label>
                 <div class="mb-2 text-center"> <!-- Added text-center for better icon alignment if it's block/inline-block -->
                   <!-- Placeholder for current logo -->
                   <i class="fas fa-palette fa-4x text-secondary"></i>
                 </div>
                 <input class="form-control form-control-sm" type="file" id="companyLogoUpload">
-                <small class="form-text text-muted">Upload a new logo (e.g., PNG, JPG up to 2MB). Display only, no actual upload.</small>
+                <small class="form-text text-muted" data-i18n="accountPage.company.logoHelpText">Upload a new logo (e.g., PNG, JPG up to 2MB). Display only, no actual upload.</small>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="companyName" class="form-label">Company Name</label>
+                <label for="companyName" class="form-label" data-i18n="accountPage.company.nameLabel">Company Name</label>
                 <input type="text" class="form-control" id="companyName" value="Example Corp. (Dummy)">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="companyPhone" class="form-label">Company Phone</label>
+                <label for="companyPhone" class="form-label" data-i18n="accountPage.company.phoneLabel">Company Phone</label>
                 <input type="tel" class="form-control" id="companyPhone" value="+1 555 123 4567 (Dummy)">
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="companyEmail" class="form-label">Company Contact Email</label>
+              <label for="companyEmail" class="form-label" data-i18n="accountPage.company.emailLabel">Company Contact Email</label>
               <input type="email" class="form-control" id="companyEmail" value="contact@examplecorp.com (Dummy)">
             </div>
 
             <div class="mb-3">
-              <label for="companyAddressStreet" class="form-label">Street Address</label>
+              <label for="companyAddressStreet" class="form-label" data-i18n="accountPage.company.streetLabel">Street Address</label>
               <textarea class="form-control" id="companyAddressStreet" rows="2">123 Main Street (Dummy)</textarea>
             </div>
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="companyAddressCity" class="form-label">City</label>
+                <label for="companyAddressCity" class="form-label" data-i18n="accountPage.company.cityLabel">City</label>
                 <input type="text" class="form-control" id="companyAddressCity" value="Anytown (Dummy)">
               </div>
               <div class="col-md-3 mb-3">
-                <label for="companyAddressState" class="form-label">State/Province</label>
+                <label for="companyAddressState" class="form-label" data-i18n="accountPage.company.stateLabel">State/Province</label>
                 <input type="text" class="form-control" id="companyAddressState" value="CA (Dummy)">
               </div>
               <div class="col-md-2 mb-3">
-                <label for="companyAddressZip" class="form-label">Zip/Postal Code</label>
+                <label for="companyAddressZip" class="form-label" data-i18n="accountPage.company.zipLabel">Zip/Postal Code</label>
                 <input type="text" class="form-control" id="companyAddressZip" value="90210 (Dummy)">
               </div>
               <div class="col-md-3 mb-3">
-                <label for="companyAddressCountry" class="form-label">Country</label>
+                <label for="companyAddressCountry" class="form-label" data-i18n="accountPage.company.countryLabel">Country</label>
                 <input type="text" class="form-control" id="companyAddressCountry" value="USA (Dummy)">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="companyWebsite" class="form-label">Company Website (Optional)</label>
+                <label for="companyWebsite" class="form-label" data-i18n="accountPage.company.websiteLabel">Company Website (Optional)</label>
                 <input type="url" class="form-control" id="companyWebsite" value="https://www.examplecorp.com (Dummy)">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="companyTaxId" class="form-label">Tax ID / VAT Number (Optional)</label>
+                <label for="companyTaxId" class="form-label" data-i18n="accountPage.company.taxIdLabel">Tax ID / VAT Number (Optional)</label>
                 <input type="text" class="form-control" id="companyTaxId" value="VAT123456789 (Dummy)">
               </div>
             </div>
             
-            <button type="submit" class="btn btn-primary">Save Company Settings</button>
+            <button type="submit" class="btn btn-primary" data-i18n="accountPage.company.saveButton">Save Company Settings</button>
           </form>
         </div>
       </div>
 
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0">Notification Preferences</h5>
+          <h5 class="mb-0" data-i18n="accountPage.notifications.title">Notification Preferences</h5>
         </div>
         <div class="card-body">
           <form>
             <div class="form-check mb-2">
               <input class="form-check-input" type="checkbox" value="" id="emailTasks" checked>
-              <label class="form-check-label" for="emailTasks">
+              <label class="form-check-label" for="emailTasks" data-i18n="accountPage.notifications.emailTasks">
                 Email me about new task assignments (Dummy Data)
               </label>
             </div>
             <div class="form-check mb-2">
               <input class="form-check-input" type="checkbox" value="" id="smsAlerts">
-              <label class="form-check-label" for="smsAlerts">
+              <label class="form-check-label" for="smsAlerts" data-i18n="accountPage.notifications.smsAlerts">
                 Send SMS for urgent property alerts (Dummy Data)
               </label>
             </div>
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" value="" id="desktopMessages" checked>
-              <label class="form-check-label" for="desktopMessages">
+              <label class="form-check-label" for="desktopMessages" data-i18n="accountPage.notifications.desktopMessages">
                 Desktop notifications for new messages (Dummy Data)
               </label>
             </div>
-            <button type="submit" class="btn btn-info">Save Preferences</button>
+            <button type="submit" class="btn btn-info" data-i18n="accountPage.notifications.saveButton">Save Preferences</button>
             <!-- type="submit" is more appropriate, though no action is wired up -->
           </form>
         </div>
@@ -212,5 +219,26 @@
   <script src="../js/main.js"></script> <!-- This is the new line -->
   <script src="../js/notifications.js"></script> <!-- This is the new line -->
   <script type="module" src="../js/i18n.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const languageSelector = document.getElementById('languageSelector');
+    if (languageSelector) {
+      // Set initial value based on i18next's current language after it has initialized
+      if (window.i18next && window.i18next.isInitialized) {
+        languageSelector.value = window.i18next.language;
+      } else {
+        // If i18next not ready, rely on initI18n to call updateLanguageSelector
+      }
+
+      languageSelector.addEventListener('change', function() {
+        if (window.changeLanguage) {
+          window.changeLanguage(this.value);
+        } else {
+          console.error('changeLanguage function not found.');
+        }
+      });
+    }
+  });
+</script>
 </body>
 </html>

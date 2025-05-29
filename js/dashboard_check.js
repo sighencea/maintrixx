@@ -13,7 +13,7 @@
     }
     if (!data.session) {
       console.log('Dashboard Check: No active session found. Redirecting to login.');
-      alert('You need to be logged in to view this page. Redirecting to login...');
+      alert(i18next.t('dashboardCheckJs.loginRequiredAlert'));
       window.location.href = '../index.html'; 
     } else { 
       console.log('Dashboard Check: Active session found. User can stay.'); 
@@ -30,23 +30,23 @@
         console.log('Sign Out button clicked.');
         if (!window._supabase) { 
           console.error('Sign Out: Supabase client not available.');
-          alert('Error: Supabase client not available for sign out.');
+          alert(i18next.t('dashboardCheckJs.signOutSupabaseError'));
           return; 
         }
         try {
           const { error } = await window._supabase.auth.signOut();
           if (error) { 
             console.error('Error signing out:', error); 
-            alert('Error signing out: ' + error.message); 
+            alert(i18next.t('dashboardCheckJs.signOutErrorAlert', { message: error.message })); 
           } else {
             console.log('Successfully signed out.');
             localStorage.removeItem('onboardingComplete'); // Clear old flag
-            alert('You have been successfully signed out.');
+            alert(i18next.t('dashboardCheckJs.signOutSuccessAlert'));
             window.location.href = '../index.html'; // Redirect to login page
           }
         } catch (e) { 
           console.error('Catch error during sign out:', e); 
-          alert('An unexpected error occurred during sign out.'); 
+          alert(i18next.t('dashboardCheckJs.signOutUnexpectedError')); 
         }
       });
     } else { 
@@ -64,7 +64,7 @@
 
     if (!window._supabase) {
       console.error('Fetch Profile: Supabase client not available.');
-      welcomeMessageElement.textContent = 'Could not load user profile (Supabase client error).';
+      welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileSupabaseError');
       return;
     }
 
@@ -81,26 +81,26 @@
 
       if (profileError) {
         console.error('Error fetching profile:', profileError);
-        welcomeMessageElement.textContent = 'Error loading your profile.';
+        welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileLoadError');
         // Display a more user-friendly error or log it appropriately
         const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger mt-2';
-        errorDiv.textContent = 'Could not load profile: ' + profileError.message;
+        errorDiv.textContent = i18next.t('dashboardCheckJs.profileLoadErrorMessage', { message: profileError.message });
         welcomeMessageElement.after(errorDiv); // Display error below welcome message
       } else if (profileData) {
         // If first_name is null or empty, provide a generic welcome.
         const displayName = profileData.first_name ? profileData.first_name : 'User';
-        welcomeMessageElement.textContent = `Welcome, ${displayName}! This is your new dashboard page.`;
+        welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.welcomeMessage', { displayName: displayName });
         console.log('Profile data:', profileData);
       } else {
         // This case (no error, no data with .single()) should ideally not happen if RLS allows access
         // and the profile row exists. Could mean profile row doesn't exist for this auth.uid().
         console.warn('No profile data returned for user:', user.id);
-        welcomeMessageElement.textContent = 'Welcome! Profile not found. This is your new dashboard page.';
+        welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.welcomeProfileNotFound');
       }
     } catch (catchError) {
       console.error('Catch error fetching profile:', catchError);
-      welcomeMessageElement.textContent = 'An unexpected error occurred loading your profile.';
+      welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileUnexpectedError');
     }
   }
 

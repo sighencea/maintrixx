@@ -12,12 +12,12 @@ document.addEventListener('DOMContentLoaded', function () {
       const password = document.getElementById('signupPassword').value;
       
       if (!firstName || !email || !password) { 
-        signupMessage.textContent = 'Please fill in all required fields.';
+        signupMessage.textContent = i18next.t('mainJs.signup.fillFields');
         signupMessage.className = 'alert alert-warning';
         return; 
       }
       if (password.length < 6) { 
-        signupMessage.textContent = 'Password must be at least 6 characters long.';
+        signupMessage.textContent = i18next.t('mainJs.signup.passwordLength');
         signupMessage.className = 'alert alert-warning';
         return; 
       }
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       try {
         if (!window._supabase) { 
-          signupMessage.textContent = 'Supabase client not initialized. Check console.'; 
+          signupMessage.textContent = i18next.t('mainJs.signup.supabaseInitError'); 
           signupMessage.className = 'alert alert-danger';
           console.error('Supabase client not available for sign-up.'); 
           localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear on error
@@ -38,26 +38,26 @@ document.addEventListener('DOMContentLoaded', function () {
           { data: { first_name: firstName } } // This metadata might be handled by Supabase triggers to populate profiles
         );
         if (error) { 
-          signupMessage.textContent = 'Error: ' + error.message; 
+          signupMessage.textContent = i18next.t('mainJs.signup.errorMessage', { message: error.message }); 
           signupMessage.className = 'alert alert-danger'; 
           localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear on error
         } else if (data.user && data.user.identities && data.user.identities.length === 0) { 
-          signupMessage.textContent = 'Account exists, check email for confirmation.'; 
+          signupMessage.textContent = i18next.t('mainJs.signup.accountExists'); 
           signupMessage.className = 'alert alert-info'; 
           localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear if user already exists
         } else if (data.user) { 
-          signupMessage.textContent = 'Sign-up successful! Please check your email to confirm.'; 
+          signupMessage.textContent = i18next.t('mainJs.signup.success'); 
           signupMessage.className = 'alert alert-success'; 
           signupForm.reset(); 
           // localStorage item remains for login to pick up
         } else { 
-          signupMessage.textContent = 'Sign-up successful, awaiting confirmation (unexpected response). Check email.'; 
+          signupMessage.textContent = i18next.t('mainJs.signup.successUnexpected'); 
           signupMessage.className = 'alert alert-info';
           localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear on other outcomes
         }
       } catch (e) { 
         console.error('Sign-up catch:', e); 
-        signupMessage.textContent = 'Unexpected sign-up error.'; 
+        signupMessage.textContent = i18next.t('mainJs.signup.unexpectedError'); 
         signupMessage.className = 'alert alert-danger'; 
         localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear on catch
       }
@@ -75,20 +75,20 @@ document.addEventListener('DOMContentLoaded', function () {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
       if (!email || !password) { 
-        loginMessage.textContent = 'Please fill in both email and password.';
+        loginMessage.textContent = i18next.t('mainJs.login.fillFields');
         loginMessage.className = 'alert alert-warning';
         return; 
       }
       try {
         if (!window._supabase) { 
-          loginMessage.textContent = 'Supabase client not initialized. Check console.';
+          loginMessage.textContent = i18next.t('mainJs.login.supabaseInitError');
           loginMessage.className = 'alert alert-danger';
           console.error('Supabase client not available for login.'); return; 
         }
         const { data, error } = await window._supabase.auth.signInWithPassword({ email: email, password: password });
         
         if (error) { 
-          loginMessage.textContent = 'Login failed: ' + error.message; 
+          loginMessage.textContent = i18next.t('mainJs.login.loginFailed', { message: error.message }); 
           loginMessage.className = 'alert alert-danger'; 
         } else if (data.user) {
           // Login successful
@@ -110,18 +110,18 @@ document.addEventListener('DOMContentLoaded', function () {
             localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear item after attempt
           }
 
-          loginMessage.textContent = 'Login successful! Redirecting...';
+          loginMessage.textContent = i18next.t('mainJs.login.success');
           loginMessage.className = 'alert alert-success'; // Ensure success message is styled
           localStorage.setItem('onboardingComplete', 'true'); // Using this as a simple session flag proxy
           // Optionally reset form: loginForm.reset();
           window.location.href = 'pages/dashboard.html';
         } else { 
-          loginMessage.textContent = 'Login failed. Check credentials.'; 
+          loginMessage.textContent = i18next.t('mainJs.login.loginFailedCheckCredentials'); 
           loginMessage.className = 'alert alert-danger'; 
         }
       } catch (e) { 
         console.error('Login catch:', e); 
-        loginMessage.textContent = 'Unexpected login error.'; 
+        loginMessage.textContent = i18next.t('mainJs.login.unexpectedError'); 
         loginMessage.className = 'alert alert-danger'; 
       }
     });
