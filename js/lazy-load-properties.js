@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const propertiesContainer = document.querySelector('.properties-page-content .row.g-4');
-    const mainContent = document.getElementById('mainContent'); 
+    const mainContent = document.getElementById('mainContent');
 
     if (!propertiesContainer) {
         console.warn('Properties container for lazy loading not found.');
@@ -12,48 +12,84 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const allCards = Array.from(propertiesContainer.children);
-    const cardsPerLoad = 9;
     let cardsCurrentlyVisible = 0;
 
-    function hideAllCardsBeyondInitialLoad() {
-        let visibleCount = 0;
-        allCards.forEach((card, index) => {
-            if (index < cardsPerLoad) {
-                card.style.display = '';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        cardsCurrentlyVisible = visibleCount;
-        // console.log(`Initial visible cards: ${cardsCurrentlyVisible}, Total cards: ${allCards.length}`);
+    // Constants for controlling load behavior
+    const minimumInitialCards = 6; 
+    const initialBufferCards = 3;  
+    const cardsPerScrollLoad = 6; 
 
-        if (cardsCurrentlyVisible >= allCards.length) {
-            // console.log('All cards are initially visible. No lazy loading needed.');
-            return false;
+    // Initially hide all cards
+    allCards.forEach(card => {
+        card.style.display = 'none';
+    });
+
+    function performInitialPropertyLoad() {
+        console.log('Performing initial property card load...');
+        // console.log(`mainContent.clientHeight: ${mainContent.clientHeight}px`); // Optional: for debugging
+        // if (allCards.length > 0 && allCards[0]) { // Optional: for debugging
+        //     console.log(`Height of a typical card (allCards[0].offsetHeight): ${allCards[0].offsetHeight}px`);
+        // }
+
+        let scrollbarAppeared = false;
+        // let cardsVisibleBeforeScrollbarCheck = 0; // Optional: for debugging
+
+        for (let i = 0; i < allCards.length; i++) {
+            allCards[i].style.display = ''; // Revert to default display (e.g., 'block' or Bootstrap's grid style)
+            cardsCurrentlyVisible++;
+            // cardsVisibleBeforeScrollbarCheck = cardsCurrentlyVisible; // Optional: for debugging
+
+            // Check if minimum cards are visible AND scrollbar has appeared
+            if (cardsCurrentlyVisible >= minimumInitialCards && mainContent.scrollHeight > mainContent.clientHeight) {
+                // console.log(`Scrollbar condition met: mainContent.scrollHeight (${mainContent.scrollHeight}px) > mainContent.clientHeight (${mainContent.clientHeight}px)`); // Optional
+                // console.log(`Cards made visible one by one before scrollbar check: ${cardsVisibleBeforeScrollbarCheck}`); // Optional
+                scrollbarAppeared = true;
+                
+                let bufferLoaded = 0;
+                // Load initialBufferCards more cards
+                for (let j = i + 1; j < allCards.length && bufferLoaded < initialBufferCards; j++) {
+                    allCards[j].style.display = ''; 
+                    cardsCurrentlyVisible++;
+                    bufferLoaded++;
+                }
+                // console.log(`Loaded ${bufferLoaded} buffer cards.`); // Optional
+                break; 
+            }
         }
-        return true;
+
+        if (!scrollbarAppeared && cardsCurrentlyVisible > 0) {
+            // This means all cards were loaded, or minimum wasn't met before scrollbar check (e.g. few cards total)
+            // console.log(`All ${cardsCurrentlyVisible} cards loaded initially, or no scrollbar detected with current settings.`); // Optional
+        } else if (allCards.length > 0 && cardsCurrentlyVisible === 0) {
+            console.warn('No property cards made visible in initial load, but cards exist.');
+        }
+        
+        // console.log(`Total cards made visible by performInitialPropertyLoad (including buffer): ${cardsCurrentlyVisible}`); // Optional
+        const moreToLoad = cardsCurrentlyVisible < allCards.length;
+        // console.log(`Will scroll listener be added for property cards? ${moreToLoad}`); // Optional
+        return moreToLoad; 
     }
 
     function loadMoreCards() {
+        // console.log('loadMoreCards (properties) triggered.'); // Optional
+        // console.log(`Cards currently visible before adding more: ${cardsCurrentlyVisible}`); // Optional
+
         if (cardsCurrentlyVisible >= allCards.length) {
-            // This condition is unlikely to be met here if scroll listener is already removed,
-            // but as a safeguard:
-            mainContent.removeEventListener('scroll', scrollHandler); 
+            mainContent.removeEventListener('scroll', scrollHandler);
             return;
         }
 
         let newCardsLoadedCount = 0;
-        // console.log(`Attempting to load more cards. Currently visible: ${cardsCurrentlyVisible}`);
-        for (let i = cardsCurrentlyVisible; i < allCards.length && newCardsLoadedCount < cardsPerLoad; i++) {
-            allCards[i].style.display = '';
+        for (let i = cardsCurrentlyVisible; i < allCards.length && newCardsLoadedCount < cardsPerScrollLoad; i++) {
+            allCards[i].style.display = ''; 
             cardsCurrentlyVisible++;
             newCardsLoadedCount++;
         }
-        // console.log(`Loaded ${newCardsLoadedCount} more properties. Total visible: ${cardsCurrentlyVisible}`);
+        // console.log(`Number of new property cards added: ${newCardsLoadedCount}`); // Optional
+        // console.log(`Total property cards visible after adding more: ${cardsCurrentlyVisible}`); // Optional
 
         if (cardsCurrentlyVisible >= allCards.length) {
-            console.log('All properties lazy-loaded.');
+            console.log('All property cards have been lazy-loaded.');
             mainContent.removeEventListener('scroll', scrollHandler);
         }
     }
@@ -64,30 +100,25 @@ document.addEventListener('DOMContentLoaded', function () {
         scrollTimeout = setTimeout(() => {
             const scrollableHeight = mainContent.scrollHeight - mainContent.clientHeight;
             const currentScrollTop = mainContent.scrollTop;
-            
-            // console.log( // REMOVED
-            //     `Scroll Check (#mainContent): ScrollTop: ${Math.round(currentScrollTop)}, ` +
-            //     `ScrollableHeight: ${Math.round(scrollableHeight)}, ClientHeight: ${mainContent.clientHeight}`
-            // );
+            const buffer = 100; // Buffer in pixels to trigger load before reaching the very end
 
-            const buffer = 50; 
-            let triggerLoad = false;
-
-            if (currentScrollTop >= (scrollableHeight - buffer)) {
-                // console.log('Triggering load: Scrolled near bottom of #mainContent.'); // REMOVED
-                triggerLoad = true;
-            }
-
-            if (triggerLoad) {
+            // Trigger if scrolled near the bottom OR if the content is very short (scrollbar might not be obvious)
+            if (currentScrollTop >= (scrollableHeight - buffer) || scrollableHeight < buffer) {
+                // console.log('Scroll trigger activated for loading more property cards.'); // Optional
                 loadMoreCards();
             }
-        }, 50); 
+        }, 50); // Debounce time
     };
-    
-    if (hideAllCardsBeyondInitialLoad()) {
-        // console.log('Scroll listener added to #mainContent.'); // REMOVED
-        mainContent.addEventListener('scroll', scrollHandler, { passive: true }); 
+
+    // Main execution logic
+    if (allCards.length > 0) {
+        if (performInitialPropertyLoad()) { 
+            // console.log('Scroll listener attached for lazy loading remaining property cards.'); // Optional
+            mainContent.addEventListener('scroll', scrollHandler, { passive: true });
+        } else {
+            // console.log('All property cards fit in viewport or were loaded initially. No scroll listener needed.'); // Optional
+        }
     } else {
-        // console.log('Scroll listener NOT added as all cards are initially visible or elements missing.'); // REMOVED
+        console.warn('No property cards found to lazy load.');
     }
 });
