@@ -205,5 +205,16 @@
     "title": "E-Mail bestätigt - Immobilien Hub",
     "hintText": "Ihre E-Mail-Adresse wurde erfolgreich bestätigt.",
     "loginButton": "Anmelden"
+  },
+  "resendVerification": {
+    "title": "Bestätigungs-E-Mail erneut senden",
+    "description": "Wenn Sie Ihre Bestätigungs-E-Mail nicht erhalten haben oder Ihr Link abgelaufen ist, können Sie eine neue anfordern.",
+    "emailLabel": "E-Mail-Addresse",
+    "resendButton": "E-Mail erneut senden",
+    "feedbackSuccess": "Bestätigungs-E-Mail erfolgreich an {{email}} gesendet. Bitte überprüfen Sie Ihren Posteingang (und Spam-Ordner).",
+    "feedbackError": "Fehler beim Senden der Bestätigungs-E-Mail: {{message}}",
+    "feedbackMissingEmail": "Bitte geben Sie die E-Mail-Adresse ein, mit der Sie sich registriert haben.",
+    "alertAccountExistsResend": "Dieses Konto existiert bereits. Wenn Sie Ihre E-Mail-Adresse nicht bestätigt haben, können Sie den Bestätigungslink unten erneut senden.",
+    "alertEmailNotVerifiedResend": "Ihre E-Mail-Adresse ist nicht bestätigt. Bitte überprüfen Sie Ihren Posteingang oder senden Sie die Bestätigungs-E-Mail unten erneut."
   }
 }

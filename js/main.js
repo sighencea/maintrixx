@@ -1,11 +1,63 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // Sign-up Logic
+  // Form and Message Elements
   const signupForm = document.getElementById('signupForm');
   const signupMessage = document.getElementById('signupMessage');
+  const loginForm = document.getElementById('loginForm');
+  const loginMessage = document.getElementById('loginMessage');
+
+  // Resend Verification Email UI Elements
+  const resendVerificationSection = document.getElementById('resendVerificationSection');
+  const resendEmailInput = document.getElementById('resendEmailInput');
+  const resendEmailButton = document.getElementById('resendEmailButton');
+  const resendFeedbackMessage = document.getElementById('resendFeedbackMessage');
+
+  function showResendVerification(email, messageKey, messageType = 'alert-info') {
+    if (resendVerificationSection && resendEmailInput) {
+      // Clear previous main form messages first
+      if (signupMessage) { signupMessage.textContent = ''; signupMessage.className = ''; }
+      if (loginMessage) { loginMessage.textContent = ''; loginMessage.className = ''; }
+     
+      let targetMessageArea = signupMessage; 
+      const loginEmailField = document.getElementById('loginEmail');
+      if (loginEmailField && loginEmailField.offsetParent !== null) {
+         if (loginForm && loginForm.contains(document.activeElement) || (loginMessage && loginMessage.textContent !== '')) {
+              targetMessageArea = loginMessage;
+         }
+      }
+
+      if (messageKey && targetMessageArea) {
+          targetMessageArea.textContent = i18next.t(messageKey);
+          targetMessageArea.className = `alert ${messageType}`;
+      } else if (messageKey && signupMessage) { 
+         signupMessage.textContent = i18next.t(messageKey);
+         signupMessage.className = `alert ${messageType}`;
+      }
+
+      resendEmailInput.value = email || ''; 
+      resendVerificationSection.style.display = 'block';
+      if (resendFeedbackMessage) {
+         resendFeedbackMessage.textContent = ''; 
+         resendFeedbackMessage.className = '';
+      }
+    }
+  }
+
+  function hideResendVerification() {
+    if (resendVerificationSection) {
+      resendVerificationSection.style.display = 'none';
+    }
+    if (resendFeedbackMessage) {
+       resendFeedbackMessage.textContent = ''; 
+       resendFeedbackMessage.className = '';
+    }
+  }
+
+  // Sign-up Logic
   if (signupForm) {
     console.log('Sign-up form listener attached.');
     signupForm.addEventListener('submit', async function (event) {
       event.preventDefault();
+      hideResendVerification();
       signupMessage.textContent = ''; signupMessage.className = '';
       const firstName = document.getElementById('signupFirstName').value;
       const email = document.getElementById('signupEmail').value;
@@ -37,20 +89,25 @@ document.addEventListener('DOMContentLoaded', function () {
           { email: email, password: password },
           { data: { first_name: firstName } } // This metadata might be handled by Supabase triggers to populate profiles
         );
-        if (error) { 
-          signupMessage.textContent = i18next.t('mainJs.signup.errorMessage', { message: error.message }); 
-          signupMessage.className = 'alert alert-danger'; 
-          localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear on error
-        } else if (data.user && data.user.identities && data.user.identities.length === 0) { 
-          signupMessage.textContent = i18next.t('mainJs.signup.accountExists'); 
-          signupMessage.className = 'alert alert-info'; 
-          localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear if user already exists
-        } else if (data.user) { 
+        if (error) {
+          if (error.message && (error.message.includes('User already registered') || error.message.includes('already registered'))) {
+            showResendVerification(email, 'resendVerification.alertAccountExistsResend', 'alert-info');
+          } else {
+            signupMessage.textContent = i18next.t('mainJs.signup.errorMessage', { message: error.message }); 
+            signupMessage.className = 'alert alert-danger'; 
+          }
+          localStorage.removeItem('pendingProfileUpdate_firstName'); 
+        } else if (data.user && data.user.identities && data.user.identities.length === 0) {
+          showResendVerification(email, 'resendVerification.alertAccountExistsResend', 'alert-info');
+          localStorage.removeItem('pendingProfileUpdate_firstName'); 
+        } else if (data.user) {
+          hideResendVerification();
           signupMessage.textContent = i18next.t('mainJs.signup.success'); 
           signupMessage.className = 'alert alert-success'; 
           signupForm.reset(); 
           // localStorage item remains for login to pick up
-        } else { 
+        } else {
+          hideResendVerification(); // Ensure hidden on other outcomes too
           signupMessage.textContent = i18next.t('mainJs.signup.successUnexpected'); 
           signupMessage.className = 'alert alert-info';
           localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear on other outcomes
@@ -65,12 +122,11 @@ document.addEventListener('DOMContentLoaded', function () {
   } else { console.error('signupForm not found'); }
 
   // Login Logic
-  const loginForm = document.getElementById('loginForm');
-  const loginMessage = document.getElementById('loginMessage');
   if (loginForm) {
     console.log('Login form listener attached.');
     loginForm.addEventListener('submit', async function (event) {
       event.preventDefault();
+      hideResendVerification();
       loginMessage.textContent = ''; loginMessage.className = '';
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
@@ -87,10 +143,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const { data, error } = await window._supabase.auth.signInWithPassword({ email: email, password: password });
         
-        if (error) { 
-          loginMessage.textContent = i18next.t('mainJs.login.loginFailed', { message: error.message }); 
-          loginMessage.className = 'alert alert-danger'; 
+        if (error) {
+          if (error.message && (error.message.includes('Email not confirmed') || error.message.includes('Please confirm your email'))) {
+            showResendVerification(email, 'resendVerification.alertEmailNotVerifiedResend', 'alert-info');
+          } else {
+            loginMessage.textContent = i18next.t('mainJs.login.loginFailed', { message: error.message }); 
+            loginMessage.className = 'alert alert-danger'; 
+          }
         } else if (data.user) {
+          hideResendVerification();
           // Login successful
           const storedFirstName = localStorage.getItem('pendingProfileUpdate_firstName');
           if (storedFirstName) {
@@ -126,6 +187,57 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   } else { console.error('loginForm not found'); }
+
+  // Resend Verification Email Logic
+  if (resendEmailButton) {
+    resendEmailButton.addEventListener('click', async function() {
+      const emailToResend = resendEmailInput.value;
+      if (resendFeedbackMessage) {
+         resendFeedbackMessage.textContent = ''; 
+         resendFeedbackMessage.className = '';
+      } else {
+         console.error("resendFeedbackMessage element not found");
+         return;
+      }
+
+      if (!emailToResend) {
+        resendFeedbackMessage.textContent = i18next.t('resendVerification.feedbackMissingEmail');
+        resendFeedbackMessage.className = 'alert alert-warning d-block';
+        return;
+      }
+
+      try {
+        if (!window._supabase) {
+          resendFeedbackMessage.textContent = i18next.t('mainJs.signup.supabaseInitError');
+          resendFeedbackMessage.className = 'alert alert-danger d-block';
+          return;
+        }
+        
+        const redirectTo = window.location.origin + '/pages/email-verified-success.html';
+
+        const { error: resendError } = await window._supabase.auth.resend({
+          type: 'signup', 
+          email: emailToResend,
+          options: {
+            emailRedirectTo: redirectTo 
+          }
+        });
+
+        if (resendError) {
+          resendFeedbackMessage.textContent = i18next.t('resendVerification.feedbackError', { message: resendError.message });
+          resendFeedbackMessage.className = 'alert alert-danger d-block';
+        } else {
+          resendFeedbackMessage.textContent = i18next.t('resendVerification.feedbackSuccess', { email: emailToResend });
+          resendFeedbackMessage.className = 'alert alert-success d-block';
+          // resendEmailInput.value = ''; // Optionally clear input
+        }
+      } catch (e) {
+        console.error('Resend email catch:', e);
+        resendFeedbackMessage.textContent = i18next.t('resendVerification.feedbackError', { message: e.message });
+        resendFeedbackMessage.className = 'alert alert-danger d-block';
+      }
+    });
+  }
 });
 
 // Sidebar Toggler Logic
