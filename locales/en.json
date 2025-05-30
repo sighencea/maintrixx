@@ -74,6 +74,10 @@
       "title": "Notification Details",
       "bodyPlaceholder": "This is where the full notification content will appear.",
       "closeButton": "Close"
+    },
+    "chips": {
+      "active": "Active",
+      "inactive": "Inactive"
     }
   },
   "accountPage": {

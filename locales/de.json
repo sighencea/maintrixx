@@ -74,6 +74,10 @@
       "title": "Benachrichtigungsdetails",
       "bodyPlaceholder": "Hier erscheint der vollständige Inhalt der Benachrichtigung.",
       "closeButton": "Schließen"
+    },
+    "chips": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
     }
   },
   "accountPage": {

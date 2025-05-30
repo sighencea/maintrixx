@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const activeNotificationsPlaceholder = document.getElementById('activeNotificationsPlaceholder');
   const inactiveNotificationsPlaceholder = document.getElementById('inactiveNotificationsPlaceholder');
   const markAllReadBtn = document.getElementById('markAllReadBtn'); // Added this line
+  const showActiveNotificationsBtn = document.getElementById('showActiveNotifications');
+  const showInactiveNotificationsBtn = document.getElementById('showInactiveNotifications');
 
   function updateEmptyStatePlaceholders() {
     if (!activeNotificationsList || !activeNotificationsPlaceholder || !inactiveNotificationsList || !inactiveNotificationsPlaceholder) {
@@ -84,6 +86,48 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initial empty state check
   updateEmptyStatePlaceholders(); 
 
+  // Default view: Show active notifications, hide inactive.
+  // updateEmptyStatePlaceholders will then refine visibility based on content.
+  if (activeNotificationsList) activeNotificationsList.style.display = 'block';
+  if (inactiveNotificationsList) inactiveNotificationsList.style.display = 'none';
+  // Call again to ensure placeholders are correctly set based on the default view AND content
+  updateEmptyStatePlaceholders(); 
+  // Initial button styles (Active as primary) are set in HTML.
+
+  if (showActiveNotificationsBtn) {
+    showActiveNotificationsBtn.addEventListener('click', function() {
+      if (inactiveNotificationsList) inactiveNotificationsList.style.display = 'none'; // Hide inactive first
+      if (activeNotificationsList) activeNotificationsList.style.display = 'block';   // Show active
+      
+      showActiveNotificationsBtn.classList.add('btn-primary');
+      showActiveNotificationsBtn.classList.remove('btn-outline-secondary');
+      
+      if (showInactiveNotificationsBtn) {
+        showInactiveNotificationsBtn.classList.add('btn-outline-secondary');
+        showInactiveNotificationsBtn.classList.remove('btn-primary');
+      }
+      
+      updateEmptyStatePlaceholders(); 
+    });
+  }
+
+  if (showInactiveNotificationsBtn) {
+    showInactiveNotificationsBtn.addEventListener('click', function() {
+      if (activeNotificationsList) activeNotificationsList.style.display = 'none';     // Hide active first
+      if (inactiveNotificationsList) inactiveNotificationsList.style.display = 'block'; // Show inactive
+      
+      if (showActiveNotificationsBtn) {
+        showActiveNotificationsBtn.classList.add('btn-outline-secondary');
+        showActiveNotificationsBtn.classList.remove('btn-primary');
+      }
+      
+      showInactiveNotificationsBtn.classList.add('btn-primary');
+      showInactiveNotificationsBtn.classList.remove('btn-outline-secondary');
+      
+      updateEmptyStatePlaceholders(); 
+    });
+  }
+
   if (markAllReadBtn) {
     markAllReadBtn.addEventListener('click', function() {
       const itemsToMarkRead = Array.from(activeNotificationsList.querySelectorAll('.list-group-item'));
@@ -114,6 +158,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Initial empty state check (should be the last thing before DOMContentLoaded closes)
-  updateEmptyStatePlaceholders(); 
+  // Final empty state check based on initially displayed list (active)
+  // updateEmptyStatePlaceholders(); // This call is already present after setting default view.
 });
