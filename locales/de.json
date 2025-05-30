@@ -156,5 +156,44 @@
     "welcomeMessage": "Willkommen, {{displayName}}! Dies ist Ihre neue Dashboard-Seite.",
     "welcomeProfileNotFound": "Willkommen! Profil nicht gefunden. Dies ist Ihre neue Dashboard-Seite.",
     "profileUnexpectedError": "Beim Laden Ihres Profils ist ein unerwarteter Fehler aufgetreten."
+  },
+  "staffPage": {
+    "title": "Mitarbeiterverwaltung - Immobilien Hub",
+    "header": "Mitarbeiterverwaltung",
+    "filters": {
+      "searchPlaceholder": "Mitarbeiter suchen...",
+      "roleDefault": "Nach Benutzerrolle filtern",
+      "roleManager": "Hausverwalter",
+      "roleMaintenance": "Wartungsleiter",
+      "roleLeasing": "Vermietungsagent",
+      "roleAccountant": "Buchhalter",
+      "roleElectrician": "Elektriker",
+      "rolePlumber": "Klempner",
+      "roleCleaner": "Reinigungskraft",
+      "roleGroundskeeper": "Gärtner",
+      "roleSecurity": "Sicherheitsbeauftragter",
+      "taskLoadDesc": "Sortieren nach Aufgabenlast: Absteigend",
+      "taskLoadAsc": "Sortieren nach Aufgabenlast: Aufsteigend",
+      "statusActive": "Status: Aktiv",
+      "statusInactive": "Status: Inaktiv"
+    },
+    "table": {
+      "header": {
+        "profile": "Profil",
+        "name": "Name",
+        "role": "Rolle",
+        "assignedTasks": "Zugewiesene Aufgaben",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "actions": {
+        "viewDetailsTooltip": "Details anzeigen",
+        "editProfileTooltip": "Profil bearbeiten"
+      }
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    }
   }
 }
