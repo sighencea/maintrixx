@@ -8,15 +8,26 @@
     "notifications": "Notifications",
     "signOut": "Sign Out"
   },
-  "loginPage": {
-    "title": "Property Hub Login",
+  "signInPage": {
+    "pageTitle": "Sign In - Property Hub",
+    "formTitle": "Sign In",
     "emailLabel": "Email address",
     "emailPlaceholder": "Enter your email",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Enter your password",
-    "loginButton": "Login",
-    "forgotPassword": "Forgot password?",
-    "magicLink": "Send Magic Link"
+    "signInButton": "Sign In",
+    "switchToSignUpPrompt": "Don't have an account yet? ",
+    "switchToSignUpLink": "Sign up here"
+  },
+  "signUpPage": {
+    "pageTitle": "Sign Up - Property Hub",
+    "formTitle": "Sign Up",
+    "firstNameLabel": "First Name",
+    "emailLabel": "Email address",
+    "passwordLabel": "Password",
+    "signUpButton": "Sign Up",
+    "switchToSignInPrompt": "Already have an account? ",
+    "switchToSignInLink": "Sign in here"
   },
   "dashboardPage": {
     "title": "Dashboard - Property Hub",
@@ -207,6 +218,8 @@
     "loginButton": "Login"
   },
   "resendVerification": {
+    "modalTitle": "Resend Verification Email",
+    "modalDescription": "Please enter your email address below to receive a new verification link.",
     "title": "Resend Verification Email",
     "description": "If you haven't received your verification email, or if your link has expired, you can request a new one.",
     "emailLabel": "Email address",

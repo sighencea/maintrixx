@@ -8,15 +8,26 @@
     "notifications": "Benachrichtigungen",
     "signOut": "Abmelden"
   },
-  "loginPage": {
-    "title": "Immobilien Hub Login",
+  "signInPage": {
+    "pageTitle": "Anmelden - Immobilien Hub",
+    "formTitle": "Anmelden",
     "emailLabel": "E-Mail-Addresse",
     "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
     "passwordLabel": "Passwort",
     "passwordPlaceholder": "Geben Sie Ihr Passwort ein",
-    "loginButton": "Anmelden",
-    "forgotPassword": "Passwort vergessen?",
-    "magicLink": "Magic Link senden"
+    "signInButton": "Anmelden",
+    "switchToSignUpPrompt": "Noch kein Konto? ",
+    "switchToSignUpLink": "Hier registrieren"
+  },
+  "signUpPage": {
+    "pageTitle": "Registrieren - Immobilien Hub",
+    "formTitle": "Registrieren",
+    "firstNameLabel": "Vorname",
+    "emailLabel": "E-Mail-Addresse",
+    "passwordLabel": "Passwort",
+    "signUpButton": "Registrieren",
+    "switchToSignInPrompt": "Bereits ein Konto? ",
+    "switchToSignInLink": "Hier anmelden"
   },
   "dashboardPage": {
     "title": "Dashboard - Immobilien Hub",
@@ -207,6 +218,8 @@
     "loginButton": "Anmelden"
   },
   "resendVerification": {
+    "modalTitle": "Bestätigungs-E-Mail erneut senden",
+    "modalDescription": "Bitte geben Sie unten Ihre E-Mail-Adresse ein, um einen neuen Bestätigungslink zu erhalten.",
     "title": "Bestätigungs-E-Mail erneut senden",
     "description": "Wenn Sie Ihre Bestätigungs-E-Mail nicht erhalten haben oder Ihr Link abgelaufen ist, können Sie eine neue anfordern.",
     "emailLabel": "E-Mail-Addresse",
