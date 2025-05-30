@@ -403,7 +403,13 @@ The original request was "stroke of all borders", not necessarily hover/active s
     margin-right: auto; /* Horizontal centering if body is not flex/grid parent */
     border: 1px solid #E5E7EB;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: auto; /* Handle content exceeding the fixed height */
+    overflow: hidden; /* Handle content exceeding the fixed height */
     background-color: #FFFFFF; /* Added a background color to distinguish from body */
+    border-radius: 8px;
+  }
+
+  .page-content-wrapper .container-fluid {
+    height: 100%; /* Make it take full height of its parent (.page-content-wrapper) */
+    /* This will override the vh-100 class effect within this specific context */
   }
 }
