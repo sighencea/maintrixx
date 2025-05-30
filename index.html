@@ -34,7 +34,7 @@
 
       <!-- Right Form Panel -->
       <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center p-4 p-md-5">
-        <div class="w-100" style="max-width: 450px; position: relative;">
+        <div class="w-100" style="max-width: 450px; position: relative; display: flex; flex-direction: column; justify-content: center; height: 100%;">
 
           <div class="d-flex justify-content-end" id="authToggleContainer" style="position: absolute; top: 0; right: 0;">
             <!-- JS will populate this:
@@ -44,7 +44,7 @@
           </div>
 
           <!-- Sign In Section View -->
-          <div id="signInFormSectionView" style="margin-top: 300px;">
+          <div id="signInFormSectionView">
             <h2 class="h3 mb-1 fw-semibold" data-i18n="signInPage.formTitle">Sign In</h2>
             <p class="text-muted mb-4" data-i18n="signInPage.formSubtitle">Welcome back! Please enter your details.</p>
             <form id="signInForm">
@@ -62,7 +62,7 @@
           </div>
 
           <!-- Sign Up Section View -->
-          <div id="signUpFormSectionView" style="margin-top: 300px; display: none;">
+          <div id="signUpFormSectionView" style="display: none;">
             <h2 class="h3 mb-1 fw-semibold" data-i18n="signUpPage.formTitle">Create Account</h2>
             <p class="text-muted mb-4" data-i18n="signUpPage.formSubtitle">Fill out the form below to get started.</p>
             <form id="signUpForm">
