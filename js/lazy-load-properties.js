@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let cardsCurrentlyVisible = 0;
 
     // Constants for controlling load behavior
-    const minimumInitialCards = 6; 
-    const initialBufferCards = 3;  
-    const cardsPerScrollLoad = 6; 
+    const minimumInitialCards = 6;
+    const initialBufferCards = 3;
+    const cardsPerScrollLoad = 6;
 
     // Initially hide all cards
     allCards.forEach(card => {
@@ -44,16 +44,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 // console.log(`Scrollbar condition met: mainContent.scrollHeight (${mainContent.scrollHeight}px) > mainContent.clientHeight (${mainContent.clientHeight}px)`); // Optional
                 // console.log(`Cards made visible one by one before scrollbar check: ${cardsVisibleBeforeScrollbarCheck}`); // Optional
                 scrollbarAppeared = true;
-                
+
                 let bufferLoaded = 0;
                 // Load initialBufferCards more cards
                 for (let j = i + 1; j < allCards.length && bufferLoaded < initialBufferCards; j++) {
-                    allCards[j].style.display = ''; 
+                    allCards[j].style.display = '';
                     cardsCurrentlyVisible++;
                     bufferLoaded++;
                 }
                 // console.log(`Loaded ${bufferLoaded} buffer cards.`); // Optional
-                break; 
+                break;
             }
         }
 
@@ -63,11 +63,11 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (allCards.length > 0 && cardsCurrentlyVisible === 0) {
             console.warn('No property cards made visible in initial load, but cards exist.');
         }
-        
+
         // console.log(`Total cards made visible by performInitialPropertyLoad (including buffer): ${cardsCurrentlyVisible}`); // Optional
         const moreToLoad = cardsCurrentlyVisible < allCards.length;
         // console.log(`Will scroll listener be added for property cards? ${moreToLoad}`); // Optional
-        return moreToLoad; 
+        return moreToLoad;
     }
 
     function loadMoreCards() {
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let newCardsLoadedCount = 0;
         for (let i = cardsCurrentlyVisible; i < allCards.length && newCardsLoadedCount < cardsPerScrollLoad; i++) {
-            allCards[i].style.display = ''; 
+            allCards[i].style.display = '';
             cardsCurrentlyVisible++;
             newCardsLoadedCount++;
         }
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Main execution logic
     if (allCards.length > 0) {
-        if (performInitialPropertyLoad()) { 
+        if (performInitialPropertyLoad()) {
             // console.log('Scroll listener attached for lazy loading remaining property cards.'); // Optional
             mainContent.addEventListener('scroll', scrollHandler, { passive: true });
         } else {

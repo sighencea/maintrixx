@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function () {
       // Clear previous main form messages first
       if (signupMessage) { signupMessage.textContent = ''; signupMessage.className = ''; }
       if (loginMessage) { loginMessage.textContent = ''; loginMessage.className = ''; }
-     
-      let targetMessageArea = signupMessage; 
+
+      let targetMessageArea = signupMessage;
       const loginEmailField = document.getElementById('loginEmail');
       if (loginEmailField && loginEmailField.offsetParent !== null) {
          if (loginForm && loginForm.contains(document.activeElement) || (loginMessage && loginMessage.textContent !== '')) {
@@ -28,15 +28,15 @@ document.addEventListener('DOMContentLoaded', function () {
       if (messageKey && targetMessageArea) {
           targetMessageArea.textContent = i18next.t(messageKey);
           targetMessageArea.className = `alert ${messageType}`;
-      } else if (messageKey && signupMessage) { 
+      } else if (messageKey && signupMessage) {
          signupMessage.textContent = i18next.t(messageKey);
          signupMessage.className = `alert ${messageType}`;
       }
 
-      resendEmailInput.value = email || ''; 
+      resendEmailInput.value = email || '';
       resendVerificationSection.style.display = 'block';
       if (resendFeedbackMessage) {
-         resendFeedbackMessage.textContent = ''; 
+         resendFeedbackMessage.textContent = '';
          resendFeedbackMessage.className = '';
       }
     }
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
       resendVerificationSection.style.display = 'none';
     }
     if (resendFeedbackMessage) {
-       resendFeedbackMessage.textContent = ''; 
+       resendFeedbackMessage.textContent = '';
        resendFeedbackMessage.className = '';
     }
   }
@@ -93,24 +93,33 @@ document.addEventListener('DOMContentLoaded', function () {
           if (error.message && (error.message.includes('User already registered') || error.message.includes('already registered'))) {
             showResendVerification(email, 'resendVerification.alertAccountExistsResend', 'alert-info');
           } else {
-            signupMessage.textContent = i18next.t('mainJs.signup.errorMessage', { message: error.message }); 
-            signupMessage.className = 'alert alert-danger'; 
+            signupMessage.textContent = i18next.t('mainJs.signup.errorMessage', { message: error.message });
+            signupMessage.className = 'alert alert-danger';
           }
-          localStorage.removeItem('pendingProfileUpdate_firstName'); 
-        } else if (data.user && data.user.identities && data.user.identities.length === 0) {
-          showResendVerification(email, 'resendVerification.alertAccountExistsResend', 'alert-info');
-          localStorage.removeItem('pendingProfileUpdate_firstName'); 
+          localStorage.removeItem('pendingProfileUpdate_firstName');
         } else if (data.user) {
-          hideResendVerification();
-          signupMessage.textContent = i18next.t('mainJs.signup.success'); 
-          signupMessage.className = 'alert alert-success'; 
-          signupForm.reset(); 
-          // localStorage item remains for login to pick up
+          // Case 2: No immediate error, and a user object exists.
+          if (data.user.identities && data.user.identities.length === 0) {
+            // This condition often means the user exists and is unconfirmed.
+            // Supabase likely attempted an automatic resend of the confirmation email.
+            signupMessage.textContent = i18next.t('resendVerification.alertSignupEmailResent', { email: email });
+            signupMessage.className = 'alert alert-info';
+            hideResendVerification(); // Ensure custom UI is hidden
+            localStorage.removeItem('pendingProfileUpdate_firstName'); // Existing unconfirmed user
+          } else {
+            // This is a successful NEW signup or a signup where the user is immediately confirmed.
+            hideResendVerification();
+            signupMessage.textContent = i18next.t('mainJs.signup.success');
+            signupMessage.className = 'alert alert-success';
+            signupForm.reset();
+            // localStorage item for first_name remains for login to pick up ONLY for new successful signups.
+          }
         } else {
-          hideResendVerification(); // Ensure hidden on other outcomes too
+          // Case 3: No error, but also no user data (unexpected scenario).
+          hideResendVerification();
           signupMessage.textContent = i18next.t('mainJs.signup.successUnexpected'); 
           signupMessage.className = 'alert alert-info';
-          localStorage.removeItem('pendingProfileUpdate_firstName'); // Clear on other outcomes
+          localStorage.removeItem('pendingProfileUpdate_firstName');
         }
       } catch (e) { 
         console.error('Sign-up catch:', e); 
@@ -147,8 +156,8 @@ document.addEventListener('DOMContentLoaded', function () {
           if (error.message && (error.message.includes('Email not confirmed') || error.message.includes('Please confirm your email'))) {
             showResendVerification(email, 'resendVerification.alertEmailNotVerifiedResend', 'alert-info');
           } else {
-            loginMessage.textContent = i18next.t('mainJs.login.loginFailed', { message: error.message }); 
-            loginMessage.className = 'alert alert-danger'; 
+            loginMessage.textContent = i18next.t('mainJs.login.loginFailed', { message: error.message });
+            loginMessage.className = 'alert alert-danger';
           }
         } else if (data.user) {
           hideResendVerification();
@@ -193,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function () {
     resendEmailButton.addEventListener('click', async function() {
       const emailToResend = resendEmailInput.value;
       if (resendFeedbackMessage) {
-         resendFeedbackMessage.textContent = ''; 
+         resendFeedbackMessage.textContent = '';
          resendFeedbackMessage.className = '';
       } else {
          console.error("resendFeedbackMessage element not found");
@@ -212,14 +221,14 @@ document.addEventListener('DOMContentLoaded', function () {
           resendFeedbackMessage.className = 'alert alert-danger d-block';
           return;
         }
-        
+
         const redirectTo = window.location.origin + '/pages/email-verified-success.html';
 
         const { error: resendError } = await window._supabase.auth.resend({
-          type: 'signup', 
+          type: 'signup',
           email: emailToResend,
           options: {
-            emailRedirectTo: redirectTo 
+            emailRedirectTo: redirectTo
           }
         });
 
