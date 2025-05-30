@@ -78,7 +78,8 @@
     "chips": {
       "active": "Aktiv",
       "inactive": "Inaktiv"
-    }
+    },
+    "noInactiveMessage": "Keine inaktiven Benachrichtigungen."
   },
   "accountPage": {
     "title": "Kontoeinstellungen - Immobilien Hub",

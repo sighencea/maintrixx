@@ -78,7 +78,8 @@
     "chips": {
       "active": "Active",
       "inactive": "Inactive"
-    }
+    },
+    "noInactiveMessage": "No inactive notifications."
   },
   "accountPage": {
     "title": "Account Settings - Property Hub",
