@@ -12,44 +12,82 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const allRows = Array.from(staffTableBody.children); // Assuming children are all <tr>
-    const rowsPerLoad = 15; // Number of table rows to show per load
     let rowsCurrentlyVisible = 0;
 
-    function hideAllRowsBeyondInitialLoad() {
-        let visibleCount = 0;
-        allRows.forEach((row, index) => {
-            if (index < rowsPerLoad) {
-                row.style.display = ''; // Or 'table-row' if needed, but '' usually works
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
-            }
-        });
-        rowsCurrentlyVisible = visibleCount;
-        // console.log(`Initial visible staff rows: ${rowsCurrentlyVisible}, Total rows: ${allRows.length}`);
+    const initialBufferRows = 5;
+    const minimumInitialRows = 10;
+    const rowsPerScrollLoad = 10;
 
-        if (rowsCurrentlyVisible >= allRows.length) {
-            // console.log('All staff rows are initially visible. No lazy loading needed.');
-            return false; // No more rows to load
+    // Initially hide all rows
+    allRows.forEach(row => {
+        row.style.display = 'none';
+    });
+
+    function performInitialStaffLoad() {
+        console.log('Performing initial staff load...');
+        console.log(`mainContent.clientHeight: ${mainContent.clientHeight}px`);
+        if (allRows.length > 0 && allRows[0]) {
+            console.log(`Height of a typical row (allRows[0].offsetHeight): ${allRows[0].offsetHeight}px`);
         }
-        return true; // More rows might be loaded
+
+        let scrollbarAppeared = false;
+        let rowsVisibleBeforeScrollbarCheck = 0;
+
+        for (let i = 0; i < allRows.length; i++) {
+            allRows[i].style.display = ''; // Or 'table-row'
+            rowsCurrentlyVisible++;
+            rowsVisibleBeforeScrollbarCheck = rowsCurrentlyVisible;
+
+            if (rowsCurrentlyVisible >= minimumInitialRows && mainContent.scrollHeight > mainContent.clientHeight) {
+                console.log(`Scrollbar condition met for staff table: mainContent.scrollHeight (${mainContent.scrollHeight}px) > mainContent.clientHeight (${mainContent.clientHeight}px)`);
+                console.log(`Rows made visible one by one before scrollbar check: ${rowsVisibleBeforeScrollbarCheck}`);
+                scrollbarAppeared = true;
+                
+                let bufferLoaded = 0;
+                for (let j = i + 1; j < allRows.length && bufferLoaded < initialBufferRows; j++) {
+                    allRows[j].style.display = ''; 
+                    rowsCurrentlyVisible++;
+                    bufferLoaded++;
+                }
+                console.log(`Loaded ${bufferLoaded} buffer rows for staff table.`);
+                break; 
+            }
+        }
+
+        if (!scrollbarAppeared) {
+            if (rowsCurrentlyVisible > 0) {
+                console.log(`All ${rowsCurrentlyVisible} staff rows loaded initially, no scrollbar detected (or minimumInitialRows not met for check).`);
+            } else if (allRows.length > 0) {
+                console.warn('No staff rows made visible in initial load, but rows exist.');
+            }
+        }
+        
+        console.log(`Total staff rows made visible by performInitialStaffLoad (including buffer): ${rowsCurrentlyVisible}`);
+        const moreToLoad = rowsCurrentlyVisible < allRows.length;
+        console.log(`Will scroll listener be added for staff table? ${moreToLoad}`);
+        return moreToLoad; 
     }
 
     function loadMoreRows() {
+        console.log('loadMoreRows (staff) triggered.');
+        console.log(`Staff rows currently visible before adding more: ${rowsCurrentlyVisible}`);
+
         if (rowsCurrentlyVisible >= allRows.length) {
             mainContent.removeEventListener('scroll', scrollHandler);
             return;
         }
 
         let newRowsLoadedCount = 0;
-        for (let i = rowsCurrentlyVisible; i < allRows.length && newRowsLoadedCount < rowsPerLoad; i++) {
-            allRows[i].style.display = ''; // Or 'table-row'
+        for (let i = rowsCurrentlyVisible; i < allRows.length && newRowsLoadedCount < rowsPerScrollLoad; i++) {
+            allRows[i].style.display = ''; 
             rowsCurrentlyVisible++;
             newRowsLoadedCount++;
         }
+        console.log(`Number of new staff rows added: ${newRowsLoadedCount}`);
+        console.log(`Total staff rows visible after adding more: ${rowsCurrentlyVisible}`);
 
         if (rowsCurrentlyVisible >= allRows.length) {
-            console.log('All staff members lazy-loaded.');
+            console.log('All staff members have been lazy-loaded.');
             mainContent.removeEventListener('scroll', scrollHandler);
         }
     }
@@ -60,17 +98,22 @@ document.addEventListener('DOMContentLoaded', function () {
         scrollTimeout = setTimeout(() => {
             const scrollableHeight = mainContent.scrollHeight - mainContent.clientHeight;
             const currentScrollTop = mainContent.scrollTop;
-            const buffer = 100; // Load when 100px from the bottom
+            const buffer = 100; 
 
-            if (currentScrollTop >= (scrollableHeight - buffer)) {
+            if (currentScrollTop >= (scrollableHeight - buffer) || scrollableHeight < buffer) {
                 loadMoreRows();
             }
-        }, 50); // Debounce timeout
+        }, 50); 
     };
 
-    if (allRows.length > 0 && hideAllRowsBeyondInitialLoad()) { // Check if there are rows to begin with
-        mainContent.addEventListener('scroll', scrollHandler, { passive: true });
-    } else if (allRows.length === 0) {
+    if (allRows.length > 0) {
+        if (performInitialStaffLoad()) { 
+            console.log('Scroll listener attached for lazy loading remaining staff rows.');
+            mainContent.addEventListener('scroll', scrollHandler, { passive: true });
+        } else {
+            console.log('All staff rows fit in viewport or were loaded initially. No scroll listener needed.');
+        }
+    } else {
         console.warn('No rows found in staffTableBody to lazy load.');
     }
 });
