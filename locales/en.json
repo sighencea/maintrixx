@@ -215,6 +215,7 @@
     "feedbackError": "Error sending verification email: {{message}}",
     "feedbackMissingEmail": "Please enter the email address you signed up with.",
     "alertAccountExistsResend": "This account already exists. If you haven't verified your email, you can resend the verification link below.",
-    "alertEmailNotVerifiedResend": "Your email is not verified. Please check your inbox or resend the verification email below."
+    "alertEmailNotVerifiedResend": "Your email is not verified. Please check your inbox or resend the verification email below.",
+    "alertSignupEmailResent": "This email is already registered but unconfirmed. A new verification email has been sent to {{email}}. Please check your inbox."
   }
 }

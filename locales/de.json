@@ -215,6 +215,7 @@
     "feedbackError": "Fehler beim Senden der Bestätigungs-E-Mail: {{message}}",
     "feedbackMissingEmail": "Bitte geben Sie die E-Mail-Adresse ein, mit der Sie sich registriert haben.",
     "alertAccountExistsResend": "Dieses Konto existiert bereits. Wenn Sie Ihre E-Mail-Adresse nicht bestätigt haben, können Sie den Bestätigungslink unten erneut senden.",
-    "alertEmailNotVerifiedResend": "Ihre E-Mail-Adresse ist nicht bestätigt. Bitte überprüfen Sie Ihren Posteingang oder senden Sie die Bestätigungs-E-Mail unten erneut."
+    "alertEmailNotVerifiedResend": "Ihre E-Mail-Adresse ist nicht bestätigt. Bitte überprüfen Sie Ihren Posteingang oder senden Sie die Bestätigungs-E-Mail unten erneut.",
+    "alertSignupEmailResent": "Diese E-Mail-Adresse ist bereits registriert, aber nicht bestätigt. Eine neue Bestätigungs-E-Mail wurde an {{email}} gesendet. Bitte überprüfen Sie Ihren Posteingang."
   }
 }

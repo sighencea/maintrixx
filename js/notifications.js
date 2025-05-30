@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const inactiveNotificationsList = document.getElementById('inactiveNotificationsList');
   const activeNotificationsPlaceholder = document.getElementById('activeNotificationsPlaceholder');
   // const inactiveNotificationsPlaceholder = document.getElementById('inactiveNotificationsPlaceholder'); // REMOVED - Will be dynamic
-  const markAllReadBtn = document.getElementById('markAllReadBtn'); 
+  const markAllReadBtn = document.getElementById('markAllReadBtn');
   const showActiveNotificationsBtn = document.getElementById('showActiveNotifications');
   const showInactiveNotificationsBtn = document.getElementById('showInactiveNotifications');
 
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       if (dynamicInactivePlaceholder) {
         // Remove or hide. Removing is cleaner if list has items.
-        dynamicInactivePlaceholder.remove(); 
+        dynamicInactivePlaceholder.remove();
       }
     }
   }
@@ -121,33 +121,33 @@ document.addEventListener('DOMContentLoaded', function() {
   // updateEmptyStatePlaceholders will then refine visibility based on content.
   if (activeNotificationsList) activeNotificationsList.style.display = 'block'; // Default to showing active list
   if (inactiveNotificationsList) inactiveNotificationsList.style.display = 'none'; // Default to hiding inactive list
-  
+
   let initialDynamicInactivePlaceholder = document.getElementById('dynamicInactivePlaceholder');
   if (initialDynamicInactivePlaceholder) initialDynamicInactivePlaceholder.style.display = 'none'; // Ensure dynamic is hidden initially
 
   // Call again to ensure placeholders are correctly set based on the default view AND content
-  updateEmptyStatePlaceholders(); 
+  updateEmptyStatePlaceholders();
   // Initial button styles (Active as primary) are set in HTML.
 
   if (showActiveNotificationsBtn) {
     showActiveNotificationsBtn.addEventListener('click', function() {
       if (activeNotificationsList) activeNotificationsList.style.display = 'block';   // Show active
       if (inactiveNotificationsList) inactiveNotificationsList.style.display = 'none'; // Hide inactive
-      
+
       let dynamicInactivePlaceholder = document.getElementById('dynamicInactivePlaceholder');
       if (dynamicInactivePlaceholder) {
         dynamicInactivePlaceholder.style.display = 'none'; // Also hide dynamic placeholder
       }
-      
+
       showActiveNotificationsBtn.classList.add('btn-primary');
       showActiveNotificationsBtn.classList.remove('btn-outline-secondary');
-      
+
       if (showInactiveNotificationsBtn) {
         showInactiveNotificationsBtn.classList.add('btn-outline-secondary');
         showInactiveNotificationsBtn.classList.remove('btn-primary');
       }
-      
-      updateEmptyStatePlaceholders(); 
+
+      updateEmptyStatePlaceholders();
     });
   }
 
@@ -156,16 +156,16 @@ document.addEventListener('DOMContentLoaded', function() {
       if (activeNotificationsList) activeNotificationsList.style.display = 'none';     // Hide active
       if (activeNotificationsPlaceholder) activeNotificationsPlaceholder.style.display = 'none'; // Explicitly hide active placeholder
       if (inactiveNotificationsList) inactiveNotificationsList.style.display = 'block'; // Show inactive (its content will be checked by placeholder func)
-      
+
       if (showActiveNotificationsBtn) {
         showActiveNotificationsBtn.classList.add('btn-outline-secondary');
         showActiveNotificationsBtn.classList.remove('btn-primary');
       }
-      
+
       showInactiveNotificationsBtn.classList.add('btn-primary');
       showInactiveNotificationsBtn.classList.remove('btn-outline-secondary');
-      
-      updateEmptyStatePlaceholders(); 
+
+      updateEmptyStatePlaceholders();
     });
   }
 
