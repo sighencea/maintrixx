@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const propertiesContainer = document.querySelector('.properties-page-content .row.g-4');
-    const mainContent = document.getElementById('mainContent'); // Get the main content element
+    const mainContent = document.getElementById('mainContent'); 
 
     if (!propertiesContainer) {
         console.warn('Properties container for lazy loading not found.');
@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         cardsCurrentlyVisible = visibleCount;
-        console.log(`Initial visible cards: ${cardsCurrentlyVisible}, Total cards: ${allCards.length}`);
+        // console.log(`Initial visible cards: ${cardsCurrentlyVisible}, Total cards: ${allCards.length}`);
 
         if (cardsCurrentlyVisible >= allCards.length) {
-            console.log('All cards are initially visible. No lazy loading needed.');
+            // console.log('All cards are initially visible. No lazy loading needed.');
             return false;
         }
         return true;
@@ -37,23 +37,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function loadMoreCards() {
         if (cardsCurrentlyVisible >= allCards.length) {
-            console.log('All properties loaded. Removing scroll listener from #mainContent.');
-            mainContent.removeEventListener('scroll', scrollHandler); // Remove from mainContent
+            // This condition is unlikely to be met here if scroll listener is already removed,
+            // but as a safeguard:
+            mainContent.removeEventListener('scroll', scrollHandler); 
             return;
         }
 
         let newCardsLoadedCount = 0;
-        console.log(`Attempting to load more cards. Currently visible: ${cardsCurrentlyVisible}`);
+        // console.log(`Attempting to load more cards. Currently visible: ${cardsCurrentlyVisible}`);
         for (let i = cardsCurrentlyVisible; i < allCards.length && newCardsLoadedCount < cardsPerLoad; i++) {
             allCards[i].style.display = '';
             cardsCurrentlyVisible++;
             newCardsLoadedCount++;
         }
-        console.log(`Loaded ${newCardsLoadedCount} more properties. Total visible: ${cardsCurrentlyVisible}`);
+        // console.log(`Loaded ${newCardsLoadedCount} more properties. Total visible: ${cardsCurrentlyVisible}`);
 
         if (cardsCurrentlyVisible >= allCards.length) {
-            console.log('All properties now loaded after this batch. Removing scroll listener from #mainContent.');
-            mainContent.removeEventListener('scroll', scrollHandler); // Remove from mainContent
+            console.log('All properties lazy-loaded.');
+            mainContent.removeEventListener('scroll', scrollHandler);
         }
     }
 
@@ -61,55 +62,32 @@ document.addEventListener('DOMContentLoaded', function () {
     const scrollHandler = () => {
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
-            // Calculations relative to mainContent
             const scrollableHeight = mainContent.scrollHeight - mainContent.clientHeight;
             const currentScrollTop = mainContent.scrollTop;
             
-            console.log(
-                `Scroll Check (#mainContent): ScrollTop: ${Math.round(currentScrollTop)}, ` +
-                `ScrollableHeight: ${Math.round(scrollableHeight)}, ClientHeight: ${mainContent.clientHeight}`
-            );
+            // console.log( // REMOVED
+            //     `Scroll Check (#mainContent): ScrollTop: ${Math.round(currentScrollTop)}, ` +
+            //     `ScrollableHeight: ${Math.round(scrollableHeight)}, ClientHeight: ${mainContent.clientHeight}`
+            // );
 
-            const buffer = 50; // Buffer from the bottom of the scrollable area
+            const buffer = 50; 
             let triggerLoad = false;
 
             if (currentScrollTop >= (scrollableHeight - buffer)) {
-                console.log('Triggering load: Scrolled near bottom of #mainContent.');
+                // console.log('Triggering load: Scrolled near bottom of #mainContent.'); // REMOVED
                 triggerLoad = true;
             }
-
-            // Fallback check: if the last visible card's bottom is near the mainContent's visible bottom
-            // This is more complex if mainContent itself isn't what's visually clipping.
-            // The primary check above should be more reliable for an overflow container.
-            if (!triggerLoad && cardsCurrentlyVisible > 0 && cardsCurrentlyVisible < allCards.length) {
-                const lastVisibleCard = allCards[cardsCurrentlyVisible - 1];
-                if (lastVisibleCard) {
-                    // Get bounding rect of last card relative to viewport
-                    const lastCardRect = lastVisibleCard.getBoundingClientRect();
-                    // Get bounding rect of mainContent relative to viewport
-                    const mainContentRect = mainContent.getBoundingClientRect();
-                    
-                    // Check if the bottom of the last card is close to or past the bottom of mainContent's viewport area
-                    if (lastCardRect.bottom <= (mainContentRect.bottom + buffer)) {
-                         // This condition might be too aggressive if many cards fit in mainContent.
-                         // The scrollTop check is generally better for overflow containers.
-                         // console.log('Triggering load (fallback): Last visible card nearing #mainContent bottom edge.');
-                         // triggerLoad = true; // Keeping this commented for now, primary check should work
-                    }
-                }
-            }
-
 
             if (triggerLoad) {
                 loadMoreCards();
             }
-        }, 50); // Debounce timeout
+        }, 50); 
     };
     
     if (hideAllCardsBeyondInitialLoad()) {
-        console.log('Scroll listener added to #mainContent.');
-        mainContent.addEventListener('scroll', scrollHandler, { passive: true }); // Attach to mainContent
+        // console.log('Scroll listener added to #mainContent.'); // REMOVED
+        mainContent.addEventListener('scroll', scrollHandler, { passive: true }); 
     } else {
-        console.log('Scroll listener NOT added as all cards are initially visible or elements missing.');
+        // console.log('Scroll listener NOT added as all cards are initially visible or elements missing.'); // REMOVED
     }
 });
