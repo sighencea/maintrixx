@@ -388,7 +388,7 @@ The original request was "stroke of all borders", not necessarily hover/active s
 }
 
 @media (min-width: 1921px) and (min-height: 1081px) {
-  body {
+  body.index-page-body {
     /* Ensure the body can center the wrapper if it's smaller than the viewport */
     display: flex;
     flex-direction: column; /* Keep normal flow for other body content if any */
