@@ -200,5 +200,10 @@
       "active": "Aktiv",
       "inactive": "Inaktiv"
     }
+  },
+  "emailVerifiedSuccessPage": {
+    "title": "E-Mail bestätigt - Immobilien Hub",
+    "hintText": "Ihre E-Mail-Adresse wurde erfolgreich bestätigt.",
+    "loginButton": "Anmelden"
   }
 }
