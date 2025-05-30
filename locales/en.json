@@ -205,5 +205,16 @@
     "title": "Email Verified - Property Hub",
     "hintText": "Your email was verified successfully.",
     "loginButton": "Login"
+  },
+  "resendVerification": {
+    "title": "Resend Verification Email",
+    "description": "If you haven't received your verification email, or if your link has expired, you can request a new one.",
+    "emailLabel": "Email address",
+    "resendButton": "Resend Email",
+    "feedbackSuccess": "Verification email sent successfully to {{email}}. Please check your inbox (and spam folder).",
+    "feedbackError": "Error sending verification email: {{message}}",
+    "feedbackMissingEmail": "Please enter the email address you signed up with.",
+    "alertAccountExistsResend": "This account already exists. If you haven't verified your email, you can resend the verification link below.",
+    "alertEmailNotVerifiedResend": "Your email is not verified. Please check your inbox or resend the verification email below."
   }
 }
