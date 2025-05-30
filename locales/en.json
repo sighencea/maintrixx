@@ -8,9 +8,19 @@
     "notifications": "Notifications",
     "signOut": "Sign Out"
   },
+  "leftPanel": {
+    "brandingText": "Manage property maintenance tasks with ease. Schedule services, track tasks, and get real-time updates. All in one app!"
+  },
+  "authToggle": {
+    "alreadyHaveAccount": "Already have an account?",
+    "signInLinkText": "Sign in",
+    "dontHaveAccount": "Don't have an account yet?",
+    "signUpLinkText": "Sign up"
+  },
   "signInPage": {
     "pageTitle": "Sign In - Property Hub",
     "formTitle": "Sign In",
+    "formSubtitle": "Welcome back! Please enter your details.",
     "emailLabel": "Email address",
     "emailPlaceholder": "Enter your email",
     "passwordLabel": "Password",
@@ -21,7 +31,8 @@
   },
   "signUpPage": {
     "pageTitle": "Sign Up - Property Hub",
-    "formTitle": "Sign Up",
+    "formTitle": "Create Account",
+    "formSubtitle": "Fill out the form below to get started.",
     "firstNameLabel": "First Name",
     "emailLabel": "Email address",
     "passwordLabel": "Password",

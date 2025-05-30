@@ -8,9 +8,19 @@
     "notifications": "Benachrichtigungen",
     "signOut": "Abmelden"
   },
+  "leftPanel": {
+    "brandingText": "Verwalten Sie Wartungsaufgaben für Immobilien mühelos. Planen Sie Dienstleistungen, verfolgen Sie Aufgaben und erhalten Sie Echtzeit-Updates. Alles in einer App!"
+  },
+  "authToggle": {
+    "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
+    "signInLinkText": "Anmelden",
+    "dontHaveAccount": "Noch kein Konto?",
+    "signUpLinkText": "Registrieren"
+  },
   "signInPage": {
     "pageTitle": "Anmelden - Immobilien Hub",
     "formTitle": "Anmelden",
+    "formSubtitle": "Willkommen zurück! Bitte geben Sie Ihre Daten ein.",
     "emailLabel": "E-Mail-Addresse",
     "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
     "passwordLabel": "Passwort",
@@ -21,7 +31,8 @@
   },
   "signUpPage": {
     "pageTitle": "Registrieren - Immobilien Hub",
-    "formTitle": "Registrieren",
+    "formTitle": "Konto erstellen",
+    "formSubtitle": "Füllen Sie das folgende Formular aus, um loszulegen.",
     "firstNameLabel": "Vorname",
     "emailLabel": "E-Mail-Addresse",
     "passwordLabel": "Passwort",

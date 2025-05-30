@@ -8,117 +8,110 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* Custom styles for form-signin from Bootstrap examples */
-    html,
-    body {
+    /* Ensure full height for html and body for vh-100 to work on container-fluid */
+    html, body {
       height: 100%;
     }
-
-    .form-signin {
-      max-width: 400px; /* Increased width slightly */
-      padding: 1rem;
+    /* Custom style for the branding panel if specific text adjustments are needed */
+    #brandingPanel .lead {
+        font-size: 1.1rem; /* Slightly smaller lead paragraph for balance */
+        max-width: 90%; /* Prevent text from stretching too wide */
     }
-
-    .form-signin .form-floating:focus-within {
-      z-index: 2;
-    }
-
-    /* Specific styling for inputs if needed, but Bootstrap's form-floating handles a lot */
-    /* #signInEmail, #signInPassword, #signUpFirstName, #signUpEmail, #signUpPassword {
-      margin-bottom: -1px;
-      border-bottom-right-radius: 0;
-      border-bottom-left-radius: 0;
-    } */
   </style>
 </head>
-<body class="d-flex align-items-center py-4 bg-body-tertiary text-center">
+<body class="bg-light">
 
-  <main class="form-signin w-100 m-auto">
-    <!-- App Title/Logo (Optional but good for branding) -->
-    <!-- You can place a logo image here if you have one -->
-    <h1 class="h1 mb-4" data-i18n="appTitle">Property Hub</h1>
-
-
-    <!-- Sign In Section -->
-    <div id="signInFormSection">
-      <form id="signInForm">
-        <h2 class="h3 mb-3 fw-normal" data-i18n="signInPage.formTitle">Sign In</h2>
-
-        <div class="form-floating mb-2">
-          <input type="email" class="form-control" id="signInEmail" placeholder="name@example.com" required data-i18n="[placeholder]signInPage.emailPlaceholder">
-          <label for="signInEmail" data-i18n="signInPage.emailLabel">Email address</label>
+  <div class="container-fluid vh-100 d-flex p-0">
+    <div class="row g-0 w-100">
+      <!-- Left Branding Panel -->
+      <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-start p-5 text-white position-relative" id="brandingPanel" style="background-image: url('../assets/images/auth-background.png'); background-size: cover; background-position: center;">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background-color: rgba(0, 0, 0, 0.5);"></div> <!-- Overlay -->
+        <div class="position-relative"> <!-- Content container -->
+          <h1 class="display-4 fw-bold mb-3" data-i18n="appTitle">Property Hub</h1>
+          <p class="lead" data-i18n="leftPanel.brandingText">Manage property maintenance tasks with ease. Schedule services, track tasks, and get real-time updates. All in one app!</p>
         </div>
-        <div class="form-floating">
-          <input type="password" class="form-control" id="signInPassword" placeholder="Password" required data-i18n="[placeholder]signInPage.passwordPlaceholder">
-          <label for="signInPassword" data-i18n="signInPage.passwordLabel">Password</label>
-        </div>
+      </div>
 
-        <button class="btn btn-primary w-100 py-2 mt-3" type="submit" id="signInButton" data-i18n="signInPage.signInButton">Sign In</button>
-        <div id="signInMessage" class="mt-3"></div> <!-- Feedback area -->
-      </form>
-      <hr class="my-4">
-      <p class="text-body-secondary">
-        <span data-i18n="signInPage.switchToSignUpPrompt">Don't have an account yet? </span>
-        <strong id="switchToSignUpLink" role="button" tabindex="0" class="text-decoration-underline" data-i18n="signInPage.switchToSignUpLink">Sign up here</strong>
-      </p>
-    </div>
+      <!-- Right Form Panel -->
+      <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center p-4 p-md-5">
+        <div class="w-100" style="max-width: 450px;">
 
-    <!-- Sign Up Section -->
-    <div id="signUpFormSection" style="display: none;">
-      <form id="signUpForm">
-        <h2 class="h3 mb-3 fw-normal" data-i18n="signUpPage.formTitle">Sign Up</h2>
-
-        <div class="form-floating mb-2">
-          <input type="text" class="form-control" id="signUpFirstName" placeholder="John Doe" required>
-          <label for="signUpFirstName" data-i18n="signUpPage.firstNameLabel">First Name</label>
-        </div>
-        <div class="form-floating mb-2">
-          <input type="email" class="form-control" id="signUpEmail" placeholder="name@example.com" required>
-          <label for="signUpEmail" data-i18n="signUpPage.emailLabel">Email address</label>
-        </div>
-        <div class="form-floating">
-          <input type="password" class="form-control" id="signUpPassword" placeholder="Password" required minlength="6">
-          <label for="signUpPassword" data-i18n="signUpPage.passwordLabel">Password</label>
-        </div>
-
-        <button class="btn btn-primary w-100 py-2 mt-3" type="submit" id="signUpButton" data-i18n="signUpPage.signUpButton">Sign Up</button>
-        <div id="signUpUserMessage" class="mt-3"></div> <!-- Renamed from signupMessage -->
-      </form>
-      <hr class="my-4">
-      <p class="text-body-secondary">
-        <span data-i18n="signUpPage.switchToSignInPrompt">Already have an account? </span>
-        <strong id="switchToSignInLink" role="button" tabindex="0" class="text-decoration-underline" data-i18n="signUpPage.switchToSignInLink">Sign in here</strong>
-      </p>
-    </div>
-
-    <!-- Resend Verification Email Modal -->
-    <div class="modal fade" id="resendVerificationModal" tabindex="-1" aria-labelledby="resendVerificationModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="resendVerificationModalLabel" data-i18n="resendVerification.modalTitle">Resend Verification Email</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="d-flex justify-content-end mb-4" id="authToggleContainer">
+            <!-- JS will populate this:
+            <span class="text-muted me-2" data-i18n="authToggle.dontHaveAccount">Don't have an account yet?</span>
+            <a href="#" id="switchToSignUpViewLink" class="fw-bold text-decoration-none" data-i18n="authToggle.signUpLinkText">Sign up</a>
+            -->
           </div>
-          <div class="modal-body">
-            <p data-i18n="resendVerification.modalDescription">Please enter your email address below to receive a new verification link.</p>
-            <div class="form-floating mb-3">
-              <input type="email" class="form-control" id="resendEmailInputModal" placeholder="name@example.com">
-              <label for="resendEmailInputModal" data-i18n="resendVerification.emailLabel">Email address</label>
-            </div>
-            <div id="resendFeedbackMessageModal" class="mt-2"></div>
+
+          <!-- Sign In Section View -->
+          <div id="signInFormSectionView">
+            <h2 class="h3 mb-1 fw-semibold" data-i18n="signInPage.formTitle">Sign In</h2>
+            <p class="text-muted mb-4" data-i18n="signInPage.formSubtitle">Welcome back! Please enter your details.</p>
+            <form id="signInForm">
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="signInEmail" placeholder="name@example.com" required>
+                <label for="signInEmail" data-i18n="signInPage.emailLabel">Email address</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="signInPassword" placeholder="Password" required>
+                <label for="signInPassword" data-i18n="signInPage.passwordLabel">Password</label>
+              </div>
+              <button class="btn btn-primary w-100 py-2" type="submit" id="signInButton" data-i18n="signInPage.signInButton">Sign In</button>
+              <div id="signInMessage" class="mt-3"></div>
+            </form>
           </div>
-          <div class="modal-footer">
-            <!-- Assuming 'common.closeButton' key might not exist yet, using direct text. Update if key is added. -->
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-warning" id="resendEmailModalButton" data-i18n="resendVerification.resendButton">Resend Email</button>
+
+          <!-- Sign Up Section View -->
+          <div id="signUpFormSectionView" style="display: none;">
+            <h2 class="h3 mb-1 fw-semibold" data-i18n="signUpPage.formTitle">Create Account</h2>
+            <p class="text-muted mb-4" data-i18n="signUpPage.formSubtitle">Fill out the form below to get started.</p>
+            <form id="signUpForm">
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="signUpFirstName" placeholder="John Doe" required>
+                <label for="signUpFirstName" data-i18n="signUpPage.firstNameLabel">First Name</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="signUpEmail" placeholder="name@example.com" required>
+                <label for="signUpEmail" data-i18n="signUpPage.emailLabel">Email address</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="signUpPassword" placeholder="Password" required minlength="6">
+                <label for="signUpPassword" data-i18n="signUpPage.passwordLabel">Password</label>
+              </div>
+              <button class="btn btn-primary w-100 py-2" type="submit" id="signUpButton" data-i18n="signUpPage.signUpButton">Sign Up</button>
+              <div id="signUpUserMessage" class="mt-3"></div>
+            </form>
           </div>
+          <p class="mt-5 mb-3 text-muted text-center">&copy; <span id="currentYear"></span> Property Hub</p>
+        </div>
+      </div> <!-- End Right Form Panel -->
+    </div> <!-- End Row -->
+  </div> <!-- End Container Fluid -->
+
+  <!-- Resend Verification Email Modal -->
+  <div class="modal fade" id="resendVerificationModal" tabindex="-1" aria-labelledby="resendVerificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="resendVerificationModalLabel" data-i18n="resendVerification.modalTitle">Resend Verification Email</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p data-i18n="resendVerification.modalDescription">Please enter your email address below to receive a new verification link.</p>
+          <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="resendEmailInputModal" placeholder="name@example.com">
+            <label for="resendEmailInputModal" data-i18n="resendVerification.emailLabel">Email address</label>
+          </div>
+          <div id="resendFeedbackMessageModal" class="mt-2"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-warning" id="resendEmailModalButton" data-i18n="resendVerification.resendButton">Resend Email</button>
         </div>
       </div>
     </div>
-    <!-- End Resend Verification Email Modal -->
-
-    <p class="mt-5 mb-3 text-body-secondary">&copy; <span id="currentYear"></span> Property Hub</p> <!-- Basic footer -->
-  </main>
+  </div>
+  <!-- End Resend Verification Email Modal -->
 
   <script type="module" src="js/supabase-client.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script> 
