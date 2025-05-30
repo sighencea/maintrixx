@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', function () {
     signUpFormSection.style.display = 'none';  // Hide Sign Up by default
   }
 
+  // Dynamic Year for Footer
+  const currentYearSpan = document.getElementById('currentYear');
+  if (currentYearSpan) {
+    currentYearSpan.textContent = new Date().getFullYear();
+  }
+
   // View Toggling Logic
   if (switchToSignUpLink) {
     switchToSignUpLink.addEventListener('click', function(e) {
