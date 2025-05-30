@@ -383,6 +383,10 @@ The original request was "stroke of all borders", not necessarily hover/active s
     cursor: pointer;
 }
 
+.page-content-wrapper .container-fluid {
+  height: 100vh; /* Default for smaller screens */
+}
+
 @media (min-width: 1921px) and (min-height: 1081px) {
   body {
     /* Ensure the body can center the wrapper if it's smaller than the viewport */
