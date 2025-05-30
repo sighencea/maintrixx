@@ -396,7 +396,7 @@ The original request was "stroke of all borders", not necessarily hover/active s
 
   .page-content-wrapper {
     width: 1200px;
-    height: 200px;
+    height: 800px;
     margin-top: 20px; /* Add some top margin */
     margin-bottom: 20px; /* Add some bottom margin */
     margin-left: auto; /* Horizontal centering if body is not flex/grid parent */
