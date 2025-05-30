@@ -200,5 +200,10 @@
       "active": "Active",
       "inactive": "Inactive"
     }
+  },
+  "emailVerifiedSuccessPage": {
+    "title": "Email Verified - Property Hub",
+    "hintText": "Your email was verified successfully.",
+    "loginButton": "Login"
   }
 }
