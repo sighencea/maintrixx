@@ -361,3 +361,12 @@ The original request was "stroke of all borders", not necessarily hover/active s
 .modal-content {
     border-color: #E5E7EB !important;
 }
+
+/* Responsive column hiding for staff table on mobile */
+@media (max-width: 767.98px) {
+  .staff-col-profile,
+  .staff-col-assigned-tasks,
+  .staff-col-status {
+    display: none !important;
+  }
+}
