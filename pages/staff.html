@@ -81,21 +81,21 @@
         <table class="table table-hover align-middle">
           <thead class="table-light">
             <tr>
-              <th scope="col" data-i18n="staffPage.table.header.profile">Profile</th>
+              <th scope="col" data-i18n="staffPage.table.header.profile" class="staff-col-profile">Profile</th>
               <th scope="col" data-i18n="staffPage.table.header.name">Name</th>
               <th scope="col" data-i18n="staffPage.table.header.role">Role</th>
-              <th scope="col" data-i18n="staffPage.table.header.assignedTasks">Assigned Tasks</th>
-              <th scope="col" data-i18n="staffPage.table.header.status">Status</th>
+              <th scope="col" data-i18n="staffPage.table.header.assignedTasks" class="staff-col-assigned-tasks">Assigned Tasks</th>
+              <th scope="col" data-i18n="staffPage.table.header.status" class="staff-col-status">Status</th>
               <th scope="col" data-i18n="staffPage.table.header.actions">Actions</th>
             </tr>
           </thead>
           <tbody id="staffTableBody">
             <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Alice Wonderland</td>
       <td>Property Manager</td>
-      <td>5</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">5</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -106,11 +106,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Bob Builder</td>
       <td>Maintenance Supervisor</td>
-      <td>12</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">12</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -121,11 +121,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Charlie Brown</td>
       <td>Leasing Agent</td>
-      <td>0</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">0</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -136,11 +136,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Diana Prince</td>
       <td>Accountant</td>
-      <td>3</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">3</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -151,11 +151,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Edward Scissorhands</td>
       <td>Electrician</td>
-      <td>8</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">8</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -166,11 +166,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Fiona Apple</td>
       <td>Plumber</td>
-      <td>1</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">1</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -181,11 +181,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>George Jetson</td>
       <td>Cleaner</td>
-      <td>15</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">15</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -196,11 +196,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Hannah Montana</td>
       <td>Groundskeeper</td>
-      <td>7</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">7</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -211,11 +211,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Ivan Drago</td>
       <td>Security Officer</td>
-      <td>2</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">2</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -226,11 +226,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Julia Child</td>
       <td>Concierge</td>
-      <td>9</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">9</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -241,11 +241,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Kevin McCallister</td>
       <td>IT Support</td>
-      <td>4</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">4</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -256,11 +256,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Laura Palmer</td>
       <td>Property Manager</td>
-      <td>11</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">11</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -271,11 +271,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Michael Knight</td>
       <td>Maintenance Supervisor</td>
-      <td>6</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">6</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -286,11 +286,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Nina Simone</td>
       <td>Leasing Agent</td>
-      <td>0</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">0</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -301,11 +301,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Oscar Wilde</td>
       <td>Accountant</td>
-      <td>14</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">14</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -316,11 +316,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Patricia Parker</td>
       <td>Electrician</td>
-      <td>10</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">10</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -331,11 +331,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Quincy Jones</td>
       <td>Plumber</td>
-      <td>3</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">3</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -346,11 +346,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Rachel Green</td>
       <td>Cleaner</td>
-      <td>7</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">7</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -361,11 +361,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Samuel Jackson</td>
       <td>Groundskeeper</td>
-      <td>1</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">1</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -376,11 +376,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Tina Turner</td>
       <td>Security Officer</td>
-      <td>13</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">13</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -391,11 +391,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Ulysses Moore</td>
       <td>Concierge</td>
-      <td>8</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">8</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -406,11 +406,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Victoria Beckham</td>
       <td>IT Support</td>
-      <td>2</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">2</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -421,11 +421,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Walter White</td>
       <td>Property Manager</td>
-      <td>5</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">5</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -436,11 +436,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Xena Warrior</td>
       <td>Maintenance Supervisor</td>
-      <td>11</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">11</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -451,11 +451,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Yoda Master</td>
       <td>Leasing Agent</td>
-      <td>1</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">1</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -466,11 +466,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Zachary Taylor</td>
       <td>Accountant</td>
-      <td>8</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">8</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -481,11 +481,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Amy Pond</td>
       <td>Electrician</td>
-      <td>3</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">3</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -496,11 +496,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Bruce Wayne</td>
       <td>Plumber</td>
-      <td>14</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">14</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -511,11 +511,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Clara Oswald</td>
       <td>Cleaner</td>
-      <td>9</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">9</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -526,11 +526,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>David Tennant</td>
       <td>Groundskeeper</td>
-      <td>0</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">0</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -541,11 +541,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Elle Woods</td>
       <td>Security Officer</td>
-      <td>6</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">6</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -556,11 +556,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Forrest Gump</td>
       <td>Concierge</td>
-      <td>12</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">12</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -571,11 +571,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Grace Hopper</td>
       <td>IT Support</td>
-      <td>2</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">2</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -586,11 +586,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Harry Potter</td>
       <td>Property Manager</td>
-      <td>9</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">9</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -601,11 +601,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Indiana Jones</td>
       <td>Maintenance Supervisor</td>
-      <td>4</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">4</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -616,11 +616,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Jack Sparrow</td>
       <td>Leasing Agent</td>
-      <td>11</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">11</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -631,11 +631,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Katniss Everdeen</td>
       <td>Accountant</td>
-      <td>7</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">7</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -646,11 +646,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Luke Skywalker</td>
       <td>Electrician</td>
-      <td>0</td>
-      <td><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
+      <td class="staff-col-assigned-tasks">0</td>
+      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -661,11 +661,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Mary Poppins</td>
       <td>Plumber</td>
-      <td>13</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">13</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
@@ -676,11 +676,11 @@
       </td>
     </tr>
     <tr>
-      <td><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
+      <td class="staff-col-profile"><i class="fas fa-user-circle fa-2x text-secondary"></i></td>
       <td>Neo Anderson</td>
       <td>Cleaner</td>
-      <td>8</td>
-      <td><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
+      <td class="staff-col-assigned-tasks">8</td>
+      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
       <td>
         <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
           <i class="fas fa-eye"></i>
