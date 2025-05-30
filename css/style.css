@@ -382,3 +382,28 @@ The original request was "stroke of all borders", not necessarily hover/active s
 #authToggleContainer a {
     cursor: pointer;
 }
+
+@media (min-width: 1921px) and (min-height: 1081px) {
+  body {
+    /* Ensure the body can center the wrapper if it's smaller than the viewport */
+    display: flex;
+    flex-direction: column; /* Keep normal flow for other body content if any */
+    align-items: center; /* Horizontal centering for the wrapper */
+    justify-content: center; /* Vertical centering for the wrapper */
+    min-height: 100vh; /* Ensure body takes full viewport height for centering to work */
+    margin: 0; /* Reset default body margin */
+  }
+
+  .page-content-wrapper {
+    width: 1200px;
+    height: 200px;
+    margin-top: 20px; /* Add some top margin */
+    margin-bottom: 20px; /* Add some bottom margin */
+    margin-left: auto; /* Horizontal centering if body is not flex/grid parent */
+    margin-right: auto; /* Horizontal centering if body is not flex/grid parent */
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: auto; /* Handle content exceeding the fixed height */
+    background-color: #FFFFFF; /* Added a background color to distinguish from body */
+  }
+}
