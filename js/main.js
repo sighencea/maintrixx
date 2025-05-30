@@ -3,24 +3,25 @@ document.addEventListener('DOMContentLoaded', function () {
   const signInForm = document.getElementById('signInForm');
   const signUpForm = document.getElementById('signUpForm');
   const signInMessage = document.getElementById('signInMessage');
-  const signUpUserMessage = document.getElementById('signUpUserMessage'); // Renamed
+  const signUpUserMessage = document.getElementById('signUpUserMessage');
 
-  const signInFormSection = document.getElementById('signInFormSection');
-  const signUpFormSection = document.getElementById('signUpFormSection');
-  const switchToSignUpLink = document.getElementById('switchToSignUpLink');
-  const switchToSignInLink = document.getElementById('switchToSignInLink');
+  // New Section View and Toggle Container References
+  const authToggleContainer = document.getElementById('authToggleContainer');
+  const signInFormSectionView = document.getElementById('signInFormSectionView');
+  const signUpFormSectionView = document.getElementById('signUpFormSectionView');
 
-  // Resend Verification Modal Elements
+  // Resend Verification Modal Elements (IDs remain the same)
   const resendVerificationModalEl = document.getElementById('resendVerificationModal');
   const resendModal = resendVerificationModalEl ? new bootstrap.Modal(resendVerificationModalEl) : null;
   const resendEmailInputModal = document.getElementById('resendEmailInputModal');
   const resendEmailModalButton = document.getElementById('resendEmailModalButton');
   const resendFeedbackMessageModal = document.getElementById('resendFeedbackMessageModal');
 
-  // Initial View Setup
-  if (signInFormSection && signUpFormSection) {
-    signInFormSection.style.display = 'block'; // Show Sign In by default
-    signUpFormSection.style.display = 'none';  // Hide Sign Up by default
+  // Initial View Setup - Updated for new section views
+  if (signInFormSectionView && signUpFormSectionView) {
+    signInFormSectionView.style.display = 'block'; // Show Sign In by default
+    signUpFormSectionView.style.display = 'none';  // Hide Sign Up by default
+    setupAuthToggle('signUp'); // Initially, display link to switch TO Sign Up
   }
 
   // Dynamic Year for Footer
@@ -29,29 +30,59 @@ document.addEventListener('DOMContentLoaded', function () {
     currentYearSpan.textContent = new Date().getFullYear();
   }
 
-  // View Toggling Logic
-  if (switchToSignUpLink) {
-    switchToSignUpLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      if (signInFormSection) signInFormSection.style.display = 'none';
-      if (signUpFormSection) signUpFormSection.style.display = 'block';
-      if (signInMessage) signInMessage.textContent = '';
-      if (signUpUserMessage) signUpUserMessage.textContent = '';
-      if (resendModal) resendModal.hide();
-      if (resendFeedbackMessageModal) resendFeedbackMessageModal.textContent = '';
-    });
-  }
+  // New View Toggling Logic Function
+  function setupAuthToggle(viewToShow) {
+    if (!authToggleContainer) return;
 
-  if (switchToSignInLink) {
-    switchToSignInLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      if (signUpFormSection) signUpFormSection.style.display = 'none';
-      if (signInFormSection) signInFormSection.style.display = 'block';
-      if (signInMessage) signInMessage.textContent = '';
-      if (signUpUserMessage) signUpUserMessage.textContent = '';
-      if (resendModal) resendModal.hide();
-      if (resendFeedbackMessageModal) resendFeedbackMessageModal.textContent = '';
-    });
+    let promptKey, linkKey, linkId, nextViewToShow;
+
+    if (viewToShow === 'signUp') {
+      promptKey = 'authToggle.dontHaveAccount';
+      linkKey = 'authToggle.signUpLinkText';
+      linkId = 'switchToSignUpViewLink';
+      nextViewToShow = 'signUp';
+    } else {
+      promptKey = 'authToggle.alreadyHaveAccount';
+      linkKey = 'authToggle.signInLinkText';
+      linkId = 'switchToSignInViewLink';
+      nextViewToShow = 'signIn';
+    }
+
+    const promptText = typeof i18next !== 'undefined' ? i18next.t(promptKey) : promptKey;
+    const linkText = typeof i18next !== 'undefined' ? i18next.t(linkKey) : linkKey;
+
+    authToggleContainer.innerHTML = `
+      <span class="text-muted me-2" data-i18n="${promptKey}">${promptText}</span>
+      <a href="#" id="${linkId}" class="fw-bold text-decoration-none" data-i18n="${linkKey}">${linkText}</a>
+    `;
+
+    const newToggleLink = document.getElementById(linkId);
+    if (newToggleLink) {
+      newToggleLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (nextViewToShow === 'signUp') {
+          if (signInFormSectionView) signInFormSectionView.style.display = 'none';
+          if (signUpFormSectionView) signUpFormSectionView.style.display = 'block';
+          setupAuthToggle('signIn');
+        } else {
+          if (signUpFormSectionView) signUpFormSectionView.style.display = 'none';
+          if (signInFormSectionView) signInFormSectionView.style.display = 'block';
+          setupAuthToggle('signUp');
+        }
+
+        if (signInMessage) signInMessage.textContent = '';
+        if (signUpUserMessage) signUpUserMessage.textContent = '';
+
+        const resendModalEl = document.getElementById('resendVerificationModal');
+        const resendModalInstance = bootstrap.Modal.getInstance(resendModalEl);
+        if (resendModalInstance) {
+          resendModalInstance.hide();
+        }
+        if (resendFeedbackMessageModal) {
+             resendFeedbackMessageModal.textContent = '';
+        }
+      });
+    }
   }
 
   // Sign-up Logic (ID of form is still 'signUpForm')

@@ -370,3 +370,15 @@ The original request was "stroke of all borders", not necessarily hover/active s
     display: none !important;
   }
 }
+
+/* Custom styles for the branding panel in index.html */
+#brandingPanel .position-relative h1,
+#brandingPanel .position-relative .lead {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* Subtle text shadow for better readability */
+}
+
+/* Ensure the auth toggle links have a pointer cursor */
+/* This might already be handled by Bootstrap's text-decoration-none on an <a>, but explicit is fine */
+#authToggleContainer a {
+    cursor: pointer;
+}
