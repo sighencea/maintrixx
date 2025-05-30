@@ -99,6 +99,20 @@ function updateContent() {
   const elements = document.querySelectorAll('[data-i18n]');
   elements.forEach(el => {
     const key = el.getAttribute('data-i18n');
+        
+    if (key.startsWith('[') && key.includes(']')) {
+        const attrMatch = key.match(/\[(.*?)\](.*)/);
+        if (attrMatch && attrMatch.length === 3) {
+            const attrName = attrMatch[1];
+            const actualKey = attrMatch[2];
+            const attrTranslation = i18next.t(actualKey);
+            el.setAttribute(attrName, attrTranslation);
+            // If an attribute was specifically targeted, do not attempt to set innerHTML with the [attr]key
+            return; 
+        }
+    }
+
+    // If not an attribute-specific key, proceed to get the translation for innerHTML/value/placeholder
     let translation = i18next.t(key);
 
     // Basic interpolation for count - can be expanded
