@@ -156,5 +156,44 @@
     "welcomeMessage": "Welcome, {{displayName}}! This is your new dashboard page.",
     "welcomeProfileNotFound": "Welcome! Profile not found. This is your new dashboard page.",
     "profileUnexpectedError": "An unexpected error occurred loading your profile."
+  },
+  "staffPage": {
+    "title": "Staff Management - Property Hub",
+    "header": "Staff Management",
+    "filters": {
+      "searchPlaceholder": "Search staff...",
+      "roleDefault": "Filter by User Role",
+      "roleManager": "Property Manager",
+      "roleMaintenance": "Maintenance Supervisor",
+      "roleLeasing": "Leasing Agent",
+      "roleAccountant": "Accountant",
+      "roleElectrician": "Electrician",
+      "rolePlumber": "Plumber",
+      "roleCleaner": "Cleaner",
+      "roleGroundskeeper": "Groundskeeper",
+      "roleSecurity": "Security Officer",
+      "taskLoadDesc": "Sort by Task Load: Descending",
+      "taskLoadAsc": "Sort by Task Load: Ascending",
+      "statusActive": "Status: Active",
+      "statusInactive": "Status: Inactive"
+    },
+    "table": {
+      "header": {
+        "profile": "Profile",
+        "name": "Name",
+        "role": "Role",
+        "assignedTasks": "Assigned Tasks",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "actions": {
+        "viewDetailsTooltip": "View Details",
+        "editProfileTooltip": "Edit Profile"
+      }
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
   }
 }
