@@ -46,7 +46,10 @@
         <button class="btn btn-outline-primary" id="markAllReadBtn" data-i18n="notificationsPage.markAllRead">Mark all as read</button>
       </div>
 
-      <h4 class="mt-4" data-i18n="notificationsPage.activeNotificationsHeading">Active Notifications</h4> <!-- Added mt-4 for spacing -->
+        <div class="mb-3" id="notificationFilterChips">
+          <button type="button" class="btn btn-primary me-2" id="showActiveNotifications" data-i18n="notificationsPage.chips.active">Active</button>
+          <button type="button" class="btn btn-outline-secondary" id="showInactiveNotifications" data-i18n="notificationsPage.chips.inactive">Inactive</button>
+        </div>
       <div id="activeNotificationsPlaceholder" class="text-muted p-3" style="display: none;" data-i18n="notificationsPage.activePlaceholder"> <!-- Added padding and initial display none -->
         You're all caught up! No new notifications here.
       </div>
@@ -108,7 +111,6 @@
         </li>
       </ul>
 
-      <h4 class="mt-4" data-i18n="notificationsPage.inactiveNotificationsHeading">Inactive Notifications</h4> <!-- Added mt-4 for spacing -->
       <div id="inactiveNotificationsPlaceholder" class="text-muted p-3" style="display: none;" data-i18n="notificationsPage.inactivePlaceholder"> <!-- Added padding and initial display none -->
         No inactive notifications.
       </div>
