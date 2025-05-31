@@ -417,3 +417,7 @@ The original request was "stroke of all borders", not necessarily hover/active s
     /* This will override the vh-100 class effect within this specific context */
   }
 }
+
+.form-label {
+  font-weight: bold;
+}
