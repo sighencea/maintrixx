@@ -421,3 +421,7 @@ The original request was "stroke of all borders", not necessarily hover/active s
 .form-label {
   font-weight: bold;
 }
+
+.dropdown-toggle-no-caret::after {
+  display: none;
+}
