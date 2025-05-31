@@ -144,24 +144,34 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
         } else if (data.user) {
+          let firstNameDebugMessage = " (Debug: first_name NOT seen in user_metadata)";
+          if (data.user.user_metadata && data.user.user_metadata.first_name) {
+            firstNameDebugMessage = " (Debug: first_name '" + data.user.user_metadata.first_name + "' seen in user_metadata)";
+          }
+
           if (data.user.identities && data.user.identities.length === 0) {
             if (signUpUserMessage) {
-                signUpUserMessage.textContent = i18next.t('resendVerification.alertSignupEmailResent', { email: email });
+                signUpUserMessage.textContent = i18next.t('resendVerification.alertSignupEmailResent', { email: email }) + firstNameDebugMessage;
                 signUpUserMessage.className = 'alert alert-info';
             }
             if (resendModal) resendModal.hide();
           } else {
             if (resendModal) resendModal.hide();
             if (signUpUserMessage) {
-                signUpUserMessage.textContent = i18next.t('mainJs.signup.success');
+                signUpUserMessage.textContent = i18next.t('mainJs.signup.success') + firstNameDebugMessage;
                 signUpUserMessage.className = 'alert alert-success';
             }
             signUpForm.reset();
           }
         } else {
+          let firstNameDebugMessage = " (Debug: first_name NOT seen in user_metadata)";
+          // It's unlikely user_metadata would be available here if data.user is not, but for consistency:
+          if (data && data.user && data.user.user_metadata && data.user.user_metadata.first_name) {
+             firstNameDebugMessage = " (Debug: first_name '" + data.user.user_metadata.first_name + "' seen in user_metadata)";
+          }
           if (resendModal) resendModal.hide();
           if (signUpUserMessage) {
-            signUpUserMessage.textContent = i18next.t('mainJs.signup.successUnexpected');
+            signUpUserMessage.textContent = i18next.t('mainJs.signup.successUnexpected') + firstNameDebugMessage;
             signUpUserMessage.className = 'alert alert-info';
           }
         }
