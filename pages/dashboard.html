@@ -33,9 +33,18 @@
       <div class="page-title">
         <span data-i18n="dashboardPage.header">Dashboard</span>
       </div>
-      <div class="top-bar-icons">
+      <div class="top-bar-icons d-flex align-items-center">
         <a href="notifications.html"><i class="fas fa-bell"></i></a>
-        <a href="account.html"><i class="fas fa-user-cog"></i></a>
+        <div class="dropdown">
+          <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-cog"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="account.html">Account Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Sign Out</a></li>
+          </ul>
+        </div>
       </div>
     </div>
     
