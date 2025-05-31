@@ -49,8 +49,6 @@
           alert(i18next.t('dashboardCheckJs.signOutUnexpectedError')); 
         }
       });
-    } else { 
-      console.warn('Sign Out button (signOutButton) not found on dashboard page.'); 
     }
   }
   
