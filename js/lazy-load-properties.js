@@ -110,6 +110,58 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 50); // Debounce time
     };
 
+function displayProperties(properties) {
+    const propertiesContainer = document.getElementById('propertiesContainer');
+    if (!propertiesContainer) {
+        console.error('Properties container not found.');
+        return;
+    }
+
+    if (properties.length === 0 && initialOffset === 0) { // Check initialOffset here
+        propertiesContainer.innerHTML = '<p data-i18n="propertiesPage.noProperties">No properties found.</p>';
+        if (typeof i18next !== 'undefined' && typeof i18next.t === 'function') {
+            i18next.reloadResources().then(() => {
+                 i18next.updateContent();
+            });
+        }
+        return;
+    }
+
+    let propertiesHtml = properties.map(property => {
+        const imageUrl = property.property_image_url ? property.property_image_url : 'https://via.placeholder.com/300x200.png?text=No+Image';
+        const propertyName = property.property_name || 'Unnamed Property';
+        const propertyAddress = property.address || 'Address not available';
+        const propertyType = property.property_type || 'N/A';
+        const propertyId = property.id;
+
+        return `
+          <div class="col-lg-4 col-md-6 mb-4">
+            <a href="property-details.html?id=${propertyId}" class="text-decoration-none d-block h-100">
+              <div class="card property-card-link h-100">
+                <img src="${imageUrl}" class="card-img-top" alt="${propertyName}" style="height: 200px; object-fit: cover;">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title text-primary">${propertyName}</h5>
+                  <p class="card-text text-secondary flex-grow-1">${propertyAddress}</p>
+                  <p class="card-text"><small class="text-muted">Type: ${propertyType}</small></p>
+                  <span class="btn btn-sm btn-outline-primary mt-auto align-self-start">View Details</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        `;
+    }).join('');
+
+    if (initialOffset === 0) { // Check initialOffset for full replacement
+        propertiesContainer.innerHTML = propertiesHtml;
+    } else {
+        propertiesContainer.innerHTML += propertiesHtml;
+    }
+
+    if (typeof i18next !== 'undefined' && typeof i18next.t === 'function') {
+        i18next.updateContent();
+    }
+}
+
     // Main execution logic
     if (allCards.length > 0) {
         if (performInitialPropertyLoad()) {
