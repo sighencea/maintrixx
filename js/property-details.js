@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // Function to display messages to the user
-    functionshowMessage(message, type = 'info') {
+    function showMessage(message, type = 'info') {
         if (!mainContentContainer) return;
         const messageDiv = document.createElement('div');
         messageDiv.className = `alert alert-${type} mt-3`;
