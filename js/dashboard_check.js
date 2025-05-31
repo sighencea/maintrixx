@@ -56,7 +56,6 @@
   async function fetchAndDisplayUserProfile(user) {
     const welcomeMessageElement = document.getElementById('welcomeMessage');
     if (!welcomeMessageElement) {
-      console.error('Welcome message element (welcomeMessage) not found.');
       return;
     }
 
