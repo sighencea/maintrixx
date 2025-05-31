@@ -158,10 +158,10 @@
       "successUnexpected": "Sign-up successful, awaiting confirmation (unexpected response). Check email.",
       "unexpectedError": "Unexpected sign-up error."
     },
-    "login": {
+    "signIn": {
       "fillFields": "Please fill in both email and password.",
       "supabaseInitError": "Supabase client not initialized. Check console.",
-      "loginFailed": "Login failed: {{message}}",
+      "signInFailed": "Login failed: {{message}}",
       "loginFailedCheckCredentials": "Login failed. Check credentials.",
       "success": "Login successful! Redirecting...",
       "unexpectedError": "Unexpected login error."
