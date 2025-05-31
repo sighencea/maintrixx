@@ -14,16 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (properties.length === 0 && initialOffset === 0) {
-            propertiesContainer.innerHTML = '<div class="col-12"><p data-i18n="propertiesPage.noProperties">No properties found for your account.</p></div>';
-            if (typeof i18next !== 'undefined' && typeof i18next.t === 'function') {
-                i18next.reloadResources().then(() => {
-                    i18next.updateContent();
-                });
-            }
-            allPropertiesLoaded = true; // No properties to load
-            return;
-        }
+    if (properties.length === 0 && initialOffset === 0) {
+        const noPropertiesMessage = (typeof i18next !== 'undefined' && typeof i18next.t === 'function') ?
+                                    i18next.t('propertiesPage.noProperties') :
+                                    'No properties found for your account.';
+        propertiesContainer.innerHTML = `<div class="col-12"><p>${noPropertiesMessage}</p></div>`;
+        allPropertiesLoaded = true; // No properties to load
+        return;
+    }
 
         let propertiesHtml = properties.map(property => {
             const imageUrl = property.property_image_url ? property.property_image_url : 'https://via.placeholder.com/300x200.png?text=No+Image';
@@ -60,10 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
             propertiesContainer.innerHTML += propertiesHtml;
         }
 
-        // Update i18n content if new elements were added
-        if (typeof i18next !== 'undefined' && typeof i18next.t === 'function') {
-            i18next.updateContent();
-        }
     }
 
     async function fetchProperties(offset, limit) {
