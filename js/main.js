@@ -313,6 +313,41 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+
+  // Global Sign Out Button Logic
+  const globalSignOutButton = document.getElementById('globalSignOutButton');
+
+  if (globalSignOutButton) {
+    globalSignOutButton.addEventListener('click', async function(event) {
+      event.preventDefault();
+      console.log('Global sign out button clicked.');
+      if (window._supabase) {
+        try {
+          const { error } = await window._supabase.auth.signOut();
+          if (error) {
+            console.error('Error signing out:', error.message);
+            alert('Error signing out: ' + error.message); // Or handle more gracefully
+          } else {
+            console.log('User signed out successfully.');
+            // Clear any session-related local storage if necessary (onboardingComplete is one example)
+            localStorage.removeItem('onboardingComplete');
+            // Redirect to login page (index.html)
+            window.location.href = '../index.html'; // Assuming js/main.js is in js/ folder, so ../index.html
+          }
+        } catch (e) {
+          console.error('Exception during sign out:', e);
+          alert('An unexpected error occurred during sign out.');
+        }
+      } else {
+        console.error('Supabase client not available for sign out.');
+        alert('Supabase client not available. Cannot sign out.');
+      }
+    });
+  } else {
+    // This else block can be removed if pages without the button are expected.
+    // For debugging during development, it can be useful.
+    // console.log('Global sign out button not found on this page.');
+  }
 });
 
 // Sidebar Toggler Logic (This remains unchanged and in its own DOMContentLoaded listener)
