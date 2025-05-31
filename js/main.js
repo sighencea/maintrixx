@@ -112,8 +112,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return; 
       }
 
-      localStorage.setItem('pendingProfileUpdate_firstName', firstName); 
-
       try {
         if (!window._supabase) { 
           if (signUpUserMessage) {
@@ -121,13 +119,15 @@ document.addEventListener('DOMContentLoaded', function () {
             signUpUserMessage.className = 'alert alert-danger';
           }
           console.error('Supabase client not available for sign-up.'); 
-          localStorage.removeItem('pendingProfileUpdate_firstName');
           return; 
         }
-        const { data, error } = await window._supabase.auth.signUp(
-          { email: email, password: password },
-          { data: { first_name: firstName } }
-        );
+        const { data, error } = await window._supabase.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: { first_name: firstName }
+          }
+        });
         if (error) {
           if (error.message && (error.message.includes('User already registered') || error.message.includes('already registered'))) {
             if (signUpUserMessage) {
@@ -143,7 +143,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 signUpUserMessage.className = 'alert alert-danger';
             }
           }
-          localStorage.removeItem('pendingProfileUpdate_firstName');
         } else if (data.user) {
           if (data.user.identities && data.user.identities.length === 0) {
             if (signUpUserMessage) {
@@ -151,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 signUpUserMessage.className = 'alert alert-info';
             }
             if (resendModal) resendModal.hide();
-            localStorage.removeItem('pendingProfileUpdate_firstName');
           } else {
             if (resendModal) resendModal.hide();
             if (signUpUserMessage) {
@@ -166,15 +164,13 @@ document.addEventListener('DOMContentLoaded', function () {
             signUpUserMessage.textContent = i18next.t('mainJs.signup.successUnexpected');
             signUpUserMessage.className = 'alert alert-info';
           }
-          localStorage.removeItem('pendingProfileUpdate_firstName');
         }
       } catch (e) { 
         console.error('Sign-up catch:', e); 
         if (signUpUserMessage) {
-            signUpUserMessage.textContent = i18next.t('mainJs.signup.unexpectedError');
+            signUpUserMessage.textContent = i18next.t('mainJs.signup.unexpectedError') + (e.message ? ': ' + e.message : '');
             signUpUserMessage.className = 'alert alert-danger';
         }
-        localStorage.removeItem('pendingProfileUpdate_firstName');
       }
     });
   } else { console.error('signUpForm not found'); }
@@ -224,22 +220,6 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         } else if (data.user) {
           if (resendModal) resendModal.hide();
-          const storedFirstName = localStorage.getItem('pendingProfileUpdate_firstName');
-          if (storedFirstName) { // Profile update logic remains
-            console.log('Found pending first_name in localStorage:', storedFirstName);
-            console.log('Attempting to update profile for user ID:', data.user.id, 'with first_name:', storedFirstName);
-            const { error: updateError } = await window._supabase
-              .from('profiles')
-              .update({ first_name: storedFirstName })
-              .eq('id', data.user.id);
-
-            if (updateError) {
-              console.error('Error updating profile first_name during sign-in:', updateError.message);
-            } else {
-              console.log('Successfully updated profile first_name during sign-in.');
-            }
-            localStorage.removeItem('pendingProfileUpdate_firstName');
-          }
           if (signInMessage) {
             signInMessage.textContent = i18next.t('mainJs.signIn.success'); // Assumes mainJs.signIn keys
             signInMessage.className = 'alert alert-success';
