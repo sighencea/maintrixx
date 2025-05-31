@@ -90,7 +90,7 @@
       } else if (profileData) {
         // If first_name is null or empty, provide a generic welcome.
         const displayName = profileData.first_name ? profileData.first_name : 'User';
-        welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.welcomeMessage', { displayName: displayName });
+        welcomeMessageElement.textContent = "Welcome " + displayName + ". We wish you a great day!";
         console.log('Profile data:', profileData);
       } else {
         // This case (no error, no data with .single()) should ideally not happen if RLS allows access
