@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 signUpUserMessage.textContent = i18next.t('mainJs.signup.success');
                 signUpUserMessage.className = 'alert alert-success';
             }
-            signupForm.reset();
+            signUpForm.reset();
           }
         } else {
           if (resendModal) resendModal.hide();
