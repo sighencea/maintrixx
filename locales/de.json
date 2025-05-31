@@ -158,10 +158,10 @@
       "successUnexpected": "Registrierung erfolgreich, warte auf Bestätigung (unerwartete Antwort). E-Mail prüfen.",
       "unexpectedError": "Unerwarteter Registrierungsfehler."
     },
-    "login": {
+    "signIn": {
       "fillFields": "Bitte geben Sie sowohl E-Mail als auch Passwort ein.",
       "supabaseInitError": "Supabase-Client nicht initialisiert. Überprüfen Sie die Konsole.",
-      "loginFailed": "Anmeldung fehlgeschlagen: {{message}}",
+      "signInFailed": "Anmeldung fehlgeschlagen: {{message}}",
       "loginFailedCheckCredentials": "Anmeldung fehlgeschlagen. Überprüfen Sie Ihre Anmeldedaten.",
       "success": "Anmeldung erfolgreich! Weiterleitung...",
       "unexpectedError": "Unerwarteter Anmeldefehler."
