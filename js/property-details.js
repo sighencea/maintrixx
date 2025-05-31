@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Fetch tasks for the property
             const { data: tasks, error: tasksError } = await window._supabase
                 .from('tasks')
-                .select('task_title, task_due_date, status, task_priority, staff_id') // Corrected column names
+                .select('task_title, task_due_date, task_status, task_priority, staff_id') // Corrected column names
                 .eq('property_id', propertyId)
                 .order('task_due_date', { ascending: true });
 
@@ -147,14 +147,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <p class="card-text mb-1"><small class="text-muted">Assignee: ${staffName}</small></p>
                             <p class="card-text mb-1"><small class="text-muted">Due: ${dueDate}</small></p>
                             <p class="card-text mb-1"><small class="text-muted">Priority: ${task.task_priority || 'N/A'}</small></p>
-                            <p class="card-text mb-0"><small class="text-muted">Status: ${task.status || 'N/A'}</small></p>
+                            <p class="card-text mb-0"><small class="text-muted">Status: ${task.task_status || 'N/A'}</small></p>
                         </div>
                     </div>
                 `;
 
-                if (task.status === 'Completed') {
+                if (task.task_status === 'Completed') {
                     completedTasksHtml.push(taskCardHtml);
-                } else if (ACTIVE_TASK_STATUSES.includes(task.status)) {
+                } else if (ACTIVE_TASK_STATUSES.includes(task.task_status)) {
                     activeTasksHtml.push(taskCardHtml);
                 }
             });
