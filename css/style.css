@@ -435,7 +435,7 @@ The original request was "stroke of all borders", not necessarily hover/active s
 
 @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
   #propertyImage {
-    max-height: 300px;
+    max-height: 200px;
     width: 80%;
   }
 }
