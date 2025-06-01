@@ -112,6 +112,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const imageUrl = publicUrlData.publicUrl;
 
+        // --- Fetch company_id ---
+        let companyId;
+        try {
+          const { data: companyData, error: companyError } = await window._supabase
+            .from('companies')
+            .select('id')
+            .eq('owner_id', user.id) // user object should be available from image upload section
+            .limit(1)
+            .single(); // .single() is good if we expect exactly one or zero
+
+          if (companyError) {
+            console.error('Error fetching company_id:', companyError);
+            throw new Error('Could not determine your company. Please ensure your company is set up correctly.');
+          }
+          if (!companyData || !companyData.id) {
+            throw new Error('No company found for your account. Cannot create property.');
+          }
+          companyId = companyData.id;
+          console.log('Fetched company_id:', companyId);
+
+        } catch (e) {
+          // Re-throw or handle specific error for company_id fetching
+          showMessage(e.message || 'Failed to fetch company details.', 'danger');
+          submitButton.disabled = false;
+          submitButton.innerHTML = 'Save Property';
+          return; // Stop submission
+        }
+        // --- End Fetch company_id ---
 
         // 2. Prepare data for Edge Function
         const propertyPayload = {
@@ -122,7 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
           // rent_price removed
           // bedrooms, bathrooms, square_footage are removed
           property_details: formData.description, // Key changed here
-          property_image_url: imageUrl
+          property_image_url: imageUrl,
+          company_id: companyId // Add the fetched company_id
         };
 
         // 3. Call the 'create-property' Edge Function
