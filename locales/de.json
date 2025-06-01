@@ -77,6 +77,35 @@
     },
     "pagination": {
       "showingInfo": "Zeige {start}–{end} von {total} Immobilien"
+    },
+    "modal": {
+      "addTitle": "Neue Immobilie hinzufügen",
+      "propertyNameLabel": "Immobilienname",
+      "addressLabel": "Adresse",
+      "typeLabel": "Immobilientyp",
+      "typePlaceholder": "z.B. Wohnung, Haus, Eigentumswohnung",
+      "rentPriceLabel": "Miete/Preis (USD)",
+      "bedroomsLabel": "Schlafzimmer",
+      "bathroomsLabel": "Badezimmer",
+      "sqftLabel": "Quadratmeter (qmf)",
+      "descriptionLabel": "Beschreibung",
+      "imageLabel": "Immobilienbild",
+      "imagePreviewAlt": "Bildvorschau",
+      "closeButton": "Schließen",
+      "saveButton": "Immobilie speichern",
+      "savingButton": "Speichern...",
+      "nameAddressTypeRequired": "Immobilienname, Adresse und Immobilientyp sind erforderlich.",
+      "imageRequiredError": "Immobilienbild ist erforderlich.",
+      "imageSizeError": "Die Bilddateigröße darf 5MB nicht überschreiten.",
+      "successMessage": "Immobilie erfolgreich erstellt!",
+      "functionErrorPrefix": "Immobilie konnte nicht erstellt werden: ",
+      "validationFailedTitle": "Validierung fehlgeschlagen:",
+      "userNotAuthError": "Benutzer nicht authentifiziert. Bild kann nicht hochgeladen oder Immobilie erstellt werden.",
+      "imageUploadFailedError": "Bild-Upload fehlgeschlagen: {message}",
+      "publicUrlFailedError": "Öffentliche URL des Bildes konnte nicht abgerufen werden: {message}",
+      "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+      "unexpectedServerError": "Immobilie konnte aufgrund eines unerwarteten Serverfehlers nicht erstellt werden.",
+      "networkError": "Immobilie konnte nicht erstellt werden. Netzwerk- oder Funktionsfehler."
     }
   },
   "notificationsPage": {

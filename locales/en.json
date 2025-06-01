@@ -77,6 +77,35 @@
     },
     "pagination": {
       "showingInfo": "Showing {start}–{end} of {total} properties"
+    },
+    "modal": {
+      "addTitle": "Add New Property",
+      "propertyNameLabel": "Property Name",
+      "addressLabel": "Address",
+      "typeLabel": "Property Type",
+      "typePlaceholder": "e.g., Apartment, House, Condo",
+      "rentPriceLabel": "Rent/Price (USD)",
+      "bedroomsLabel": "Bedrooms",
+      "bathroomsLabel": "Bathrooms",
+      "sqftLabel": "Square Footage (sqft)",
+      "descriptionLabel": "Description",
+      "imageLabel": "Property Image",
+      "imagePreviewAlt": "Image Preview",
+      "closeButton": "Close",
+      "saveButton": "Save Property",
+      "savingButton": "Saving...",
+      "nameAddressTypeRequired": "Property Name, Address, and Type are required.",
+      "imageRequiredError": "Property image is required.",
+      "imageSizeError": "Image file size should not exceed 5MB.",
+      "successMessage": "Property created successfully!",
+      "functionErrorPrefix": "Failed to create property: ",
+      "validationFailedTitle": "Validation failed:",
+      "userNotAuthError": "User not authenticated. Cannot upload image or create property.",
+      "imageUploadFailedError": "Image upload failed: {message}",
+      "publicUrlFailedError": "Failed to get image public URL: {message}",
+      "unexpectedError": "An unexpected error occurred.",
+      "unexpectedServerError": "Failed to create property due to an unexpected server response.",
+      "networkError": "Failed to create property. Network or function error."
     }
   },
   "notificationsPage": {
