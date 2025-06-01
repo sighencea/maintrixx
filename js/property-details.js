@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     property_image_url: loadedPropertyDataForEditing.property_image_url,
                     old_image_path: loadedPropertyDataForEditing.property_image_path // Pass the path
                 };
-                console.log("Data being sent to openEditModal:", JSON.stringify(modalData, null, 2));
+                // console.log("Data being sent to openEditModal:", JSON.stringify(modalData, null, 2)); // Kept for potential future debugging
 
                 if (typeof window.openEditModal === 'function') {
                     window.openEditModal(modalData);
