@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openEditModal(propertyData) {
-    console.log("Data received by openEditModal:", JSON.stringify(propertyData, null, 2)); // ADDED LINE
+    // console.log("Data received by openEditModal:", JSON.stringify(propertyData, null, 2)); // Kept for potential future debugging if commented out
 
     if (!addPropertyModalInstance || !addPropertyForm) {
       console.error('Add Property Modal or Form not initialized.');
@@ -67,49 +67,43 @@ document.addEventListener('DOMContentLoaded', () => {
       propertyIdStoreInput.value = propertyData.id;
     }
 
-    // Populate form fields with detailed logging
+    // Populate form fields
     const fieldsToPopulate = {
       'propertyName': propertyData.property_name,
       'propertyAddress': propertyData.address,
       'propertyType': propertyData.property_type,
-      'propertyOccupier': propertyData.property_occupier, // Note: property_details.js sends property_occupier from DB
-      'propertyDescription': propertyData.property_details // Note: property_details.js sends property_details from DB
+      'propertyOccupier': propertyData.property_occupier,
+      'propertyDescription': propertyData.property_details
     };
 
     for (const id in fieldsToPopulate) {
-      const element = document.getElementById(id);
-      console.log(`Attempting to populate field with ID: '${id}'. Element found:`, element);
+      const element = addPropertyForm.querySelector(`#${id}`);
       if (element) {
         const valueToSet = fieldsToPopulate[id] || '';
         element.value = valueToSet;
-        console.log(`Set '${id}'.value to:`, valueToSet);
       } else {
-        console.error(`Element with ID '${id}' not found!`);
+        console.error(`Element with ID '${id}' not found during modal population!`);
       }
     }
 
-    // Handle image preview with detailed logging
-    // propertyImagePreview and propertyImageFile are already element references obtained during DOMContentLoaded
-    console.log('Attempting to set image preview. propertyImagePreview element:', propertyImagePreview);
+    // Handle image preview
     if (propertyData.property_image_url && propertyImagePreview) {
       propertyImagePreview.src = propertyData.property_image_url;
       propertyImagePreview.style.display = 'block';
-      console.log('Set propertyImagePreview.src to:', propertyData.property_image_url);
     } else if (propertyImagePreview) {
       propertyImagePreview.src = '#';
       propertyImagePreview.style.display = 'none';
-      console.log('Set propertyImagePreview.src to # (no image or placeholder).');
     } else {
-      console.error('propertyImagePreview element not found (it was null when script initialized)!');
+      // This case means propertyImagePreview itself was null during DOMContentLoaded
+      console.error('propertyImagePreview element reference is missing!');
     }
 
     // Clear the file input
-    console.log('Attempting to clear file input. propertyImageFile element:', propertyImageFile);
     if (propertyImageFile) {
         propertyImageFile.value = '';
-        console.log('Cleared propertyImageFile.value.');
     } else {
-      console.error('propertyImageFile element not found (it was null when script initialized)!');
+       // This case means propertyImageFile itself was null during DOMContentLoaded
+      console.error('propertyImageFile element reference is missing!');
     }
 
     if (modalTitleElement) modalTitleElement.textContent = 'Edit Property';
