@@ -67,14 +67,19 @@
           </ul>
         </div>
       </div>
+      <!-- This is the row to be restructured -->
       <div class="row">
-        <div class="col-md-8">
-          <img id="propertyImage" src="https://via.placeholder.com/700x400.png?text=Loading+Image..." alt="Property Image" class="img-fluid mb-3">
+        <!-- Image Column -->
+        <div class="col-lg-5 mb-3 mb-lg-0">
+          <img id="propertyImage" src="https://via.placeholder.com/700x400.png?text=Loading+Image..." alt="Property Image" class="img-fluid">
+        </div>
+        <!-- Details and Description Column -->
+        <div class="col-lg-7">
           <h3>Details:</h3>
           <p id="propertyAddressDetails"><strong>Address:</strong> <span id="propertyAddress">[Address Loading...]</span></p>
           <p><strong>Type:</strong> <span id="propertyType">[Type Loading...]</span></p>
           <p><strong>Occupancy:</strong> <span id="propertyOccupier">[Occupier Loading...]</span></p>
-          <div class="mt-3">
+          <div class="mt-3"> <!-- This div might need margin adjustments based on visual test -->
             <h4>Property Description/Notes:</h4>
             <div id="propertyDetailsText" style="white-space: pre-wrap;">[Details Loading...]</div>
           </div>
