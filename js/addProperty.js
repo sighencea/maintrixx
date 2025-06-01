@@ -45,17 +45,16 @@ document.addEventListener('DOMContentLoaded', () => {
         property_name: document.getElementById('propertyName').value,
         address: document.getElementById('propertyAddress').value,
         property_type: document.getElementById('propertyType').value,
+        occupier: document.getElementById('propertyOccupier').value, // Added
         rent_price: parseFloat(document.getElementById('propertyRentPrice').value) || null,
-        bedrooms: parseInt(document.getElementById('propertyBedrooms').value) || null,
-        bathrooms: parseFloat(document.getElementById('propertyBathrooms').value) || null,
-        square_footage: parseInt(document.getElementById('propertySquareFootage').value) || null,
+        // bedrooms, bathrooms, square_footage removed
         description: document.getElementById('propertyDescription').value,
         imageFile: propertyImageFile.files[0] // The actual file object
       };
 
       // --- Basic Client-Side Validation (enhance as needed) ---
-      if (!formData.property_name || !formData.address || !formData.property_type) {
-        showMessage('Property Name, Address, and Type are required.', 'danger');
+      if (!formData.property_name || !formData.address || !formData.property_type || !formData.occupier) { // Added occupier
+        showMessage('Property Name, Address, Property Type, and Occupier are required.', 'danger'); // Updated message
         submitButton.disabled = false;
         submitButton.innerHTML = 'Save Property';
         return;
@@ -119,12 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
           property_name: formData.property_name,
           address: formData.address,
           property_type: formData.property_type,
+          occupier: formData.occupier, // Add new field
           rent_price: formData.rent_price,
-          bedrooms: formData.bedrooms,
-          bathrooms: formData.bathrooms,
-          square_footage: formData.square_footage,
+          // bedrooms, bathrooms, square_footage are removed
           description: formData.description,
-          property_image_url: imageUrl // This now matches the corrected Edge Function
+          property_image_url: imageUrl
         };
 
         // 3. Call the 'create-property' Edge Function
