@@ -70,6 +70,7 @@
     "searchPlaceholder": "Immobilien suchen...",
     "filterButton": "Filter",
     "addPropertyButton": "+ Immobilie hinzufügen",
+    "noProperties": "Ihnen sind derzeit keine Immobilien zugewiesen. Klicken Sie auf 'Immobilie hinzufügen', um loszulegen!",
     "card": {
       "tasksLabel": "Aufgaben",
       "noActiveTasks": "Keine aktiven Aufgaben",

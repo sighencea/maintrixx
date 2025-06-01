@@ -70,6 +70,7 @@
     "searchPlaceholder": "Search properties...",
     "filterButton": "Filter",
     "addPropertyButton": "+ Add Property",
+    "noProperties": "You currently have no properties assigned. Click 'Add Property' to get started!",
     "card": {
       "tasksLabel": "Tasks",
       "noActiveTasks": "No Active Tasks",
