@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         address: document.getElementById('propertyAddress').value,
         property_type: document.getElementById('propertyType').value,
         occupier: document.getElementById('propertyOccupier').value, // Added
-        rent_price: parseFloat(document.getElementById('propertyRentPrice').value) || null,
+        // rent_price removed
         // bedrooms, bathrooms, square_footage removed
         description: document.getElementById('propertyDescription').value,
         imageFile: propertyImageFile.files[0] // The actual file object
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
           address: formData.address,
           property_type: formData.property_type,
           occupier: formData.occupier, // Add new field
-          rent_price: formData.rent_price,
+          // rent_price removed
           // bedrooms, bathrooms, square_footage are removed
           description: formData.description,
           property_image_url: imageUrl
