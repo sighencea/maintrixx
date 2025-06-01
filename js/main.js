@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     });
-  } else { console.error('signUpForm not found'); }
+  }
 
   // Sign-In Logic (formerly loginForm, ID of form is 'signInForm')
   if (signInForm) {
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     });
-  } else { console.error('signInForm not found'); }
+  }
 
   // Resend Verification Email Modal Logic
   if (resendEmailModalButton) {

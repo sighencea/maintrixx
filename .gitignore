@@ -1,3 +1,3 @@
 # Ignore Supabase client configuration with user's specific keys
-js/supabase-client.js
+js/supabase-config.js # Contains actual user Supabase credentials
 project_notes.md

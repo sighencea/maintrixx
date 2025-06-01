@@ -49,8 +49,6 @@
           alert(i18next.t('dashboardCheckJs.signOutUnexpectedError')); 
         }
       });
-    } else { 
-      console.warn('Sign Out button (signOutButton) not found on dashboard page.'); 
     }
   }
   
@@ -58,7 +56,6 @@
   async function fetchAndDisplayUserProfile(user) {
     const welcomeMessageElement = document.getElementById('welcomeMessage');
     if (!welcomeMessageElement) {
-      console.error('Welcome message element (welcomeMessage) not found.');
       return;
     }
 
