@@ -106,6 +106,17 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('propertyImageFile element reference is missing!');
     }
 
+    // Dynamically set/remove 'required' attribute for file input in edit mode
+    if (propertyImageFile) { // Ensure propertyImageFile element exists
+      if (propertyData.property_image_url) { // If there's an existing image
+        propertyImageFile.removeAttribute('required');
+        console.log("Edit mode with existing image: 'required' attribute removed from propertyImageFile.");
+      } else { // No existing image, so make it required
+        propertyImageFile.setAttribute('required', 'required');
+        console.log("Edit mode with no existing image: 'required' attribute set for propertyImageFile.");
+      }
+    }
+
     if (modalTitleElement) modalTitleElement.textContent = 'Edit Property';
     if (submitButton) submitButton.textContent = 'Save Changes';
 
@@ -524,6 +535,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (addPropertyForm) addPropertyForm.reset(); // This will clear propertyImageFile.value
+
+      // Ensure file input is marked as required for 'add' mode.
+      if (propertyImageFile) {
+        propertyImageFile.setAttribute('required', 'required');
+        console.log("Modal hidden, reset to ADD mode: 'required' attribute set for propertyImageFile.");
+      }
 
       if (propertyImagePreview) {
         propertyImagePreview.src = '#';
