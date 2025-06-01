@@ -85,6 +85,17 @@ body {
   z-index: 1020;
 }
 
+.page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; /* Ensure it takes full width to push the icon to the far right */
+}
+
+.page-title .dropdown {
+  margin-left: 10px; /* Add some space between title and dropdown icon */
+}
+
 .top-bar .page-title span {
   font-size: 1.2em; /* Adjust as needed */
   color: #495057; /* Darker grey for text, adjust as needed */

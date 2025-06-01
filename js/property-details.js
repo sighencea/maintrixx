@@ -167,4 +167,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (activeTasksPane) activeTasksPane.innerHTML = '<p class="text-danger">Could not load tasks due to an unexpected error.</p>';
         }
     }
+
+    // Event listeners for the new dropdown menu items
+    const editPropertyLink = document.getElementById('editPropertyLink');
+    const addTaskLink = document.getElementById('addTaskLink');
+    const deletePropertyLink = document.getElementById('deletePropertyLink');
+
+    if (editPropertyLink) {
+        editPropertyLink.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default link behavior
+            console.log('Edit Property clicked');
+            // Future implementation: Redirect to edit page or open modal
+        });
+    }
+
+    if (addTaskLink) {
+        addTaskLink.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default link behavior
+            console.log('Add Task clicked');
+            // Future implementation: Redirect to add task page or open modal
+        });
+    }
+
+    if (deletePropertyLink) {
+        deletePropertyLink.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default link behavior
+            if (confirm('Are you sure you want to delete this property?')) {
+                console.log('Delete Property confirmed');
+                // Future implementation: Call Supabase to delete the property
+                // and then redirect or update UI.
+            } else {
+                console.log('Delete Property cancelled');
+            }
+        });
+    }
 });
