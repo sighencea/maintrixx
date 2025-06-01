@@ -1,5 +1,14 @@
 // js/addProperty.js
 document.addEventListener('DOMContentLoaded', () => {
+  let currentMode = 'add';
+  let editingPropertyId = null;
+  const propertyIdStoreInput = document.getElementById('propertyIdStore'); // Get the hidden input
+  const modalTitleElement = document.getElementById('addPropertyModalLabel');
+  // Note: submitButton will be properly queried after addPropertyForm is confirmed to exist.
+  let submitButton;
+  let originalModalTitle = modalTitleElement ? modalTitleElement.textContent : 'Add New Property';
+  let originalSubmitButtonText; // Will be set after submitButton is queried.
+
   const addPropertyModalElement = document.getElementById('addPropertyModal');
   const addPropertyForm = document.getElementById('addPropertyForm');
   const propertyImageFile = document.getElementById('propertyImageFile');
@@ -10,6 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (addPropertyModalElement) {
     addPropertyModalInstance = new bootstrap.Modal(addPropertyModalElement);
   }
+
+  // Query for submit button after ensuring addPropertyForm exists.
+  if (addPropertyForm) {
+    submitButton = addPropertyForm.querySelector('button[type="submit"]');
+    if (submitButton) {
+      originalSubmitButtonText = submitButton.textContent;
+    }
+  }
+
+  // Set originalModalTitle again in case it was fetched before modalTitleElement was ready (though unlikely with DOMContentLoaded)
+  if (modalTitleElement && !originalModalTitle) {
+      originalModalTitle = modalTitleElement.textContent;
+  }
+
 
   // Image preview logic
   if (propertyImageFile && propertyImagePreview) {
@@ -29,51 +52,175 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function openEditModal(propertyData) {
+    if (!addPropertyModalInstance || !addPropertyForm) {
+      console.error('Add Property Modal or Form not initialized.');
+      return;
+    }
+    currentMode = 'edit';
+    editingPropertyId = propertyData.id; // Assuming propertyData has an 'id' field
+    if (propertyIdStoreInput) {
+      propertyIdStoreInput.value = propertyData.id;
+    }
+
+    // Populate form fields
+    document.getElementById('propertyName').value = propertyData.property_name || '';
+    document.getElementById('propertyAddress').value = propertyData.address || '';
+    document.getElementById('propertyType').value = propertyData.property_type || '';
+    document.getElementById('propertyOccupier').value = propertyData.occupier || propertyData.property_occupier || ''; // property_occupier from DB
+    document.getElementById('propertyDescription').value = propertyData.description || propertyData.property_details || ''; // property_details from DB
+
+    // Handle image preview
+    if (propertyData.property_image_url && propertyImagePreview) {
+      propertyImagePreview.src = propertyData.property_image_url;
+      propertyImagePreview.style.display = 'block';
+    } else if (propertyImagePreview) {
+      propertyImagePreview.src = '#';
+      propertyImagePreview.style.display = 'none';
+    }
+    // Clear the file input, as we're not replacing the image by default
+    if (propertyImageFile) {
+        propertyImageFile.value = '';
+    }
+
+    if (modalTitleElement) modalTitleElement.textContent = 'Edit Property';
+    if (submitButton) submitButton.textContent = 'Save Changes';
+
+    addPropertyModalInstance.show();
+  }
+  window.openEditModal = openEditModal; // Expose globally
+
   // Handle form submission
   if (addPropertyForm && window._supabase) {
+    // Re-assign submitButton here if it wasn't assigned due to addPropertyForm not being found initially
+    // This is a bit redundant if DOMContentLoaded works as expected, but safe.
+    if (!submitButton) {
+        submitButton = addPropertyForm.querySelector('button[type="submit"]');
+        if (submitButton && !originalSubmitButtonText) { // Set original text if not already set
+            originalSubmitButtonText = submitButton.textContent;
+        }
+    }
+
     addPropertyForm.addEventListener('submit', async function(event) {
       event.preventDefault();
       addPropertyMessage.style.display = 'none';
       addPropertyMessage.textContent = '';
       addPropertyMessage.className = 'alert'; // Reset classes
 
-      const submitButton = document.querySelector('button[type="submit"][form="addPropertyForm"]');
+      // Ensure submitButton is valid before using
+      if (!submitButton) {
+        console.error("Submit button not found.");
+        showMessage('Error: Submit button is missing.', 'danger');
+        return;
+      }
       submitButton.disabled = true;
-      submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-
-      const formData = {
-        property_name: document.getElementById('propertyName').value,
-        address: document.getElementById('propertyAddress').value,
-        property_type: document.getElementById('propertyType').value,
-        occupier: document.getElementById('propertyOccupier').value, // Added
-        // rent_price removed
-        // bedrooms, bathrooms, square_footage removed
-        description: document.getElementById('propertyDescription').value,
-        imageFile: propertyImageFile.files[0] // The actual file object
-      };
-
-      // --- Basic Client-Side Validation (enhance as needed) ---
-      if (!formData.property_name || !formData.address || !formData.property_type || !formData.occupier) { // Added occupier
-        showMessage('Property Name, Address, Property Type, and Occupier are required.', 'danger'); // Updated message
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Save Property';
-        return;
-      }
-      if (!formData.imageFile) {
-        showMessage('Property image is required.', 'danger');
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Save Property';
-        return;
-      }
-      if (formData.imageFile.size > 5 * 1024 * 1024) { // Example: 5MB limit
-        showMessage('Image file size should not exceed 5MB.', 'danger');
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Save Property';
-        return;
-      }
+      submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${currentMode === 'edit' ? 'Saving Changes...' : 'Saving...'}`;
 
 
       try {
+        if (currentMode === 'edit') {
+          // Logic for updating property
+          const propertyId = editingPropertyId || (propertyIdStoreInput ? propertyIdStoreInput.value : null);
+          if (!propertyId) {
+            throw new Error("Property ID is missing. Cannot update.");
+          }
+
+          let imageUrl = document.getElementById('propertyImagePreview').src; // Existing image
+          let newImageFile = propertyImageFile.files[0];
+
+          if (newImageFile) {
+            // TODO: Handle new image upload similar to add mode (upload, get URL)
+            // For now, just log and use a placeholder for new image URL
+            console.log("New image selected for update:", newImageFile.name);
+            // This part would involve uploading the new image and getting its URL.
+            // Then, potentially deleting the old image from storage.
+            // imageUrl = "placeholder_new_image_url.jpg"; // Placeholder
+            showMessage('Image updating is not fully implemented in this version.', 'info');
+             // For now, we won't actually upload the new image in edit mode to simplify
+             // We'll just use the existing image URL or clear it if no new one is provided
+             // and the user somehow cleared the preview (though not standard)
+          }
+
+          const updatedPropertyPayload = {
+            property_id: propertyId,
+            property_name: document.getElementById('propertyName').value,
+            address: document.getElementById('propertyAddress').value,
+            property_type: document.getElementById('propertyType').value,
+            property_occupier: document.getElementById('propertyOccupier').value,
+            property_details: document.getElementById('propertyDescription').value,
+            // If a new image was uploaded and its URL obtained:
+            // property_image_url: newImageUrl,
+            // otherwise, if no new image, don't include property_image_url in payload
+            // or send the existing one, depending on backend function's expectation.
+            // For this placeholder, we'll assume the backend handles not changing the image if URL isn't sent.
+          };
+
+          // If a new image was selected, add its (future) URL to the payload
+          // For this step, we are not implementing the actual image upload for edit.
+          // We will just send the existing URL. If a new file is selected, we acknowledge it.
+          if (newImageFile) {
+             updatedPropertyPayload.new_image_selected = true; // Flag for backend or further FE logic
+             updatedPropertyPayload.property_image_url = imageUrl; // Send existing, backend would need to handle
+          } else {
+             updatedPropertyPayload.property_image_url = imageUrl; // Send existing
+          }
+
+          console.log("Attempting to update property with payload:", updatedPropertyPayload);
+          // Placeholder for actual Supabase update function call
+          // await window._supabase.functions.invoke('update-property', { body: updatedPropertyPayload });
+
+          showMessage('Update functionality simulated. Property data logged to console.', 'success');
+          // Simulate success for now:
+          if (addPropertyModalInstance) addPropertyModalInstance.hide();
+
+          // Refresh logic based on where this modal might be used
+          if (typeof window.refreshPropertiesList === 'function') {
+            window.refreshPropertiesList();
+          } else {
+            // Attempt to find if we are on property-details.html and reload if so
+            // This is a basic check; a more robust solution might involve a global event bus or specific callbacks
+            if (document.querySelector('body.property-details-page')) { // Assuming a class is added to body on details page
+                // Or check URL: window.location.pathname.includes('property-details.html')
+                // window.location.reload(); // Or call a specific loadPropertyDetails function if available
+                console.log("Simulating property details refresh after edit.");
+            }
+          }
+
+
+          // Button state will be reset by 'hidden.bs.modal' event
+          return; // Exit submit handler for edit mode placeholder
+        }
+
+        // ADD MODE LOGIC CONTINUES BELOW
+        const formData = {
+            property_name: document.getElementById('propertyName').value,
+            address: document.getElementById('propertyAddress').value,
+            property_type: document.getElementById('propertyType').value,
+            occupier: document.getElementById('propertyOccupier').value,
+            description: document.getElementById('propertyDescription').value,
+            imageFile: propertyImageFile.files[0]
+        };
+
+        // --- Basic Client-Side Validation (enhance as needed) ---
+        if (!formData.property_name || !formData.address || !formData.property_type || !formData.occupier) {
+            showMessage('Property Name, Address, Property Type, and Occupier are required.', 'danger');
+            submitButton.disabled = false;
+            submitButton.textContent = originalSubmitButtonText || 'Save Property';
+            return;
+        }
+        if (!formData.imageFile) {
+            showMessage('Property image is required.', 'danger');
+            submitButton.disabled = false;
+            submitButton.textContent = originalSubmitButtonText || 'Save Property';
+            return;
+        }
+        if (formData.imageFile.size > 5 * 1024 * 1024) { // Example: 5MB limit
+            showMessage('Image file size should not exceed 5MB.', 'danger');
+            submitButton.disabled = false;
+            submitButton.textContent = originalSubmitButtonText || 'Save Property';
+            return;
+        }
+
         // 1. Upload image to Supabase Storage
         const file = formData.imageFile;
 
@@ -135,8 +282,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
           // Re-throw or handle specific error for company_id fetching
           showMessage(e.message || 'Failed to fetch company details.', 'danger');
-          submitButton.disabled = false;
-          submitButton.innerHTML = 'Save Property';
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalSubmitButtonText || 'Save Property';
+          }
           return; // Stop submission
         }
         // --- End Fetch company_id ---
@@ -225,8 +374,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showMessage(displayMessage, 'danger');
       } finally {
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Save Property';
+        // Reset button state. Text content will be handled by 'hidden.bs.modal' or upon next submission attempt.
+        if (submitButton) {
+            submitButton.disabled = false;
+            // Setting text here might be overridden by hidden.bs.modal, which is better for consistency
+            // For now, let hidden.bs.modal handle the text reset to original values.
+            // If an error occurs, the button text should reflect the current mode (e.g. "Try Saving Again")
+            // For simplicity, we'll ensure it's at least re-enabled.
+            // The spinner will be removed by the textContent reset in hidden.bs.modal.
+            if (currentMode === 'edit' && submitButton.innerHTML.includes('spinner')) {
+                 submitButton.textContent = 'Save Changes';
+            } else if (currentMode === 'add' && submitButton.innerHTML.includes('spinner')) {
+                 submitButton.textContent = originalSubmitButtonText || 'Save Property';
+            }
+        }
       }
     });
   } else {
@@ -255,7 +416,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (addPropertyModalElement) {
     addPropertyModalElement.addEventListener('hidden.bs.modal', function () {
-      if (addPropertyForm) addPropertyForm.reset();
+      currentMode = 'add';
+      editingPropertyId = null;
+      if (propertyIdStoreInput) {
+        propertyIdStoreInput.value = '';
+      }
+      if (modalTitleElement) {
+        modalTitleElement.textContent = originalModalTitle || 'Add New Property'; // Reset title
+      }
+      if (submitButton) {
+        submitButton.textContent = originalSubmitButtonText || 'Save Property'; // Reset button text
+        submitButton.disabled = false; // Ensure button is re-enabled
+      }
+
+      if (addPropertyForm) addPropertyForm.reset(); // This will clear propertyImageFile.value
+
       if (propertyImagePreview) {
         propertyImagePreview.src = '#';
         propertyImagePreview.style.display = 'none';

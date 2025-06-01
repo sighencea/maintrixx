@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    let loadedPropertyDataForEditing = null;
+
     const propertyNameElement = document.getElementById('propertyName');
     const propertyImageElement = document.getElementById('propertyImage');
     const propertyAddressElement = document.getElementById('propertyAddress');
@@ -43,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const { data: property, error } = await window._supabase
+        const { data: propertyDataResult, error } = await window._supabase
             .from('properties')
             .select('property_name, address, property_details, property_image_url, property_type, property_occupier')
             .eq('id', propertyId)
@@ -55,17 +57,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        if (property) {
-            propertyNameElement.textContent = property.property_name || 'N/A';
-            document.title = property.property_name ? `${property.property_name} - Property Details` : 'Property Details'; // Update page title as well
+        if (propertyDataResult) {
+            // Store the fetched data (including the ID from URL params) for editing
+            loadedPropertyDataForEditing = { ...propertyDataResult, id: propertyId };
 
-            propertyImageElement.src = property.property_image_url || 'https://via.placeholder.com/700x400.png?text=No+Image+Available';
-            propertyImageElement.alt = property.property_name || 'Property Image';
+            propertyNameElement.textContent = propertyDataResult.property_name || 'N/A';
+            document.title = propertyDataResult.property_name ? `${propertyDataResult.property_name} - Property Details` : 'Property Details'; // Update page title as well
 
-            propertyAddressElement.textContent = property.address || 'N/A';
-            propertyTypeElement.textContent = property.property_type || 'N/A';
-            propertyOccupierElement.textContent = property.property_occupier || 'N/A';
-            propertyDetailsTextElement.textContent = property.property_details || 'No additional details provided.';
+            propertyImageElement.src = propertyDataResult.property_image_url || 'https://via.placeholder.com/700x400.png?text=No+Image+Available';
+            propertyImageElement.alt = propertyDataResult.property_name || 'Property Image';
+
+            propertyAddressElement.textContent = propertyDataResult.address || 'N/A';
+            propertyTypeElement.textContent = propertyDataResult.property_type || 'N/A';
+            propertyOccupierElement.textContent = propertyDataResult.property_occupier || 'N/A';
+            propertyDetailsTextElement.textContent = propertyDataResult.property_details || 'No additional details provided.';
 
             if (propertyId) { // Ensure propertyId is valid before fetching tasks
                 fetchAndDisplayTasks(propertyId);
@@ -176,8 +181,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (editPropertyLink) {
         editPropertyLink.addEventListener('click', (event) => {
             event.preventDefault(); // Prevent default link behavior
-            console.log('Edit Property clicked');
-            // Future implementation: Redirect to edit page or open modal
+            if (loadedPropertyDataForEditing) {
+                // Ensure the data structure matches what openEditModal expects
+                // openEditModal expects: id, property_name, address, property_type,
+                // occupier/property_occupier, description/property_details, property_image_url
+                const modalData = {
+                    id: loadedPropertyDataForEditing.id, // Already included
+                    property_name: loadedPropertyDataForEditing.property_name,
+                    address: loadedPropertyDataForEditing.address,
+                    property_type: loadedPropertyDataForEditing.property_type,
+                    // property_occupier is the direct field name from the DB in loadedPropertyDataForEditing
+                    property_occupier: loadedPropertyDataForEditing.property_occupier,
+                    // property_details is the direct field name from the DB
+                    property_details: loadedPropertyDataForEditing.property_details,
+                    property_image_url: loadedPropertyDataForEditing.property_image_url
+                };
+                if (typeof window.openEditModal === 'function') {
+                    window.openEditModal(modalData);
+                } else {
+                    console.error('openEditModal function is not defined. Make sure addProperty.js is loaded.');
+                    alert('Edit functionality is currently unavailable.');
+                }
+            } else {
+                console.error('Property data not available for editing or not loaded yet.');
+                alert('Could not load property data for editing. Please ensure details are fully loaded or try again.');
+            }
         });
     }
 
