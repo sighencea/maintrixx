@@ -454,3 +454,9 @@ The original request was "stroke of all borders", not necessarily hover/active s
   color: inherit; /* To ensure icon inherits color, or set a specific color */
   margin-right: 8px; /* Provides spacing to the right, adjust as needed */
 }
+
+/* Custom padding for property-details page container */
+.property-details-container-padding {
+  padding-left: 2.25rem; /* Original 0.75rem * 3 */
+  padding-right: 2.25rem; /* Original 0.75rem * 3 */
+}
