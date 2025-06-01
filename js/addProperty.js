@@ -54,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openEditModal(propertyData) {
+    console.log("Data received by openEditModal:", JSON.stringify(propertyData, null, 2)); // ADDED LINE
+
     if (!addPropertyModalInstance || !addPropertyForm) {
       console.error('Add Property Modal or Form not initialized.');
       return;
