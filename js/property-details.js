@@ -11,6 +11,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mainContentContainer = document.querySelector('.container.mt-4');
     const ACTIVE_TASK_STATUSES = ['New', 'Inactive', 'In Progress', 'Stuck'];
 
+    const backToPropertiesLinkElement = document.getElementById('backToPropertiesLink');
+
+    if (backToPropertiesLinkElement) {
+        backToPropertiesLinkElement.addEventListener('click', () => {
+            window.location.href = 'properties.html'; // Ensure this path is correct relative to the pages directory
+        });
+    } else {
+        console.error('Back to properties link element not found.');
+    }
+
     function getImagePathFromUrl(imageUrl) {
       if (!imageUrl) return null;
       try {
