@@ -160,10 +160,8 @@ ${Object.values(errJson.errors).map(e => `- ${e}`).join('
         // This check is more for functions that don't use HTTP status codes for errors
         if (functionResponseData && functionResponseData.error) {
           if (functionResponseData.errors) { // Our structured validation errors
-            const messages = Object.values(functionResponseData.errors).map(e => `- ${e}`).join('
-');
-            throw new Error(`Validation failed:
-${messages}`);
+            const messages = Object.values(functionResponseData.errors).map(e => `- ${e}`).join('\n');
+            throw new Error(`Validation failed:\n${messages}`);
           }
           throw new Error(functionResponseData.error);
         }
