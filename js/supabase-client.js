@@ -12,8 +12,6 @@ const resolvedSupabaseUrl = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL :
 const resolvedSupabaseAnonKey = typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : (typeof window !== 'undefined' ? window.SUPABASE_ANON_KEY : undefined);
 
 // Attempt to import credentials
-let SUPABASE_URL;
-let SUPABASE_ANON_KEY;
 let supabaseInstance = null;
 let configError = false;
 
@@ -32,30 +30,21 @@ if (!resolvedSupabaseUrl || !resolvedSupabaseAnonKey || resolvedSupabaseUrl === 
   }
 } else {
   try {
+    // Use the already resolved URLs from window or consts
     supabaseInstance = createClient(resolvedSupabaseUrl, resolvedSupabaseAnonKey);
-    console.log('Supabase client initialized via ES Module import.');
+    console.log('Supabase client initialized using resolved credentials.');
+    // No need to set configError = false here, as its default is false
   } catch (e) {
-    console.error('Error during Supabase client initialization (ESM):', e);
+    console.error('Error during Supabase client initialization:', e);
+    configError = true; // Set error flag
 
+    // Display error message on page
     const msgDiv = document.getElementById('signupMessage') || document.getElementById('loginMessage') || document.body;
     if (msgDiv) {
       const errDiv = document.createElement('div');
-      errDiv.innerHTML = '<strong style="color: red;">Supabase client is not configured (missing or placeholder credentials in js/supabase-config.js).</strong>';
+      // Ensure this message is user-friendly and indicates action if possible
+      errDiv.innerHTML = '<strong style="color: red;">Error initializing Supabase client. Please check console for details.</strong>';
       msgDiv.prepend(errDiv);
-    }
-  } else {
-    try {
-      supabaseInstance = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      console.log('Supabase client initialized via ES Module import using supabase-config.js.');
-    } catch (e) {
-      console.error('Error during Supabase client initialization (ESM):', e);
-      configError = true;
-      const msgDiv = document.getElementById('signupMessage') || document.getElementById('loginMessage') || document.body;
-      if (msgDiv) {
-          const errDiv = document.createElement('div');
-          errDiv.innerHTML = '<strong style="color: red;">Error initializing Supabase client. Check console.</strong>';
-          msgDiv.prepend(errDiv);
-      }
     }
   }
 }
