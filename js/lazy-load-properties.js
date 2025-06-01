@@ -15,10 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
     if (properties.length === 0 && initialOffset === 0) {
-        const noPropertiesMessage = (typeof i18next !== 'undefined' && typeof i18next.t === 'function') ?
-                                    i18next.t('propertiesPage.noProperties') :
-                                    'No properties found for your account.';
-        propertiesContainer.innerHTML = `<div class="col-12"><p>${noPropertiesMessage}</p></div>`;
+        let noPropertiesMessageText = 'You currently have no properties. Click \'Add Property\' to create one!'; // Default fallback
+        if (typeof i18next !== 'undefined' && typeof i18next.t === 'function') {
+            const translated = i18next.t('propertiesPage.noProperties');
+            // Check if translation is different from key and not undefined/null
+            if (translated && translated !== 'propertiesPage.noProperties') {
+                noPropertiesMessageText = translated;
+            }
+        }
+        propertiesContainer.innerHTML = `<div class="col-12"><p>${noPropertiesMessageText}</p></div>`;
         allPropertiesLoaded = true; // No properties to load
         return;
     }
