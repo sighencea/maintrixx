@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
           occupier: formData.occupier, // Add new field
           // rent_price removed
           // bedrooms, bathrooms, square_footage are removed
-          description: formData.description,
+          property_details: formData.description, // Key changed here
           property_image_url: imageUrl
         };
 
