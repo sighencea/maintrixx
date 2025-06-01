@@ -1,5 +1,15 @@
 // js/supabase-client.js
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'; // Import directly from ESM-friendly CDN
+
+// These variables are expected to be defined in supabase-config.js, loaded before this script.
+// Make sure supabase-config.js declares:
+// const SUPABASE_URL = "YOUR_ACTUAL_SUPABASE_URL";
+// const SUPABASE_ANON_KEY = "YOUR_ACTUAL_SUPABASE_ANON_KEY";
+// (or window.SUPABASE_URL / window.SUPABASE_ANON_KEY if not using const directly in global scope from a script tag)
+
+// To be safe, let's try accessing them from window object, or allow them to be consts in global scope.
+const resolvedSupabaseUrl = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : (typeof window !== 'undefined' ? window.SUPABASE_URL : undefined);
+const resolvedSupabaseAnonKey = typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : (typeof window !== 'undefined' ? window.SUPABASE_ANON_KEY : undefined);
 
 // Attempt to import credentials
 let SUPABASE_URL;
@@ -7,35 +17,26 @@ let SUPABASE_ANON_KEY;
 let supabaseInstance = null;
 let configError = false;
 
-try {
-  // The './' is important for relative paths in ES modules
-  const config = await import('./supabase-config.js');
-  SUPABASE_URL = config.SUPABASE_URL;
-  SUPABASE_ANON_KEY = config.SUPABASE_ANON_KEY;
-} catch (e) {
+if (!resolvedSupabaseUrl || !resolvedSupabaseAnonKey || resolvedSupabaseUrl === 'YOUR_SUPABASE_URL_PLACEHOLDER' || resolvedSupabaseAnonKey === 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER') {
   console.error(
-    'CRITICAL ERROR: Failed to load supabase-config.js. ' +
-    'Please ensure you have copied js/supabase-config.example.js to js/supabase-config.js ' +
-    'and filled in your Supabase credentials. Details:', e
+    'CRITICAL ERROR: Supabase URL and/or Anon Key are not correctly defined. ' +
+    'Ensure supabase-config.js is loaded before supabase-client.js and defines SUPABASE_URL and SUPABASE_ANON_KEY with your actual Supabase project credentials.'
   );
   configError = true;
   // Display error on page
   const msgDiv = document.getElementById('signupMessage') || document.getElementById('loginMessage') || document.body;
   if (msgDiv) {
     const errDiv = document.createElement('div');
-    errDiv.innerHTML = '<strong style="color: red;">Supabase configuration file (supabase-config.js) is missing or invalid. Please check console.</strong>';
+    errDiv.innerHTML = '<strong style="color: red;">Supabase client is not configured. Check console for details.</strong>'; // Updated message
     msgDiv.prepend(errDiv);
   }
-}
+} else {
+  try {
+    supabaseInstance = createClient(resolvedSupabaseUrl, resolvedSupabaseAnonKey);
+    console.log('Supabase client initialized via ES Module import.');
+  } catch (e) {
+    console.error('Error during Supabase client initialization (ESM):', e);
 
-if (!configError) {
-  if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL_HERE' ||
-      !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY_HERE') {
-    console.error(
-      'CRITICAL ERROR: Supabase URL and/or Anon Key are missing or still set to placeholder values in js/supabase-config.js. ' +
-      'Please edit js/supabase-config.js and replace them with your actual Supabase project credentials.'
-    );
-    configError = true;
     const msgDiv = document.getElementById('signupMessage') || document.getElementById('loginMessage') || document.body;
     if (msgDiv) {
       const errDiv = document.createElement('div');
