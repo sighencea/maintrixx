@@ -171,11 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
           const updatedPropertyPayload = {
             property_id: propertyId,
-            property_name: document.getElementById('propertyName').value,
-            address: document.getElementById('propertyAddress').value,
-            property_type: document.getElementById('propertyType').value,
-            property_occupier: document.getElementById('propertyOccupier').value,
-            property_details: document.getElementById('propertyDescription').value,
+            property_name: addPropertyForm.querySelector('#propertyName').value,
+            address: addPropertyForm.querySelector('#propertyAddress').value,
+            property_type: addPropertyForm.querySelector('#propertyType').value,
+            property_occupier: addPropertyForm.querySelector('#propertyOccupier').value,
+            property_details: addPropertyForm.querySelector('#propertyDescription').value,
             // property_image_url will be set below
             // old_property_image_to_delete_path will be set below
           };
