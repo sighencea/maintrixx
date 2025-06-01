@@ -31,6 +31,17 @@
       </button>
       <div class="page-title">
         <span>Property Details</span>
+        <div class="dropdown">
+          <a class="dropdown-toggle dropdown-toggle-no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-ellipsis-v"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" id="editPropertyLink"><i class="fas fa-edit me-2"></i>Edit Property</a></li>
+            <li><a class="dropdown-item" href="#" id="addTaskLink"><i class="fas fa-plus-circle me-2"></i>Add Task</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" id="deletePropertyLink" style="color: red;"><i class="fas fa-trash-alt me-2"></i>Delete Property</a></li>
+          </ul>
+        </div>
       </div>
       <div class="top-bar-icons d-flex align-items-center">
         <a href="notifications.html"><i class="fas fa-bell"></i></a>
@@ -60,14 +71,6 @@
             <h4>Property Description/Notes:</h4>
             <div id="propertyDetailsText" style="white-space: pre-wrap;">[Details Loading...]</div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <!-- Potential sidebar for actions or related info later -->
-          <h4>Related Actions (Future)</h4>
-          <ul class="list-group">
-            <li class="list-group-item"><a>Create Task for this Property</a></li>
-            <li class="list-group-item"><a>Edit Property Details</a></li>
-          </ul>
         </div>
       </div>
 
