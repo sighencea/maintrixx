@@ -54,7 +54,7 @@
         <div class="d-flex align-items-center">
           <button class="btn btn-outline-secondary me-2" data-i18n="propertiesPage.filterButton"><i class="fas fa-filter me-1"></i>Filter</button>
           <button class="btn btn-outline-secondary me-2">☰</button>
-          <button class="btn btn-primary" data-i18n="propertiesPage.addPropertyButton">+ Add Property</button>
+          <button class="btn btn-primary" data-i18n="propertiesPage.addPropertyButton" data-bs-toggle="modal" data-bs-target="#addPropertyModal">+ Add Property</button>
         </div>
       </div>
     
@@ -66,11 +66,82 @@
 
   </div>
 
+  <!-- Add Property Modal -->
+  <div class="modal fade" id="addPropertyModal" tabindex="-1" aria-labelledby="addPropertyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addPropertyModalLabel" data-i18n="propertiesPage.modal.addTitle">Add New Property</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addPropertyForm">
+            <div id="addPropertyMessage" class="alert" style="display:none;" role="alert"></div>
+
+            <div class="mb-3">
+              <label for="propertyName" class="form-label" data-i18n="propertiesPage.modal.propertyNameLabel">Property Name</label>
+              <input type="text" class="form-control" id="propertyName" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="propertyAddress" class="form-label" data-i18n="propertiesPage.modal.addressLabel">Address</label>
+              <textarea class="form-control" id="propertyAddress" rows="2" required></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="propertyType" class="form-label" data-i18n="propertiesPage.modal.typeLabel">Property Type</label>
+                <input type="text" class="form-control" id="propertyType" placeholder="e.g., Apartment, House, Condo" required>
+                {/* Or use a <select> if you have predefined types */}
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="propertyRentPrice" class="form-label" data-i18n="propertiesPage.modal.rentPriceLabel">Rent/Price (USD)</label>
+                <input type="number" class="form-control" id="propertyRentPrice" step="0.01" min="0">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="propertyBedrooms" class="form-label" data-i18n="propertiesPage.modal.bedroomsLabel">Bedrooms</label>
+                <input type="number" class="form-control" id="propertyBedrooms" min="0">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="propertyBathrooms" class="form-label" data-i18n="propertiesPage.modal.bathroomsLabel">Bathrooms</label>
+                <input type="number" class="form-control" id="propertyBathrooms" step="0.5" min="0">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="propertySquareFootage" class="form-label" data-i18n="propertiesPage.modal.sqftLabel">Square Footage (sqft)</label>
+                <input type="number" class="form-control" id="propertySquareFootage" min="0">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="propertyDescription" class="form-label" data-i18n="propertiesPage.modal.descriptionLabel">Description</label>
+              <textarea class="form-control" id="propertyDescription" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="propertyImageFile" class="form-label" data-i18n="propertiesPage.modal.imageLabel">Property Image</label>
+              <input type="file" class="form-control" id="propertyImageFile" accept="image/*" required>
+              <img id="propertyImagePreview" src="#" alt="Image Preview" class="img-thumbnail mt-2" style="display:none; max-height: 200px;">
+            </div>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="propertiesPage.modal.closeButton">Close</button>
+          <button type="submit" form="addPropertyForm" class="btn btn-primary" data-i18n="propertiesPage.modal.saveButton">Save Property</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Add Property Modal -->
   <script type="module" src="../js/supabase-client.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="../js/dashboard_check.js"></script> 
   <script src="../js/main.js"></script>
   <script type="module" src="../js/i18n.js"></script>
   <script src="../js/lazy-load-properties.js"></script>
+  <script src="../js/addProperty.js"></script>
 </body>
 </html>
