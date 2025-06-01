@@ -11,6 +11,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mainContentContainer = document.querySelector('.container.mt-4');
     const ACTIVE_TASK_STATUSES = ['New', 'Inactive', 'In Progress', 'Stuck'];
 
+    function getImagePathFromUrl(imageUrl) {
+      if (!imageUrl) return null;
+      try {
+        const url = new URL(imageUrl);
+        // Pathname looks like /storage/v1/object/public/property-images/users/user_id/image.jpg
+        const pathSegments = url.pathname.split('/');
+        const bucketName = 'property-images'; // Make sure this matches
+        const bucketIndex = pathSegments.findIndex(segment => segment === bucketName);
+        if (bucketIndex !== -1 && bucketIndex < pathSegments.length - 1) {
+          return pathSegments.slice(bucketIndex + 1).join('/');
+        }
+        console.warn('Could not determine image path from URL:', imageUrl);
+        return null; // Or throw an error if path structure is unexpected
+      } catch (e) {
+        console.error('Error parsing image URL to get path:', e, imageUrl);
+        return null;
+      }
+    }
 
     // Function to display messages to the user
     function showMessage(message, type = 'info') {
@@ -58,8 +76,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (propertyDataResult) {
-            // Store the fetched data (including the ID from URL params) for editing
-            loadedPropertyDataForEditing = { ...propertyDataResult, id: propertyId };
+            const imagePath = getImagePathFromUrl(propertyDataResult.property_image_url);
+            // Store the fetched data (including the ID from URL params and parsed image path) for editing
+            loadedPropertyDataForEditing = {
+                ...propertyDataResult,
+                id: propertyId,
+                property_image_path: imagePath
+            };
 
             propertyNameElement.textContent = propertyDataResult.property_name || 'N/A';
             document.title = propertyDataResult.property_name ? `${propertyDataResult.property_name} - Property Details` : 'Property Details'; // Update page title as well
@@ -190,11 +213,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     property_name: loadedPropertyDataForEditing.property_name,
                     address: loadedPropertyDataForEditing.address,
                     property_type: loadedPropertyDataForEditing.property_type,
-                    // property_occupier is the direct field name from the DB in loadedPropertyDataForEditing
                     property_occupier: loadedPropertyDataForEditing.property_occupier,
-                    // property_details is the direct field name from the DB
                     property_details: loadedPropertyDataForEditing.property_details,
-                    property_image_url: loadedPropertyDataForEditing.property_image_url
+                    property_image_url: loadedPropertyDataForEditing.property_image_url,
+                    old_image_path: loadedPropertyDataForEditing.property_image_path // Pass the path
                 };
                 if (typeof window.openEditModal === 'function') {
                     window.openEditModal(modalData);

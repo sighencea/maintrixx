@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   let currentMode = 'add';
   let editingPropertyId = null;
+  let editingPropertyImageOldPath = null;
   const propertyIdStoreInput = document.getElementById('propertyIdStore'); // Get the hidden input
   const modalTitleElement = document.getElementById('addPropertyModalLabel');
   // Note: submitButton will be properly queried after addPropertyForm is confirmed to exist.
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     currentMode = 'edit';
     editingPropertyId = propertyData.id; // Assuming propertyData has an 'id' field
+    editingPropertyImageOldPath = propertyData.old_image_path || null;
     if (propertyIdStoreInput) {
       propertyIdStoreInput.value = propertyData.id;
     }
@@ -119,27 +121,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         if (currentMode === 'edit') {
-          // Logic for updating property
+          // Inside the 'if (currentMode === 'edit')' block:
+
           const propertyId = editingPropertyId || (propertyIdStoreInput ? propertyIdStoreInput.value : null);
           if (!propertyId) {
             throw new Error("Property ID is missing. Cannot update.");
           }
 
-          let imageUrl = document.getElementById('propertyImagePreview').src; // Existing image
-          let newImageFile = propertyImageFile.files[0];
+          const submitButton = this.querySelector('button[type="submit"]'); // 'this' refers to the form
+          const originalButtonText = 'Save Changes'; // Specific for edit mode before spinner
+          // submitButton.disabled = true; // Already disabled outside this 'if'
+          // submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving Changes...'; // Already set outside
 
-          if (newImageFile) {
-            // TODO: Handle new image upload similar to add mode (upload, get URL)
-            // For now, just log and use a placeholder for new image URL
-            console.log("New image selected for update:", newImageFile.name);
-            // This part would involve uploading the new image and getting its URL.
-            // Then, potentially deleting the old image from storage.
-            // imageUrl = "placeholder_new_image_url.jpg"; // Placeholder
-            showMessage('Image updating is not fully implemented in this version.', 'info');
-             // For now, we won't actually upload the new image in edit mode to simplify
-             // We'll just use the existing image URL or clear it if no new one is provided
-             // and the user somehow cleared the preview (though not standard)
-          }
+          let newImageFile = propertyImageFile.files[0];
+          let newImageUrl = null; // URL of the newly uploaded image
+          let newImagePath = null; // Storage path of the newly uploaded image
 
           const updatedPropertyPayload = {
             property_id: propertyId,
@@ -148,47 +144,118 @@ document.addEventListener('DOMContentLoaded', () => {
             property_type: document.getElementById('propertyType').value,
             property_occupier: document.getElementById('propertyOccupier').value,
             property_details: document.getElementById('propertyDescription').value,
-            // If a new image was uploaded and its URL obtained:
-            // property_image_url: newImageUrl,
-            // otherwise, if no new image, don't include property_image_url in payload
-            // or send the existing one, depending on backend function's expectation.
-            // For this placeholder, we'll assume the backend handles not changing the image if URL isn't sent.
+            // property_image_url will be set below
+            // old_property_image_to_delete_path will be set below
           };
 
-          // If a new image was selected, add its (future) URL to the payload
-          // For this step, we are not implementing the actual image upload for edit.
-          // We will just send the existing URL. If a new file is selected, we acknowledge it.
-          if (newImageFile) {
-             updatedPropertyPayload.new_image_selected = true; // Flag for backend or further FE logic
-             updatedPropertyPayload.property_image_url = imageUrl; // Send existing, backend would need to handle
-          } else {
-             updatedPropertyPayload.property_image_url = imageUrl; // Send existing
-          }
+          try {
+            if (newImageFile) {
+              // 1. Upload new image to Supabase Storage (similar to add mode)
+              const { data: { user }, error: getUserError } = await window._supabase.auth.getUser();
+              if (getUserError || !user) {
+                throw new Error("User not authenticated. Cannot upload image.");
+              }
+              const fileName = `${Date.now()}-${newImageFile.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
+              const filePath = `users/${user.id}/property_images/${fileName}`;
 
-          console.log("Attempting to update property with payload:", updatedPropertyPayload);
-          // Placeholder for actual Supabase update function call
-          // await window._supabase.functions.invoke('update-property', { body: updatedPropertyPayload });
+              const { data: uploadData, error: uploadError } = await window._supabase.storage
+                .from('property-images')
+                .upload(filePath, newImageFile, { cacheControl: '3600', upsert: false });
 
-          showMessage('Update functionality simulated. Property data logged to console.', 'success');
-          // Simulate success for now:
-          if (addPropertyModalInstance) addPropertyModalInstance.hide();
+              if (uploadError) {
+                console.error('Error uploading new image:', uploadError);
+                throw new Error(`New image upload failed: ${uploadError.message}`);
+              }
+              newImagePath = uploadData.path; // Store new image path
 
-          // Refresh logic based on where this modal might be used
-          if (typeof window.refreshPropertiesList === 'function') {
-            window.refreshPropertiesList();
-          } else {
-            // Attempt to find if we are on property-details.html and reload if so
-            // This is a basic check; a more robust solution might involve a global event bus or specific callbacks
-            if (document.querySelector('body.property-details-page')) { // Assuming a class is added to body on details page
-                // Or check URL: window.location.pathname.includes('property-details.html')
-                // window.location.reload(); // Or call a specific loadPropertyDetails function if available
-                console.log("Simulating property details refresh after edit.");
+              const { data: publicUrlData, error: publicUrlError } = window._supabase.storage
+                .from('property-images')
+                .getPublicUrl(newImagePath);
+
+              if (publicUrlError) {
+                throw new Error(`Failed to get new image public URL: ${publicUrlError.message}`);
+              }
+              newImageUrl = publicUrlData.publicUrl;
+              updatedPropertyPayload.property_image_url = newImageUrl;
+
+              // If a new image is uploaded, we must send the path of the old image for deletion.
+              if (editingPropertyImageOldPath) { // This was stored when modal opened
+                updatedPropertyPayload.old_property_image_to_delete_path = editingPropertyImageOldPath;
+              }
+            } else {
+              // No new image selected, so keep the existing one.
+              // The existing image URL is already in the preview.
+              // If propertyImagePreview.src is a placeholder or empty, it means no image.
+              if (propertyImagePreview.src && propertyImagePreview.src !== '#' && !propertyImagePreview.src.startsWith('data:')) {
+                   updatedPropertyPayload.property_image_url = propertyImagePreview.src;
+              } else {
+                  // If there was no image before and none is selected, explicitly set to null or undefined
+                  // depending on backend expectation. Let's assume null if no image.
+                  updatedPropertyPayload.property_image_url = null;
+              }
+              // Do not send old_property_image_to_delete_path if image wasn't changed.
+            }
+
+            // 2. Call the 'update-property' Edge Function
+            console.log("Calling update-property with payload:", updatedPropertyPayload);
+            const { data: functionResponseData, error: functionInvokeError } = await window._supabase.functions.invoke('update-property', {
+              body: updatedPropertyPayload,
+            });
+
+            if (functionInvokeError) {
+              let errMsg = "Failed to update property. Network or function error.";
+              if (functionInvokeError.context && typeof functionInvokeError.context.json === 'function') {
+                  try {
+                      const errJson = await functionInvokeError.context.json();
+                      if (errJson.error && errJson.errors) {
+                          errMsg = `Validation failed:\n${Object.values(errJson.errors).map(e => `- ${e}`).join('\n')}`;
+                      } else if (errJson.error) {
+                          errMsg = errJson.error;
+                      }
+                  } catch(e) { console.error("Could not parse function error JSON:", e); }
+              } else if (functionInvokeError.message) {
+                  errMsg = functionInvokeError.message;
+              }
+              throw new Error(errMsg);
+            }
+
+            if (functionResponseData && functionResponseData.error) {
+              if (functionResponseData.errors) {
+                  const messages = Object.values(functionResponseData.errors).map(e => `- ${e}`).join('\n');
+                  throw new Error(`Validation failed:\n${messages}`);
+              }
+              throw new Error(functionResponseData.error);
+            }
+
+            if (!functionResponseData || !functionResponseData.success) {
+                 console.error('Unexpected response or failure from update-property Edge Function:', functionResponseData);
+                 throw new Error('Failed to update property due to an unexpected server response.');
+            }
+
+            showMessage('Property updated successfully!', 'success');
+            if (addPropertyModalInstance) addPropertyModalInstance.hide();
+
+            // Refresh data on the page
+            if (typeof window.loadPropertyDetails === 'function') { // If on property-details.html
+              console.log("Refreshing property details on page...");
+              window.loadPropertyDetails();
+            } else if (typeof window.refreshPropertiesList === 'function') { // If on properties.html (less likely to edit from here)
+              console.log("Refreshing properties list...");
+              window.refreshPropertiesList();
+            }
+
+          } catch (error) {
+            console.error('Error updating property:', error);
+            showMessage(error.message || 'An unexpected error occurred during update.', 'danger');
+          } finally {
+            // This will be further correctly handled by 'hidden.bs.modal' to reset to original if needed
+            if (submitButton) { // Ensure submitButton is defined
+              submitButton.disabled = false;
+              // Reset text based on what it should be if modal stayed open (e.g. after error)
+              submitButton.innerHTML = originalButtonText;
             }
           }
-
-
-          // Button state will be reset by 'hidden.bs.modal' event
-          return; // Exit submit handler for edit mode placeholder
+          return; // Important: exit submit handler after edit mode logic.
         }
 
         // ADD MODE LOGIC CONTINUES BELOW
@@ -418,6 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addPropertyModalElement.addEventListener('hidden.bs.modal', function () {
       currentMode = 'add';
       editingPropertyId = null;
+      editingPropertyImageOldPath = null;
       if (propertyIdStoreInput) {
         propertyIdStoreInput.value = '';
       }
