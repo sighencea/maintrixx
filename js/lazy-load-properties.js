@@ -111,6 +111,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // New function to be exposed globally
+    async function refreshAndLoadProperties() {
+      console.log('Refreshing properties list...');
+      if (!propertiesContainer) {
+        console.error('Properties container not found during refresh.');
+        return;
+      }
+      isLoading = false; // Reset loading lock if a refresh is forced
+      allPropertiesLoaded = false; // Reset this flag
+      initialOffset = 0; // Reset offset to start from the beginning
+      propertiesContainer.innerHTML = '<div class="col-12"><p data-i18n="propertiesPage.loading">Loading properties...</p></div>'; // Optional: show a loading message
+
+      // Translate loading message if i18next is available
+      if (typeof i18next !== 'undefined' && typeof i18next.t === 'function') {
+          const loadingText = i18next.t('propertiesPage.loading', { defaultValue: 'Loading properties...' });
+          propertiesContainer.innerHTML = `<div class="col-12"><p>${loadingText}</p></div>`;
+      }
+
+      await fetchProperties(initialOffset, propertiesPerPage); // Fetch the first page
+    }
+
+    window.refreshPropertiesList = refreshAndLoadProperties;
+
     function lazyScrollHandler() {
         // Check if the user has scrolled to near the bottom of the page
         // (window.innerHeight + window.scrollY) is the bottom of the viewport
