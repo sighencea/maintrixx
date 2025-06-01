@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
           property_name: formData.property_name,
           address: formData.address,
           property_type: formData.property_type,
-          occupier: formData.occupier, // Add new field
+          property_occupier: formData.occupier, // Key changed here
           // rent_price removed
           // bedrooms, bathrooms, square_footage are removed
           property_details: formData.description, // Key changed here
