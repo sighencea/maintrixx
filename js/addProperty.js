@@ -105,18 +105,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addPropertyForm.addEventListener('submit', async function(event) {
       event.preventDefault();
+      const formSubmitButton = event.currentTarget.querySelector('button[type="submit"]');
+
       addPropertyMessage.style.display = 'none';
       addPropertyMessage.textContent = '';
       addPropertyMessage.className = 'alert'; // Reset classes
 
-      // Ensure submitButton is valid before using
-      if (!submitButton) {
-        console.error("Submit button not found.");
-        showMessage('Error: Submit button is missing.', 'danger');
+      // Ensure formSubmitButton is valid before using
+      if (!formSubmitButton) {
+        console.error("Submit button not found on the form.");
+        showMessage('Error: Submit button is missing from the form.', 'danger');
         return;
       }
-      submitButton.disabled = true;
-      submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${currentMode === 'edit' ? 'Saving Changes...' : 'Saving...'}`;
+      formSubmitButton.disabled = true;
+      formSubmitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${currentMode === 'edit' ? 'Saving Changes...' : 'Saving...'}`;
 
 
       try {
@@ -128,10 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error("Property ID is missing. Cannot update.");
           }
 
-          const submitButton = this.querySelector('button[type="submit"]'); // 'this' refers to the form
+          // const formSubmitButton = this.querySelector('button[type="submit"]'); // 'this' refers to the form. Already defined above.
           const originalButtonText = 'Save Changes'; // Specific for edit mode before spinner
-          // submitButton.disabled = true; // Already disabled outside this 'if'
-          // submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving Changes...'; // Already set outside
 
           let newImageFile = propertyImageFile.files[0];
           let newImageUrl = null; // URL of the newly uploaded image
@@ -249,10 +249,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage(error.message || 'An unexpected error occurred during update.', 'danger');
           } finally {
             // This will be further correctly handled by 'hidden.bs.modal' to reset to original if needed
-            if (submitButton) { // Ensure submitButton is defined
-              submitButton.disabled = false;
+            if (formSubmitButton) { // Ensure formSubmitButton is defined
+              formSubmitButton.disabled = false;
               // Reset text based on what it should be if modal stayed open (e.g. after error)
-              submitButton.innerHTML = originalButtonText;
+              formSubmitButton.innerHTML = originalButtonText;
             }
           }
           return; // Important: exit submit handler after edit mode logic.
@@ -271,20 +271,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Basic Client-Side Validation (enhance as needed) ---
         if (!formData.property_name || !formData.address || !formData.property_type || !formData.occupier) {
             showMessage('Property Name, Address, Property Type, and Occupier are required.', 'danger');
-            submitButton.disabled = false;
-            submitButton.textContent = originalSubmitButtonText || 'Save Property';
+            if (formSubmitButton) {
+                formSubmitButton.disabled = false;
+                formSubmitButton.textContent = originalSubmitButtonText || 'Save Property'; // Use outer scope original for add mode
+            }
             return;
         }
         if (!formData.imageFile) {
             showMessage('Property image is required.', 'danger');
-            submitButton.disabled = false;
-            submitButton.textContent = originalSubmitButtonText || 'Save Property';
+            if (formSubmitButton) {
+                formSubmitButton.disabled = false;
+                formSubmitButton.textContent = originalSubmitButtonText || 'Save Property'; // Use outer scope original for add mode
+            }
             return;
         }
         if (formData.imageFile.size > 5 * 1024 * 1024) { // Example: 5MB limit
             showMessage('Image file size should not exceed 5MB.', 'danger');
-            submitButton.disabled = false;
-            submitButton.textContent = originalSubmitButtonText || 'Save Property';
+            if (formSubmitButton) {
+                formSubmitButton.disabled = false;
+                formSubmitButton.textContent = originalSubmitButtonText || 'Save Property'; // Use outer scope original for add mode
+            }
             return;
         }
 
@@ -349,9 +355,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
           // Re-throw or handle specific error for company_id fetching
           showMessage(e.message || 'Failed to fetch company details.', 'danger');
-          if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = originalSubmitButtonText || 'Save Property';
+          if (formSubmitButton) {
+            formSubmitButton.disabled = false;
+            formSubmitButton.textContent = originalSubmitButtonText || 'Save Property';  // Use outer scope original for add mode
           }
           return; // Stop submission
         }
@@ -442,17 +448,16 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage(displayMessage, 'danger');
       } finally {
         // Reset button state. Text content will be handled by 'hidden.bs.modal' or upon next submission attempt.
-        if (submitButton) {
-            submitButton.disabled = false;
+        if (formSubmitButton) {
+            formSubmitButton.disabled = false;
             // Setting text here might be overridden by hidden.bs.modal, which is better for consistency
-            // For now, let hidden.bs.modal handle the text reset to original values.
-            // If an error occurs, the button text should reflect the current mode (e.g. "Try Saving Again")
-            // For simplicity, we'll ensure it's at least re-enabled.
-            // The spinner will be removed by the textContent reset in hidden.bs.modal.
-            if (currentMode === 'edit' && submitButton.innerHTML.includes('spinner')) {
-                 submitButton.textContent = 'Save Changes';
-            } else if (currentMode === 'add' && submitButton.innerHTML.includes('spinner')) {
-                 submitButton.textContent = originalSubmitButtonText || 'Save Property';
+            // For now, let hidden.bs.modal handle the text reset to original values for general cases.
+            // If an error occurs within 'add' or 'edit' specific try-catch, that takes precedence for text.
+            // This primarily ensures the spinner is removed and button is enabled if no other text was set.
+            if (currentMode === 'edit' && formSubmitButton.innerHTML.includes('spinner')) {
+                 formSubmitButton.textContent = 'Save Changes'; // Or originalButtonText if it was specific to edit's finally
+            } else if (currentMode === 'add' && formSubmitButton.innerHTML.includes('spinner')) {
+                 formSubmitButton.textContent = originalSubmitButtonText || 'Save Property'; // Outer scope original
             }
         }
       }
