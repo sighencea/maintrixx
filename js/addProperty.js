@@ -138,9 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
               const errJson = await functionInvokeError.context.json();
               if (errJson.error && errJson.errors) { // Our specific validation structure
-                errMsg = `Validation failed:
-${Object.values(errJson.errors).map(e => `- ${e}`).join('
-')}`;
+                errMsg = `Validation failed:\n${Object.values(errJson.errors).map(e => `- ${e}`).join('\n')}`;
               } else if (errJson.error) {
                 errMsg = errJson.error;
               }
