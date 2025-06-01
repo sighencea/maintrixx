@@ -67,24 +67,49 @@ document.addEventListener('DOMContentLoaded', () => {
       propertyIdStoreInput.value = propertyData.id;
     }
 
-    // Populate form fields
-    document.getElementById('propertyName').value = propertyData.property_name || '';
-    document.getElementById('propertyAddress').value = propertyData.address || '';
-    document.getElementById('propertyType').value = propertyData.property_type || '';
-    document.getElementById('propertyOccupier').value = propertyData.occupier || propertyData.property_occupier || ''; // property_occupier from DB
-    document.getElementById('propertyDescription').value = propertyData.description || propertyData.property_details || ''; // property_details from DB
+    // Populate form fields with detailed logging
+    const fieldsToPopulate = {
+      'propertyName': propertyData.property_name,
+      'propertyAddress': propertyData.address,
+      'propertyType': propertyData.property_type,
+      'propertyOccupier': propertyData.property_occupier, // Note: property_details.js sends property_occupier from DB
+      'propertyDescription': propertyData.property_details // Note: property_details.js sends property_details from DB
+    };
 
-    // Handle image preview
+    for (const id in fieldsToPopulate) {
+      const element = document.getElementById(id);
+      console.log(`Attempting to populate field with ID: '${id}'. Element found:`, element);
+      if (element) {
+        const valueToSet = fieldsToPopulate[id] || '';
+        element.value = valueToSet;
+        console.log(`Set '${id}'.value to:`, valueToSet);
+      } else {
+        console.error(`Element with ID '${id}' not found!`);
+      }
+    }
+
+    // Handle image preview with detailed logging
+    // propertyImagePreview and propertyImageFile are already element references obtained during DOMContentLoaded
+    console.log('Attempting to set image preview. propertyImagePreview element:', propertyImagePreview);
     if (propertyData.property_image_url && propertyImagePreview) {
       propertyImagePreview.src = propertyData.property_image_url;
       propertyImagePreview.style.display = 'block';
+      console.log('Set propertyImagePreview.src to:', propertyData.property_image_url);
     } else if (propertyImagePreview) {
       propertyImagePreview.src = '#';
       propertyImagePreview.style.display = 'none';
+      console.log('Set propertyImagePreview.src to # (no image or placeholder).');
+    } else {
+      console.error('propertyImagePreview element not found (it was null when script initialized)!');
     }
-    // Clear the file input, as we're not replacing the image by default
+
+    // Clear the file input
+    console.log('Attempting to clear file input. propertyImageFile element:', propertyImageFile);
     if (propertyImageFile) {
         propertyImageFile.value = '';
+        console.log('Cleared propertyImageFile.value.');
+    } else {
+      console.error('propertyImageFile element not found (it was null when script initialized)!');
     }
 
     if (modalTitleElement) modalTitleElement.textContent = 'Edit Property';
