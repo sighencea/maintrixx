@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       addPropertyMessage.textContent = '';
       addPropertyMessage.className = 'alert'; // Reset classes
 
-      const submitButton = addPropertyForm.querySelector('button[type="submit"]');
+      const submitButton = document.querySelector('button[type="submit"][form="addPropertyForm"]');
       submitButton.disabled = true;
       submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
 
