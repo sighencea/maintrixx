@@ -6,8 +6,8 @@
   <title data-i18n-title="accountPage.title">Account Settings</title>
   <script src="https://cdn.jsdelivr.net/npm/i18next/i18next.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
   <div class="sidebar-overlay d-lg-none"></div> <!-- Add this line -->
@@ -16,32 +16,32 @@
       Property Hub
     </div>
     <ul class="nav-menu">
-      <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span data-i18n="nav.dashboard">Dashboard</span></a></li>
-      <li><a href="properties.html"><i class="fas fa-building"></i><span data-i18n="nav.properties">Properties</span></a></li>
-      <li><a href="tasks.html"><i class="fas fa-tasks"></i><span data-i18n="nav.tasks">Tasks</span></a></li>
-      <li><a href="staff.html"><i class="fas fa-users"></i><span data-i18n="nav.staff">Staff</span></a></li>
-      <li><a href="notifications.html"><i class="fas fa-bell"></i><span data-i18n="nav.notifications">Notifications</span></a></li>
+      <li><a href="dashboard.html"><i class="bi bi-speedometer2"></i><span data-i18n="nav.dashboard">Dashboard</span></a></li>
+      <li><a href="properties.html"><i class="bi bi-building"></i><span data-i18n="nav.properties">Properties</span></a></li>
+      <li><a href="tasks.html"><i class="bi bi-list-check"></i><span data-i18n="nav.tasks">Tasks</span></a></li>
+      <li><a href="staff.html"><i class="bi bi-people-fill"></i><span data-i18n="nav.staff">Staff</span></a></li>
+      <li><a href="notifications.html"><i class="bi bi-bell-fill"></i><span data-i18n="nav.notifications">Notifications</span></a></li>
     </ul>
   </div>
 
   <div id="mainContent" class="main-content">
     <div class="top-bar">
       <button class="btn d-lg-none me-2" type="button" id="sidebarToggler" aria-label="Toggle sidebar">
-        <i class="fas fa-bars"></i>
+        <i class="bi bi-list"></i>
       </button>
       <div class="page-title">
         <span data-i18n="accountPage.header">Account Settings</span>
       </div>
       <div class="top-bar-icons d-flex align-items-center">
-        <a href="notifications.html"><i class="fas fa-bell"></i></a>
+        <a href="notifications.html"><i class="bi bi-bell-fill"></i></a>
         <div class="dropdown">
           <a class="dropdown-toggle dropdown-toggle-no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-user-cog"></i>
+            <i class="bi bi-person-gear"></i>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="account.html"><i class="fas fa-cog me-2"></i>Account Settings</a></li>
+            <li><a class="dropdown-item" href="account.html"><i class="bi bi-gear-fill me-2"></i>Account Settings</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" id="globalSignOutButton" style="color: red;"><i class="fas fa-sign-out-alt me-2"></i>Sign Out</a></li>
+            <li><a class="dropdown-item" href="#" id="globalSignOutButton" style="color: red;"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
           </ul>
         </div>
       </div>
@@ -57,7 +57,7 @@
           <div class="row align-items-center">
             <div class="col-md-3 text-center mb-3 mb-md-0">
               <!-- Placeholder for Avatar -->
-              <i class="fas fa-user-circle fa-7x text-secondary"></i> 
+              <i class="bi bi-person-circle fa-7x text-secondary"></i>
               <!-- Or an actual placeholder image: 
               <img src="https://via.placeholder.com/120" class="img-fluid rounded-circle" alt="User Avatar"> 
               -->
@@ -126,7 +126,7 @@
                 <label class="form-label" data-i18n="accountPage.company.logoLabel">Company Logo</label>
                 <div class="mb-2 text-center"> <!-- Added text-center for better icon alignment if it's block/inline-block -->
                   <!-- Placeholder for current logo -->
-                  <i class="fas fa-palette fa-4x text-secondary"></i>
+                  <i class="bi bi-palette-fill fa-4x text-secondary"></i>
                 </div>
                 <input class="form-control form-control-sm" type="file" id="companyLogoUpload">
                 <small class="form-text text-muted" data-i18n="accountPage.company.logoHelpText">Upload a new logo (e.g., PNG, JPG up to 2MB). Display only, no actual upload.</small>
