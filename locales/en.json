@@ -105,7 +105,14 @@
       "publicUrlFailedError": "Failed to get image public URL: {message}",
       "unexpectedError": "An unexpected error occurred.",
       "unexpectedServerError": "Failed to create property due to an unexpected server response.",
-      "networkError": "Failed to create property. Network or function error."
+      "networkError": "Failed to create property. Network or function error.",
+      "selectTypeOption": "Select type...",
+      "typeHouse": "House",
+      "typeApartment": "Apartment",
+      "occupierLabel": "Occupier",
+      "selectOccupierOption": "Select occupier...",
+      "occupierOwner": "Owner",
+      "occupierTenant": "Tenant"
     }
   },
   "notificationsPage": {

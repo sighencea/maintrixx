@@ -105,7 +105,14 @@
       "publicUrlFailedError": "Öffentliche URL des Bildes konnte nicht abgerufen werden: {message}",
       "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
       "unexpectedServerError": "Immobilie konnte aufgrund eines unerwarteten Serverfehlers nicht erstellt werden.",
-      "networkError": "Immobilie konnte nicht erstellt werden. Netzwerk- oder Funktionsfehler."
+      "networkError": "Immobilie konnte nicht erstellt werden. Netzwerk- oder Funktionsfehler.",
+      "selectTypeOption": "Typ auswählen...",
+      "typeHouse": "Haus",
+      "typeApartment": "Wohnung",
+      "occupierLabel": "Nutzer",
+      "selectOccupierOption": "Nutzer auswählen...",
+      "occupierOwner": "Eigentümer",
+      "occupierTenant": "Mieter"
     }
   },
   "notificationsPage": {
