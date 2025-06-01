@@ -80,6 +80,9 @@ body {
   border-bottom: 1px solid #E5E7EB; /* Optional border */
   height: 60px; /* Adjust height as needed */
   box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
 }
 
 .top-bar .page-title span {
