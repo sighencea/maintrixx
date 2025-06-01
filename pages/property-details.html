@@ -6,8 +6,8 @@
   <title>Property Details</title>
   <script src="https://cdn.jsdelivr.net/npm/i18next/i18next.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
   <div class="sidebar-overlay d-lg-none"></div>
@@ -16,32 +16,32 @@
       Property Hub
     </div>
     <ul class="nav-menu">
-      <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span data-i18n="nav.dashboard">Dashboard</span></a></li>
-      <li><a href="properties.html" class="active"><i class="fas fa-building"></i><span data-i18n="nav.properties">Properties</span></a></li>
-      <li><a href="tasks.html"><i class="fas fa-tasks"></i><span data-i18n="nav.tasks">Tasks</span></a></li>
-      <li><a href="staff.html"><i class="fas fa-users"></i><span data-i18n="nav.staff">Staff</span></a></li>
-      <li><a href="notifications.html"><i class="fas fa-bell"></i><span data-i18n="nav.notifications">Notifications</span></a></li>
+      <li><a href="dashboard.html"><i class="bi bi-speedometer2"></i><span data-i18n="nav.dashboard">Dashboard</span></a></li>
+      <li><a href="properties.html" class="active"><i class="bi bi-building"></i><span data-i18n="nav.properties">Properties</span></a></li>
+      <li><a href="tasks.html"><i class="bi bi-list-check"></i><span data-i18n="nav.tasks">Tasks</span></a></li>
+      <li><a href="staff.html"><i class="bi bi-people-fill"></i><span data-i18n="nav.staff">Staff</span></a></li>
+      <li><a href="notifications.html"><i class="bi bi-bell-fill"></i><span data-i18n="nav.notifications">Notifications</span></a></li>
     </ul>
   </div>
 
   <div id="mainContent" class="main-content">
     <div class="top-bar">
       <button class="btn d-lg-none me-2" type="button" id="sidebarToggler" aria-label="Toggle sidebar">
-        <i class="fas fa-bars"></i>
+        <i class="bi bi-list"></i>
       </button>
       <div class="page-title">
         <span>Property Details</span>
       </div>
       <div class="top-bar-icons d-flex align-items-center">
-        <a href="notifications.html"><i class="fas fa-bell"></i></a>
+        <a href="notifications.html"><i class="bi bi-bell-fill"></i></a>
         <div class="dropdown">
           <a class="dropdown-toggle dropdown-toggle-no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-user-cog"></i>
+            <i class="bi bi-person-gear"></i>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="account.html"><i class="fas fa-cog me-2"></i>Account Settings</a></li>
+            <li><a class="dropdown-item" href="account.html"><i class="bi bi-gear-fill me-2"></i>Account Settings</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" id="globalSignOutButton" style="color: red;"><i class="fas fa-sign-out-alt me-2"></i>Sign Out</a></li>
+            <li><a class="dropdown-item" href="#" id="globalSignOutButton" style="color: red;"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
           </ul>
         </div>
       </div>
@@ -51,19 +51,19 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center">
           <a href="#" id="backToPropertiesLink" class="back-button-area">
-            <span class="back-navigation-chevron"><i class="fas fa-chevron-left"></i></span>
+            <span class="back-navigation-chevron"><i class="bi bi-chevron-left"></i></span>
           </a>
           <h1 id="propertyName" class="mb-0">[Property Name Loading...]</h1>
         </div>
         <div class="dropdown">
           <a class="dropdown-toggle dropdown-toggle-no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-ellipsis-v fa-2x"></i>
+            <i class="bi bi-three-dots-vertical fa-2x"></i>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#" id="editPropertyLink"><i class="fas fa-edit me-2"></i>Edit Property</a></li>
-            <li><a class="dropdown-item" href="#" id="addTaskLink"><i class="fas fa-plus-circle me-2"></i>Add Task</a></li>
+            <li><a class="dropdown-item" href="#" id="editPropertyLink"><i class="bi bi-pencil-square me-2"></i>Edit Property</a></li>
+            <li><a class="dropdown-item" href="#" id="addTaskLink"><i class="bi bi-plus-circle-fill me-2"></i>Add Task</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" id="deletePropertyLink" style="color: red;"><i class="fas fa-trash-alt me-2"></i>Delete Property</a></li>
+            <li><a class="dropdown-item" href="#" id="deletePropertyLink" style="color: red;"><i class="bi bi-trash-fill me-2"></i>Delete Property</a></li>
           </ul>
         </div>
       </div>
