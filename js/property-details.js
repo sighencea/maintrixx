@@ -218,11 +218,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     property_image_url: loadedPropertyDataForEditing.property_image_url,
                     old_image_path: loadedPropertyDataForEditing.property_image_path // Pass the path
                 };
+                console.log("Data being sent to openEditModal:", JSON.stringify(modalData, null, 2));
+
                 if (typeof window.openEditModal === 'function') {
                     window.openEditModal(modalData);
                 } else {
-                    console.error('openEditModal function is not defined. Make sure addProperty.js is loaded.');
-                    alert('Edit functionality is currently unavailable.');
+                    console.error('openEditModal function is not defined. Make sure addProperty.js is loaded and modal HTML is present.');
+                    alert('Edit functionality is currently unavailable. (openEditModal not found)');
                 }
             } else {
                 console.error('Property data not available for editing or not loaded yet.');
