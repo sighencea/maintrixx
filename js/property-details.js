@@ -41,73 +41,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         mainContentContainer.appendChild(messageDiv);
     }
 
-    if (!propertyNameElement || !propertyImageElement || !propertyAddressElement || !propertyTypeElement || !propertyOccupierElement || !propertyDetailsTextElement) {
-        console.error('One or more placeholder elements are missing from the page.');
-        showMessage('Error: Page structure is incomplete. Cannot display property details.', 'danger');
-        return;
-    }
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const propertyId = urlParams.get('id');
-
-    if (!propertyId) {
-        console.error('Property ID is missing from the URL.');
-        showMessage('Property ID is missing. Cannot load details.', 'warning');
-        return;
-    }
-
-    if (!window._supabase) {
-        console.error('Supabase client is not available.');
-        showMessage('Cannot connect to the database. Supabase client not found.', 'danger');
-        return;
-    }
-
-    try {
-        const { data: propertyDataResult, error } = await window._supabase
-            .from('properties')
-            .select('property_name, address, property_details, property_image_url, property_type, property_occupier')
-            .eq('id', propertyId)
-            .single();
-
-        if (error) {
-            console.error('Error fetching property details:', error);
-            showMessage(`Error loading property: ${error.message}`, 'danger');
-            return;
-        }
-
-        if (propertyDataResult) {
-            const imagePath = getImagePathFromUrl(propertyDataResult.property_image_url);
-            // Store the fetched data (including the ID from URL params and parsed image path) for editing
-            loadedPropertyDataForEditing = {
-                ...propertyDataResult,
-                id: propertyId,
-                property_image_path: imagePath
-            };
-
-            propertyNameElement.textContent = propertyDataResult.property_name || 'N/A';
-            document.title = propertyDataResult.property_name ? `${propertyDataResult.property_name} - Property Details` : 'Property Details'; // Update page title as well
-
-            propertyImageElement.src = propertyDataResult.property_image_url || 'https://via.placeholder.com/700x400.png?text=No+Image+Available';
-            propertyImageElement.alt = propertyDataResult.property_name || 'Property Image';
-
-            propertyAddressElement.textContent = propertyDataResult.address || 'N/A';
-            propertyTypeElement.textContent = propertyDataResult.property_type || 'N/A';
-            propertyOccupierElement.textContent = propertyDataResult.property_occupier || 'N/A';
-            propertyDetailsTextElement.textContent = propertyDataResult.property_details || 'No additional details provided.';
-
-            if (propertyId) { // Ensure propertyId is valid before fetching tasks
-                fetchAndDisplayTasks(propertyId);
-            }
-        } else {
-            console.warn('Property not found for ID:', propertyId);
-            showMessage('Property not found. The link may be outdated or incorrect.', 'warning');
-        }
-
-    } catch (err) {
-        console.error('An unexpected error occurred:', err);
-        showMessage('An unexpected error occurred while trying to load property details.', 'danger');
-    }
-
     async function fetchAndDisplayTasks(propertyId) {
         const activeTasksPane = document.getElementById('active-tasks-pane');
         const completedTasksPane = document.getElementById('completed-tasks-pane');
@@ -195,6 +128,78 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (activeTasksPane) activeTasksPane.innerHTML = '<p class="text-danger">Could not load tasks due to an unexpected error.</p>';
         }
     }
+
+    async function loadPropertyDataAndRender() {
+        if (!propertyNameElement || !propertyImageElement || !propertyAddressElement || !propertyTypeElement || !propertyOccupierElement || !propertyDetailsTextElement) {
+            console.error('One or more placeholder elements are missing from the page.');
+            showMessage('Error: Page structure is incomplete. Cannot display property details.', 'danger');
+            return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const propertyId = urlParams.get('id');
+
+        if (!propertyId) {
+            console.error('Property ID is missing from the URL.');
+            showMessage('Property ID is missing. Cannot load details.', 'warning');
+            return;
+        }
+
+        if (!window._supabase) {
+            console.error('Supabase client is not available.');
+            showMessage('Cannot connect to the database. Supabase client not found.', 'danger');
+            return;
+        }
+
+        try {
+            const { data: propertyDataResult, error } = await window._supabase
+                .from('properties')
+                .select('property_name, address, property_details, property_image_url, property_type, property_occupier')
+                .eq('id', propertyId)
+                .single();
+
+            if (error) {
+                console.error('Error fetching property details:', error);
+                showMessage(`Error loading property: ${error.message}`, 'danger');
+                return;
+            }
+
+            if (propertyDataResult) {
+                const imagePath = getImagePathFromUrl(propertyDataResult.property_image_url);
+                loadedPropertyDataForEditing = {
+                    ...propertyDataResult,
+                    id: propertyId,
+                    property_image_path: imagePath
+                };
+
+                propertyNameElement.textContent = propertyDataResult.property_name || 'N/A';
+                document.title = propertyDataResult.property_name ? `${propertyDataResult.property_name} - Property Details` : 'Property Details';
+
+                propertyImageElement.src = propertyDataResult.property_image_url || 'https://via.placeholder.com/700x400.png?text=No+Image+Available';
+                propertyImageElement.alt = propertyDataResult.property_name || 'Property Image';
+
+                propertyAddressElement.textContent = propertyDataResult.address || 'N/A';
+                propertyTypeElement.textContent = propertyDataResult.property_type || 'N/A';
+                propertyOccupierElement.textContent = propertyDataResult.property_occupier || 'N/A';
+                propertyDetailsTextElement.textContent = propertyDataResult.property_details || 'No additional details provided.';
+
+                if (propertyId) {
+                    fetchAndDisplayTasks(propertyId);
+                }
+            } else {
+                console.warn('Property not found for ID:', propertyId);
+                showMessage('Property not found. The link may be outdated or incorrect.', 'warning');
+            }
+        } catch (err) {
+            console.error('An unexpected error occurred:', err);
+            showMessage('An unexpected error occurred while trying to load property details.', 'danger');
+        }
+    }
+
+    window.loadPropertyDetails = loadPropertyDataAndRender; // Expose globally
+
+    // Initial load
+    await loadPropertyDataAndRender();
 
     // Event listeners for the new dropdown menu items
     const editPropertyLink = document.getElementById('editPropertyLink');
