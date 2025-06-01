@@ -442,3 +442,15 @@ The original request was "stroke of all borders", not necessarily hover/active s
     width: 80%;
   }
 }
+
+.back-button-area {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: transparent;
+  text-decoration: none; /* To remove underline from <a> tag */
+  color: inherit; /* To ensure icon inherits color, or set a specific color */
+  margin-right: 8px; /* Provides spacing to the right, adjust as needed */
+}
