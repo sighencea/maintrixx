@@ -17,6 +17,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const resendEmailModalButton = document.getElementById('resendEmailModalButton');
   const resendFeedbackMessageModal = document.getElementById('resendFeedbackMessageModal');
 
+  // Six Digit Code Modal Elements
+  const sixDigitCodeModalEl = document.getElementById('sixDigitCodeModal');
+  let sixDigitCodeModalInstance = null; // Initialize instance later
+  const sixDigitCodeInput = document.getElementById('sixDigitCodeInput');
+  const submitSixDigitCodeButton = document.getElementById('submitSixDigitCodeButton');
+  const sixDigitCodeMessage = document.getElementById('sixDigitCodeMessage');
+
+
   // Initial View Setup - Updated for new section views
   if (signInFormSectionView && signUpFormSectionView) {
     signInFormSectionView.style.display = 'block'; // Show Sign In by default
@@ -149,6 +157,26 @@ document.addEventListener('DOMContentLoaded', function () {
             firstNameDebugMessage = " (Debug: first_name '" + data.user.user_metadata.first_name + "' seen in user_metadata)";
           }
 
+          // Generate 6-digit code and update profile
+          const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+          const userId = data.user.id;
+
+          try {
+            const { error: profileError } = await window._supabase
+              .from('profiles')
+              .insert({ user_id: userId, verification_code: generatedCode }); // is_verified_by_code defaults to false in DB
+
+            if (profileError) {
+              console.error('Error saving verification code to profile:', profileError.message);
+              // Log this error, but proceed with user sign-up success message as auth.user was created.
+              // The user will still get a verification email. The 6-digit code is an additional factor.
+            } else {
+              console.log('Successfully inserted verification code for user:', userId);
+            }
+          } catch (profileInsertException) {
+            console.error('Exception during profile insert for verification code:', profileInsertException.message);
+          }
+
           if (data.user.identities && data.user.identities.length === 0) {
             if (signUpUserMessage) {
                 signUpUserMessage.textContent = i18next.t('resendVerification.alertSignupEmailResent', { email: email }) + firstNameDebugMessage;
@@ -230,12 +258,129 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         } else if (data.user) {
           if (resendModal) resendModal.hide();
-          if (signInMessage) {
-            signInMessage.textContent = i18next.t('mainJs.signIn.success'); // Assumes mainJs.signIn keys
-            signInMessage.className = 'alert alert-success';
+          // signInMessage.textContent = i18next.t('mainJs.signIn.success'); // Clear previous success message
+          // signInMessage.className = 'alert alert-success'; // Don't show success yet
+
+          const userId = data.user.id;
+          try {
+            const { data: profile, error: profileError } = await window._supabase
+              .from('profiles')
+              .select('is_verified_by_code, verification_code')
+              .eq('user_id', userId)
+              .single();
+
+            if (profileError || !profile) {
+              console.error('Error fetching profile or profile not found:', profileError?.message);
+              if (signInMessage) {
+                signInMessage.textContent = i18next.t('mainJs.signIn.profileError'); // Create this i18n key
+                signInMessage.className = 'alert alert-danger';
+              }
+              // Potentially sign out the user if profile is mandatory
+              // await window._supabase.auth.signOut(); 
+              return;
+            }
+
+            if (profile.is_verified_by_code) {
+              if (signInMessage) { // Show success before redirecting
+                signInMessage.textContent = i18next.t('mainJs.signIn.success'); 
+                signInMessage.className = 'alert alert-success';
+              }
+              localStorage.setItem('onboardingComplete', 'true');
+              window.location.href = 'pages/dashboard.html';
+            } else {
+              // Show 6-digit code modal
+              if (signInMessage) signInMessage.textContent = ''; // Clear any previous sign-in messages
+
+              if (!sixDigitCodeModalInstance && sixDigitCodeModalEl) {
+                sixDigitCodeModalInstance = new bootstrap.Modal(sixDigitCodeModalEl);
+              }
+
+              if (sixDigitCodeModalInstance) {
+                if (sixDigitCodeInput) sixDigitCodeInput.value = '';
+                if (sixDigitCodeMessage) {
+                  sixDigitCodeMessage.textContent = '';
+                  sixDigitCodeMessage.className = '';
+                }
+                
+                // Update modal title/description if needed, using data-i18n attributes is preferred
+                // document.getElementById('sixDigitCodeModalLabel').textContent = i18next.t('sixDigitCodeModal.title');
+                // sixDigitCodeModalEl.querySelector('.modal-body p').textContent = i18next.t('sixDigitCodeModal.description');
+
+                sixDigitCodeModalInstance.show();
+
+                // Ensure event listener is not duplicated if this path can be hit multiple times
+                // For simplicity, remove and re-add, or use a flag.
+                // A better approach for complex scenarios: define handler outside and manage it.
+                const handleSubmitCode = async () => {
+                  const enteredCode = sixDigitCodeInput ? sixDigitCodeInput.value : '';
+                  if (!enteredCode || !/^\d{6}$/.test(enteredCode)) {
+                    if (sixDigitCodeMessage) {
+                      sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.invalidInput'); // Create i18n key
+                      sixDigitCodeMessage.className = 'alert alert-warning';
+                    }
+                    return;
+                  }
+
+                  if (enteredCode === profile.verification_code) {
+                    const { error: updateError } = await window._supabase
+                      .from('profiles')
+                      .update({ is_verified_by_code: true })
+                      .eq('user_id', userId);
+
+                    if (updateError) {
+                      console.error('Error updating profile verification status:', updateError.message);
+                      if (sixDigitCodeMessage) {
+                        sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.updateError'); // Create i18n key
+                        sixDigitCodeMessage.className = 'alert alert-danger';
+                      }
+                    } else {
+                      if (sixDigitCodeMessage) {
+                        sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.success'); // Create i18n key
+                        sixDigitCodeMessage.className = 'alert alert-success';
+                      }
+                      if (sixDigitCodeModalInstance) sixDigitCodeModalInstance.hide();
+                      
+                      if (signInMessage) { // Show overall success message on main page
+                         signInMessage.textContent = i18next.t('mainJs.signIn.success'); 
+                         signInMessage.className = 'alert alert-success';
+                      }
+                      localStorage.setItem('onboardingComplete', 'true');
+                      window.location.href = 'pages/dashboard.html';
+                    }
+                  } else {
+                    if (sixDigitCodeMessage) {
+                      sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.incorrectCode'); // Create i18n key
+                      sixDigitCodeMessage.className = 'alert alert-danger';
+                    }
+                  }
+                };
+                
+                // Manage event listener for submitSixDigitCodeButton
+                // To prevent multiple listeners, clone and replace the button, or use a flag/remove first.
+                // Simple approach: remove if exists, then add.
+                if (submitSixDigitCodeButton) {
+                    const newButton = submitSixDigitCodeButton.cloneNode(true);
+                    submitSixDigitCodeButton.parentNode.replaceChild(newButton, submitSixDigitCodeButton);
+                    newButton.addEventListener('click', handleSubmitCode);
+                    // Update reference to the button if needed elsewhere, though here it's local to this scope.
+                    // submitSixDigitCodeButton = newButton; // If it were a global/module-scoped variable
+                }
+
+              } else {
+                console.error('Six digit code modal element not found or failed to initialize.');
+                if (signInMessage) {
+                    signInMessage.textContent = i18next.t('mainJs.signIn.modalError'); // Create i18n key
+                    signInMessage.className = 'alert alert-danger';
+                }
+              }
+            }
+          } catch (fetchProfileError) {
+            console.error('Catch block: Error fetching profile or during 6-digit code flow:', fetchProfileError.message);
+            if (signInMessage) {
+              signInMessage.textContent = i18next.t('mainJs.signIn.unexpectedProfileError'); // Create i18n key
+              signInMessage.className = 'alert alert-danger';
+            }
           }
-          localStorage.setItem('onboardingComplete', 'true');
-          window.location.href = 'pages/dashboard.html';
         } else { 
           if (signInMessage) {
             signInMessage.textContent = i18next.t('mainJs.signIn.signInFailedCheckCredentials'); // Assumes mainJs.signIn keys
