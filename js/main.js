@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
           try {
             const { error: profileError } = await window._supabase
               .from('profiles')
-              .insert({ user_id: userId, verification_code: generatedCode }); // is_verified_by_code defaults to false in DB
+              .insert({ id: userId, verification_code: generatedCode }); // is_verified_by_code defaults to false in DB
 
             if (profileError) {
               console.error('Error saving verification code to profile during sign-up:', profileError);
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const { data: profile, error: profileError } = await window._supabase
               .from('profiles')
               .select('is_verified_by_code, verification_code')
-              .eq('user_id', userId)
+              .eq('id', userId)
               .single();
 
             if (profileError) {
@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const { error: updateError } = await window._supabase
                       .from('profiles')
                       .update({ is_verified_by_code: true })
-                      .eq('user_id', userId);
+                      .eq('id', userId);
 
                     if (updateError) {
                       console.error('Error updating profile verification status:', updateError.message);
