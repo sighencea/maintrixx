@@ -449,11 +449,62 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           throw new Error(functionResponseData.error);
         }
+        
+        const newPropertyId = functionResponseData.property.id;
 
-        // If we reach here, it implies success from the function's perspective
-        if (!functionResponseData || !functionResponseData.success) {
-             console.error('Unexpected response or failure from Edge Function:', functionResponseData);
-             throw new Error('Failed to create property due to an unexpected server response.');
+        // QR Code Generation and Upload (Conditional)
+        if (generateQr) {
+          console.log('User opted to generate QR code for property ID:', newPropertyId);
+          try {
+            const propertyUrl = `${window.location.origin}/pages/property-details.html?id=${newPropertyId}`;
+            const qr = new qrious({
+              value: propertyUrl,
+              size: 256,
+              level: 'H'
+            });
+            const qrImageBlob = await new Promise(resolve => qr.toDataURL(dataUrl => {
+              fetch(dataUrl).then(res => res.blob()).then(resolve);
+            }));
+
+            const filePath = `public/qr_${newPropertyId}.png`;
+            
+            const { data: uploadData, error: uploadError } = await window._supabase.storage
+              .from('property-qr-codes') // Make sure this bucket exists and RLS is set
+              .upload(filePath, qrImageBlob, {
+                cacheControl: '3600',
+                upsert: true 
+              });
+
+            if (uploadError) {
+              console.error('Error uploading QR code:', uploadError);
+              showMessage('Property created, but QR code upload failed. You can generate it later.', 'warning');
+            } else {
+              const { data: publicUrlData } = window._supabase.storage
+                .from('property-qr-codes')
+                .getPublicUrl(filePath);
+
+              if (!publicUrlData || !publicUrlData.publicUrl) {
+                console.error('Error getting public URL for QR code:', publicUrlData);
+                showMessage('Property created, QR uploaded, but failed to get its URL. Please check storage.', 'warning');
+              } else {
+                const qrCodeImageUrl = publicUrlData.publicUrl;
+                const { error: updateError } = await window._supabase
+                  .from('properties')
+                  .update({ qr_code_image_url: qrCodeImageUrl, generate_qr_on_creation: true })
+                  .eq('id', newPropertyId);
+
+                if (updateError) {
+                  console.error('Error updating property with QR code URL:', updateError);
+                  showMessage('Property created, QR uploaded, but failed to update property record with QR URL.', 'warning');
+                } else {
+                  console.log('Property created and updated with QR code URL:', qrCodeImageUrl);
+                }
+              }
+            }
+          } catch (qrError) {
+            console.error('Error during QR code generation/upload process:', qrError);
+            showMessage(`Property created, but an error occurred during QR code processing: ${qrError.message}`, 'warning');
+          }
         }
 
         showMessage('Property created successfully!', 'success');
