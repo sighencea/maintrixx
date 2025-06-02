@@ -217,6 +217,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     editProfileMessageElement.className = 'alert alert-success';
                     editProfileMessageElement.style.display = 'block';
 
+                    window.location.reload();
+
                     if (window.loadAndDisplayAccountDetails) {
                         await window.loadAndDisplayAccountDetails();
                     }
