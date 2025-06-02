@@ -201,7 +201,12 @@
       "signInFailed": "Login failed: {{message}}",
       "loginFailedCheckCredentials": "Login failed. Check credentials.",
       "success": "Login successful! Redirecting...",
-      "unexpectedError": "Unexpected login error."
+      "unexpectedError": "Unexpected login error.",
+      "profileError": "There was an issue accessing your profile. Please try again.",
+      "profileFetchFailed": "Error retrieving your profile information. Please try again later.",
+      "profileNotFound": "Your user profile was not found. Please contact support.",
+      "modalError": "Could not display the verification code dialog. Please try again.",
+      "unexpectedProfileError": "An unexpected error occurred while checking your profile. Please try again."
     }
   },
   "notificationsJs": {
@@ -278,5 +283,16 @@
     "alertAccountExistsResend": "This account already exists. If you haven't verified your email, you can resend the verification link below.",
     "alertEmailNotVerifiedResend": "Your email is not verified. Please check your inbox or resend the verification email below.",
     "alertSignupEmailResent": "This email is already registered but unconfirmed. A new verification email has been sent to {{email}}. Please check your inbox."
+  },
+  "sixDigitCodeModal": {
+    "title": "Enter Verification Code",
+    "description": "For your security, please enter your 6-digit verification code.",
+    "inputLabel": "6-Digit Code",
+    "verifyButton": "Verify Code",
+    "closeButton": "Close",
+    "invalidInput": "Please enter a valid 6-digit numerical code.",
+    "updateError": "Failed to update verification status. Please try again.",
+    "success": "Verification successful! Redirecting...",
+    "incorrectCode": "Incorrect code. Please try again."
   }
 }

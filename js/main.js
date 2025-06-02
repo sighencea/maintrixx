@@ -167,14 +167,14 @@ document.addEventListener('DOMContentLoaded', function () {
               .insert({ user_id: userId, verification_code: generatedCode }); // is_verified_by_code defaults to false in DB
 
             if (profileError) {
-              console.error('Error saving verification code to profile:', profileError.message);
+              console.error('Error saving verification code to profile during sign-up:', profileError);
               // Log this error, but proceed with user sign-up success message as auth.user was created.
               // The user will still get a verification email. The 6-digit code is an additional factor.
             } else {
               console.log('Successfully inserted verification code for user:', userId);
             }
           } catch (profileInsertException) {
-            console.error('Exception during profile insert for verification code:', profileInsertException.message);
+            console.error('Exception during profile insert for verification code during sign-up:', profileInsertException);
           }
 
           if (data.user.identities && data.user.identities.length === 0) {
@@ -269,14 +269,21 @@ document.addEventListener('DOMContentLoaded', function () {
               .eq('user_id', userId)
               .single();
 
-            if (profileError || !profile) {
-              console.error('Error fetching profile or profile not found:', profileError?.message);
+            if (profileError) {
+              console.error('Error fetching profile from Supabase:', profileError);
               if (signInMessage) {
-                signInMessage.textContent = i18next.t('mainJs.signIn.profileError'); // Create this i18n key
+                signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed'); // New i18n key
                 signInMessage.className = 'alert alert-danger';
               }
-              // Potentially sign out the user if profile is mandatory
-              // await window._supabase.auth.signOut(); 
+              return;
+            } else if (!profile) {
+              console.warn('User profile not found for user_id:', userId);
+              if (signInMessage) {
+                signInMessage.textContent = i18next.t('mainJs.signIn.profileNotFound'); // New i18n key
+                signInMessage.className = 'alert alert-danger';
+              }
+              // Potentially sign out the user if profile is mandatory and not found
+              // await window._supabase.auth.signOut();
               return;
             }
 
