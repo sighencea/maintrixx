@@ -81,6 +81,9 @@
     },
     "modal": {
       "addTitle": "Add New Property",
+      "generateQrLabel": "Generate and Store QR Code",
+      "qrDisplayTitle": "Property QR Code",
+      "downloadQrButton": "Download",
       "propertyNameLabel": "Property Name",
       "addressLabel": "Address",
       "typeLabel": "Property Type",
@@ -294,5 +297,8 @@
     "updateError": "Failed to update verification status. Please try again.",
     "success": "Verification successful! Redirecting...",
     "incorrectCode": "Incorrect code. Please try again."
+  },
+  "propertyDetailsPage": {
+    "showQrButton": "Show QR Code"
   }
 }

@@ -220,5 +220,29 @@
   <script type="module" src="../js/i18n.js"></script>
   <script src="../js/addProperty.js"></script>
   <script type="module" src="../js/property-details.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
+
+  <!-- QR Code Display Modal -->
+  <div class="modal fade" id="qrCodeDisplayModal" tabindex="-1" aria-labelledby="qrCodeDisplayModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="qrCodeDisplayModalLabel" data-i18n="propertiesPage.modal.qrDisplayTitle">Property QR Code</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img src="" id="qrCodeModalImage" alt="QR Code" class="img-fluid mb-3" style="max-width: 300px;">
+          <canvas id="qrCodeModalCanvas" style="display:none; max-width: 300px;"></canvas>
+        </div>
+        <div class="modal-footer">
+          <a href="#" id="qrCodeDownloadLink" class="btn btn-success" download="qr_code.png">
+            <i class="bi bi-download"></i> <span data-i18n="propertiesPage.modal.downloadQrButton">Download</span>
+          </a>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="propertiesPage.modal.closeButton">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End QR Code Display Modal -->
 </body>
 </html>
