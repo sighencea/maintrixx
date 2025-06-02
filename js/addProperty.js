@@ -154,30 +154,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
       async function attemptQrCodeGeneration(newPropertyId, retriesLeft = 15) {
-        if (typeof qrious !== 'undefined') {
+        if (typeof qrcode !== 'undefined') { // Changed from qrious
           try {
-            console.log('qrious is ready. Generating QR code for property ID:', newPropertyId);
+            console.log('qrcode-generator is ready. Generating QR code for property ID:', newPropertyId);
             const propertyUrl = `${window.location.origin}/pages/property-details.html?id=${newPropertyId}`;
-            const qr = new qrious({
-              value: propertyUrl,
-              size: 256,
-              level: 'H'
+            
+            var qrInstance = qrcode(0, 'H'); // type 0 for auto sizing, error correction 'H'
+            qrInstance.addData(propertyUrl);
+            qrInstance.make();
+            
+            // createDataURL(cellSize, margin)
+            // cellSize: module size in pixels
+            // margin: margin in modules
+            var qrDataURL = qrInstance.createDataURL(4, 4); 
+      
+            const qrImageBlob = await new Promise(resolve => {
+              fetch(qrDataURL)
+                .then(res => res.blob())
+                .then(resolve);
             });
-            const qrImageBlob = await new Promise(resolve => qr.toDataURL(dataUrl => {
-              fetch(dataUrl).then(res => res.blob()).then(resolve);
-            }));
       
             const filePath = `public/qr_${newPropertyId}.png`;
             
             const { data: uploadData, error: uploadError } = await window._supabase.storage
-              .from('property-qr-codes') // Make sure this bucket exists and RLS is set
+              .from('property-qr-codes')
               .upload(filePath, qrImageBlob, {
                 cacheControl: '3600',
                 upsert: true 
               });
       
             if (uploadError) {
-              console.error('Error uploading QR code:', uploadError);
+              console.error('Error uploading QR code (qrcode-generator):', uploadError);
               showMessage('Property created, but QR code upload failed. You can generate it later.', 'warning');
             } else {
               const { data: publicUrlData } = window._supabase.storage
@@ -185,56 +192,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 .getPublicUrl(filePath);
       
               if (!publicUrlData || !publicUrlData.publicUrl) {
-                console.error('Error getting public URL for QR code:', publicUrlData);
+                console.error('Error getting public URL for QR code (qrcode-generator):', publicUrlData);
                 showMessage('Property created, QR uploaded, but failed to get its URL. Please check storage.', 'warning');
               } else {
                 const qrCodeImageUrl = publicUrlData.publicUrl;
                 const { error: updateError } = await window._supabase
                   .from('properties')
-                  .update({ qr_code_image_url: qrCodeImageUrl, generate_qr_on_creation: true }) // Ensure generate_qr_on_creation is also set true if it was true
+                  .update({ qr_code_image_url: qrCodeImageUrl, generate_qr_on_creation: true })
                   .eq('id', newPropertyId);
       
                 if (updateError) {
-                  console.error('Error updating property with QR code URL:', updateError);
+                  console.error('Error updating property with QR code URL (qrcode-generator):', updateError);
                   showMessage('Property created, QR uploaded, but failed to update property record with QR URL.', 'warning');
                 } else {
-                  console.log('Property created and updated with QR code URL:', qrCodeImageUrl);
-                  // Potentially show a small success for QR specifically if desired, but not critical
-                  // showMessage('QR code generated and linked successfully.', 'success'); // Example
+                  console.log('Property created and updated with QR code URL (qrcode-generator):', qrCodeImageUrl);
                 }
               }
             }
           } catch (qrError) {
-            console.error('Error during QR code generation/upload process (within attempt):', qrError);
+            console.error('Error during QR code generation/upload process (qrcode-generator):', qrError);
             showMessage(`Property created, but an error occurred during QR code processing: ${qrError.message}`, 'warning');
           }
         } else {
           if (retriesLeft > 0) {
-            console.log(`qrious not ready, ${retriesLeft} retries left. Retrying in 200ms...`);
+            console.log(`qrcode-generator not ready, ${retriesLeft} retries left. Retrying in 200ms...`); // Changed log
             setTimeout(() => attemptQrCodeGeneration(newPropertyId, retriesLeft - 1), 200);
           } else {
-            console.error('QRious library did not load after multiple retries.');
-            showMessage('Property created, but QR code generation failed: Required library did not load. You can try generating it later from property details.', 'warning');
+            console.error('qrcode-generator library did not load after multiple retries.'); // Changed log
+            showMessage('Property created, but QR code generation failed: Required library (qrcode-generator) did not load. You can try generating it later.', 'warning'); // Changed message
           }
         }
       }
 
       try {
         if (currentMode === 'edit') {
-          // Inside the 'if (currentMode === 'edit')' block:
-
+          // Edit mode logic (remains largely unchanged from before, focuses on property data not QR lib)
           const propertyId = editingPropertyId || (propertyIdStoreInput ? propertyIdStoreInput.value : null);
           if (!propertyId) {
             throw new Error("Property ID is missing. Cannot update.");
           }
-
-          // const formSubmitButton = this.querySelector('button[type="submit"]'); // 'this' refers to the form. Already defined above.
-          const originalButtonText = 'Save Changes'; // Specific for edit mode before spinner
-
+          const originalButtonText = 'Save Changes';
           let newImageFile = propertyImageFile.files[0];
-          let newImageUrl = null; // URL of the newly uploaded image
-          let newImagePath = null; // Storage path of the newly uploaded image
-
           const updatedPropertyPayload = {
             property_id: propertyId,
             property_name: addPropertyForm.querySelector('#propertyName').value,
@@ -242,121 +240,60 @@ document.addEventListener('DOMContentLoaded', () => {
             property_type: addPropertyForm.querySelector('#propertyType').value,
             property_occupier: addPropertyForm.querySelector('#propertyOccupier').value,
             property_details: addPropertyForm.querySelector('#propertyDescription').value,
-            // property_image_url will be set below
-            // old_property_image_to_delete_path will be set below
           };
 
           try {
             if (newImageFile) {
-              // 1. Upload new image to Supabase Storage (similar to add mode)
               const { data: { user }, error: getUserError } = await window._supabase.auth.getUser();
-              if (getUserError || !user) {
-                throw new Error("User not authenticated. Cannot upload image.");
-              }
+              if (getUserError || !user) throw new Error("User not authenticated.");
               const fileName = `${Date.now()}-${newImageFile.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
               const filePath = `users/${user.id}/property_images/${fileName}`;
-
-              const { data: uploadData, error: uploadError } = await window._supabase.storage
-                .from('property-images')
-                .upload(filePath, newImageFile, { cacheControl: '3600', upsert: false });
-
-              if (uploadError) {
-                console.error('Error uploading new image:', uploadError);
-                throw new Error(`New image upload failed: ${uploadError.message}`);
-              }
-              newImagePath = uploadData.path; // Store new image path
-
-              const { data: publicUrlData, error: publicUrlError } = window._supabase.storage
-                .from('property-images')
-                .getPublicUrl(newImagePath);
-
-              if (publicUrlError) {
-                throw new Error(`Failed to get new image public URL: ${publicUrlError.message}`);
-              }
-              newImageUrl = publicUrlData.publicUrl;
-              updatedPropertyPayload.property_image_url = newImageUrl;
-
-              // If a new image is uploaded, we must send the path of the old image for deletion.
-              if (editingPropertyImageOldPath) { // This was stored when modal opened
+              const { data: uploadData, error: uploadError } = await window._supabase.storage.from('property-images').upload(filePath, newImageFile, { cacheControl: '3600', upsert: false });
+              if (uploadError) throw new Error(`New image upload failed: ${uploadError.message}`);
+              const { data: publicUrlData, error: publicUrlError } = window._supabase.storage.from('property-images').getPublicUrl(uploadData.path);
+              if (publicUrlError) throw new Error(`Failed to get new image public URL: ${publicUrlError.message}`);
+              updatedPropertyPayload.property_image_url = publicUrlData.publicUrl;
+              if (editingPropertyImageOldPath) {
                 updatedPropertyPayload.old_property_image_to_delete_path = editingPropertyImageOldPath;
               }
             } else {
-              // No new image selected, so keep the existing one.
-              // The existing image URL is already in the preview.
               if (propertyImagePreview.src && propertyImagePreview.src !== '#' && !propertyImagePreview.src.startsWith('data:')) {
                    updatedPropertyPayload.property_image_url = propertyImagePreview.src;
               } else {
-                  // If there was no image before and none is selected, explicitly set to null or undefined
-                  // depending on backend expectation. Let's assume null if no image.
                   updatedPropertyPayload.property_image_url = null;
               }
-              // Do not send old_property_image_to_delete_path if image wasn't changed.
             }
 
-            // 2. Call the 'update-property' Edge Function
-            console.log("Calling update-property with payload:", updatedPropertyPayload);
-            const { data: functionResponseData, error: functionInvokeError } = await window._supabase.functions.invoke('update-property', {
-              body: updatedPropertyPayload,
-            });
-
+            const { data: functionResponseData, error: functionInvokeError } = await window._supabase.functions.invoke('update-property', { body: updatedPropertyPayload });
             if (functionInvokeError) {
-              let errMsg = "Failed to update property. Network or function error.";
+              let errMsg = "Failed to update property.";
               if (functionInvokeError.context && typeof functionInvokeError.context.json === 'function') {
-                  try {
-                      const errJson = await functionInvokeError.context.json();
-                      if (errJson.error && errJson.errors) {
-                          errMsg = `Validation failed:\n${Object.values(errJson.errors).map(e => `- ${e}`).join('\n')}`;
-                      } else if (errJson.error) {
-                          errMsg = errJson.error;
-                      }
-                  } catch(e) { console.error("Could not parse function error JSON:", e); }
-              } else if (functionInvokeError.message) {
-                  errMsg = functionInvokeError.message;
-              }
+                  try { const errJson = await functionInvokeError.context.json(); if (errJson.error) errMsg = errJson.error; } catch(e) { /* ignore */ }
+              } else if (functionInvokeError.message) errMsg = functionInvokeError.message;
               throw new Error(errMsg);
             }
-
-            if (functionResponseData && functionResponseData.error) {
-              if (functionResponseData.errors) {
-                  const messages = Object.values(functionResponseData.errors).map(e => `- ${e}`).join('\n');
-                  throw new Error(`Validation failed:\n${messages}`);
-              }
-              throw new Error(functionResponseData.error);
-            }
-
-            if (!functionResponseData || !functionResponseData.success) {
-                 console.error('Unexpected response or failure from update-property Edge Function:', functionResponseData);
-                 throw new Error('Failed to update property due to an unexpected server response.');
-            }
+            if (functionResponseData && functionResponseData.error) throw new Error(functionResponseData.error);
+            if (!functionResponseData || !functionResponseData.success) throw new Error('Failed to update property due to an unexpected server response.');
 
             showMessage('Property updated successfully!', 'success');
             if (addPropertyModalInstance) addPropertyModalInstance.hide();
-
-            // Refresh data on the page
-            if (typeof window.loadPropertyDetails === 'function') { // If on property-details.html
-              console.log("Refreshing property details on page...");
-              window.loadPropertyDetails();
-            } else if (typeof window.refreshPropertiesList === 'function') { // If on properties.html (less likely to edit from here)
-              console.log("Refreshing properties list...");
-              window.refreshPropertiesList();
-            }
+            if (typeof window.loadPropertyDetails === 'function') window.loadPropertyDetails();
+            else if (typeof window.refreshPropertiesList === 'function') window.refreshPropertiesList();
 
           } catch (error) {
             console.error('Error updating property:', error);
             showMessage(error.message || 'An unexpected error occurred during update.', 'danger');
           } finally {
-            // This will be further correctly handled by 'hidden.bs.modal' to reset to original if needed
-            if (formSubmitButton) { // Ensure formSubmitButton is defined
+            if (formSubmitButton) {
               formSubmitButton.disabled = false;
-              // Reset text based on what it should be if modal stayed open (e.g. after error)
               formSubmitButton.innerHTML = originalButtonText;
             }
           }
-          return; // Important: exit submit handler after edit mode logic.
+          return; 
         }
 
         // ADD MODE LOGIC CONTINUES BELOW
-        const generateQr = document.getElementById('generateQrCodeCheckbox').checked; // Get checkbox value
+        const generateQr = document.getElementById('generateQrCodeCheckbox').checked;
 
         const formData = {
             property_name: document.getElementById('propertyName').value,
@@ -367,98 +304,52 @@ document.addEventListener('DOMContentLoaded', () => {
             imageFile: propertyImageFile.files[0]
         };
 
-        // --- Basic Client-Side Validation (enhance as needed) ---
-        if (!formData.property_name || !formData.address || !formData.property_type || !formData.occupier) {
-            showMessage('Property Name, Address, Property Type, and Occupier are required.', 'danger');
+        if (!formData.property_name || !formData.address || !formData.property_type || !formData.occupier || !formData.imageFile) {
+            showMessage('All fields including image are required.', 'danger');
             if (formSubmitButton) {
                 formSubmitButton.disabled = false;
-                formSubmitButton.textContent = originalSubmitButtonText || 'Save Property'; // Use outer scope original for add mode
+                formSubmitButton.textContent = originalSubmitButtonText || 'Save Property';
             }
             return;
         }
-        if (!formData.imageFile) {
-            showMessage('Property image is required.', 'danger');
-            if (formSubmitButton) {
-                formSubmitButton.disabled = false;
-                formSubmitButton.textContent = originalSubmitButtonText || 'Save Property'; // Use outer scope original for add mode
-            }
-            return;
-        }
-        if (formData.imageFile.size > 5 * 1024 * 1024) { // Example: 5MB limit
+         if (formData.imageFile.size > 5 * 1024 * 1024) {
             showMessage('Image file size should not exceed 5MB.', 'danger');
-            if (formSubmitButton) {
+             if (formSubmitButton) {
                 formSubmitButton.disabled = false;
-                formSubmitButton.textContent = originalSubmitButtonText || 'Save Property'; // Use outer scope original for add mode
+                formSubmitButton.textContent = originalSubmitButtonText || 'Save Property';
             }
             return;
         }
 
-        // 1. Upload image to Supabase Storage
         const file = formData.imageFile;
-
         const { data: { user }, error: getUserError } = await window._supabase.auth.getUser();
-        if (getUserError || !user) {
-            console.error("User not authenticated for image upload:", getUserError);
-            throw new Error("User not authenticated. Cannot upload image or create property.");
-        }
+        if (getUserError || !user) throw new Error("User not authenticated.");
 
-        const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`; // Sanitize filename a bit
+        const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
         const filePath = `users/${user.id}/property_images/${fileName}`;
 
+        const { data: uploadData, error: uploadError } = await window._supabase.storage.from('property-images').upload(filePath, file, { cacheControl: '3600', upsert: false });
+        if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
 
-        const { data: uploadData, error: uploadError } = await window._supabase.storage
-          .from('property-images') // Bucket name
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (uploadError) {
-          console.error('Error uploading image:', uploadError);
-          throw new Error(`Image upload failed: ${uploadError.message}`);
-        }
-
-        const { data: publicUrlData, error: publicUrlError } = window._supabase.storage
-            .from('property-images')
-            .getPublicUrl(uploadData.path);
-
-        if (publicUrlError) {
-            console.error('Error getting public URL:', publicUrlError);
-            throw new Error(`Failed to get image public URL: ${publicUrlError.message}`);
-        }
+        const { data: publicUrlData, error: publicUrlError } = window._supabase.storage.from('property-images').getPublicUrl(uploadData.path);
+        if (publicUrlError) throw new Error(`Failed to get image public URL: ${publicUrlError.message}`);
         const imageUrl = publicUrlData.publicUrl;
 
-        // --- Fetch company_id ---
         let companyId;
         try {
-          const { data: companyData, error: companyError } = await window._supabase
-            .from('companies')
-            .select('id')
-            .eq('owner_id', user.id) 
-            .limit(1)
-            .single(); 
-
-          if (companyError) {
-            console.error('Error fetching company_id:', companyError);
-            throw new Error('Could not determine your company. Please ensure your company is set up correctly.');
-          }
-          if (!companyData || !companyData.id) {
-            throw new Error('No company found for your account. Cannot create property.');
-          }
+          const { data: companyData, error: companyError } = await window._supabase.from('companies').select('id').eq('owner_id', user.id).limit(1).single();
+          if (companyError) throw new Error('Could not determine company.');
+          if (!companyData || !companyData.id) throw new Error('No company found for account.');
           companyId = companyData.id;
-          console.log('Fetched company_id:', companyId);
-
         } catch (e) {
           showMessage(e.message || 'Failed to fetch company details.', 'danger');
           if (formSubmitButton) {
             formSubmitButton.disabled = false;
             formSubmitButton.textContent = originalSubmitButtonText || 'Save Property';
           }
-          return; 
+          return;
         }
-        // --- End Fetch company_id ---
 
-        // 2. Prepare data for Edge Function
         const propertyPayload = {
           property_name: formData.property_name,
           address: formData.address,
@@ -471,67 +362,34 @@ document.addEventListener('DOMContentLoaded', () => {
           qr_code_image_url: null 
         };
 
-        // 3. Call the 'create-property' Edge Function
-        const { data: functionResponseData, error: functionInvokeError } = await window._supabase.functions.invoke('create-property', {
-          body: propertyPayload,
-        });
+        const { data: functionResponseData, error: functionInvokeError } = await window._supabase.functions.invoke('create-property', { body: propertyPayload });
 
         if (functionInvokeError) {
-          console.error('Error invoking Edge Function:', functionInvokeError);
-          let errMsg = "Failed to create property. Network or function error.";
+          let errMsg = "Failed to create property.";
           if (functionInvokeError.context && typeof functionInvokeError.context.json === 'function') {
-            try {
-              const errJson = await functionInvokeError.context.json();
-              if (errJson.error && errJson.errors) {
-                errMsg = `Validation failed:\n${Object.values(errJson.errors).map(e => `- ${e}`).join('\n')}`;
-              } else if (errJson.error) {
-                errMsg = errJson.error;
-              }
-            } catch(e) { console.error("Could not parse function error JSON:", e); }
-          } else if (functionInvokeError.message) {
-            errMsg = functionInvokeError.message;
-          }
+            try { const errJson = await functionInvokeError.context.json(); if (errJson.error) errMsg = errJson.error; } catch(e) { /* ignore */ }
+          } else if (functionInvokeError.message) errMsg = functionInvokeError.message;
           throw new Error(errMsg); 
         }
-
-        if (functionResponseData && functionResponseData.error) {
-          if (functionResponseData.errors) { 
-            const messages = Object.values(functionResponseData.errors).map(e => `- ${e}`).join('\n');
-            throw new Error(`Validation failed:\n${messages}`);
-          }
-          throw new Error(functionResponseData.error);
-        }
+        if (functionResponseData && functionResponseData.error) throw new Error(functionResponseData.error);
         
         const newPropertyId = functionResponseData.data.id;
 
-        // QR Code Generation and Upload (Conditional)
         if (generateQr) {
           console.log('User opted to generate QR code for property ID:', newPropertyId);
-          // Call the new function here. It's async but we don't need to await it here
-          // as its success/failure is handled internally with showMessage.
-          // The main success message for property creation will appear regardless.
           attemptQrCodeGeneration(newPropertyId);
         }
 
         showMessage('Property created successfully!', 'success');
         addPropertyForm.reset();
         propertyImagePreview.style.display = 'none';
-        if (addPropertyModalInstance) {
-          addPropertyModalInstance.hide();
-        }
-
-        if (typeof window.refreshPropertiesList === 'function') {
-          console.log('Refreshing properties list after creation...');
-          window.refreshPropertiesList();
-        } else {
-          console.warn('refreshPropertiesList function not found. Consider reloading page or manual refresh.');
-          alert("Property created successfully! Please refresh the page to see the updated list.");
-        }
+        if (addPropertyModalInstance) addPropertyModalInstance.hide();
+        if (typeof window.refreshPropertiesList === 'function') window.refreshPropertiesList();
+        else alert("Property created! Refresh page.");
 
       } catch (error) {
         console.error('Submission error object:', error); 
-        let displayMessage = error.message || 'An unexpected error occurred.';
-        showMessage(displayMessage, 'danger');
+        showMessage(error.message || 'An unexpected error occurred.', 'danger');
       } finally {
         if (formSubmitButton) {
             formSubmitButton.disabled = false;
@@ -545,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   } else {
     if (!addPropertyForm) console.error('Add Property Form (`addPropertyForm`) not found on this page.');
-    if (!window._supabase) console.error('Supabase client (`window._supabase`) not found. Make sure supabase-client.js is loaded before addProperty.js');
+    if (!window._supabase) console.error('Supabase client (`window._supabase`) not found.');
   }
 
   function showMessage(message, type = 'info') {
@@ -563,24 +421,14 @@ document.addEventListener('DOMContentLoaded', () => {
       currentMode = 'add';
       editingPropertyId = null;
       editingPropertyImageOldPath = null;
-      if (propertyIdStoreInput) {
-        propertyIdStoreInput.value = '';
-      }
-      if (modalTitleElement) {
-        modalTitleElement.textContent = originalModalTitle || 'Add New Property'; 
-      }
+      if (propertyIdStoreInput) propertyIdStoreInput.value = '';
+      if (modalTitleElement) modalTitleElement.textContent = originalModalTitle || 'Add New Property'; 
       if (submitButton) {
         submitButton.textContent = originalSubmitButtonText || 'Save Property'; 
         submitButton.disabled = false; 
       }
-
       if (addPropertyForm) addPropertyForm.reset(); 
-
-      if (propertyImageFile) {
-        propertyImageFile.setAttribute('required', 'required');
-        console.log("Modal hidden, reset to ADD mode: 'required' attribute set for propertyImageFile.");
-      }
-
+      if (propertyImageFile) propertyImageFile.setAttribute('required', 'required');
       if (propertyImagePreview) {
         propertyImagePreview.src = '#';
         propertyImagePreview.style.display = 'none';
