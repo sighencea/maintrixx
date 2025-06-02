@@ -157,8 +157,8 @@ document.addEventListener('DOMContentLoaded', function () {
             firstNameDebugMessage = " (Debug: first_name '" + data.user.user_metadata.first_name + "' seen in user_metadata)";
           }
 
-          // Generate 6-digit code and update profile
-          const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+          // Generate 8-digit code and update profile
+          const generatedCode = Math.floor(10000000 + Math.random() * 90000000).toString();
           const userId = data.user.id;
 
           try {
@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // A better approach for complex scenarios: define handler outside and manage it.
                 const handleSubmitCode = async () => {
                   const enteredCode = sixDigitCodeInput ? sixDigitCodeInput.value : '';
-                  if (!enteredCode || !/^\d{6}$/.test(enteredCode)) {
+                  if (!enteredCode || !/^\d{8}$/.test(enteredCode)) {
                     if (sixDigitCodeMessage) {
                       sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.invalidInput'); // Create i18n key
                       sixDigitCodeMessage.className = 'alert alert-warning';
