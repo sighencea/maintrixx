@@ -450,8 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error(functionResponseData.error);
         }
         
-        console.log('Response from create-property Edge Function:', JSON.stringify(functionResponseData, null, 2));
-        const newPropertyId = functionResponseData.property.id;
+        const newPropertyId = functionResponseData.data.id;
 
         // QR Code Generation and Upload (Conditional)
         if (generateQr) {
