@@ -77,13 +77,10 @@
                   <input type="tel" class="form-control" id="phoneNumber" value="+1 234 567 8900 (Dummy Data)" readonly>
                 </div>
                 <div class="mb-3">
-                  <label for="languageSelector" class="form-label" data-i18n="accountPage.profile.languageLabel">Language</label>
-                  <select class="form-select" id="languageSelector">
-                    <option value="en" data-i18n="accountPage.profile.langEn">English</option>
-                    <option value="de" data-i18n="accountPage.profile.langDe">German</option>
-                  </select>
+                  <label for="languageDisplay" class="form-label" data-i18n="accountPage.profile.languageLabel">Language</label>
+                  <input type="text" class="form-control" id="languageDisplay" readonly>
                 </div>
-                <button type="button" class="btn btn-primary" data-i18n="accountPage.profile.editButton">Edit Profile</button> 
+                <button type="button" class="btn btn-primary" id="editProfileButton" data-bs-toggle="modal" data-bs-target="#editProfileModal" data-i18n="accountPage.profile.editButton">Edit Profile</button>
                 <!-- For now, this button won't do anything -->
               </form>
             </div>
@@ -221,6 +218,54 @@
     </div>
   </div>
 
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editProfileModalLabel">Edit Profile Information</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editProfileForm">
+          <!-- Alert for messages -->
+          <div id="editProfileMessage" class="alert" style="display:none;" role="alert"></div>
+
+          <div class="mb-3">
+            <label for="modalFirstName" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="modalFirstName" required>
+          </div>
+          <div class="mb-3">
+            <label for="modalLastName" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="modalLastName" required>
+          </div>
+          <div class="mb-3">
+            <label for="modalEmailAddress" class="form-label">Email Address</label>
+            <input type="email" class="form-control" id="modalEmailAddress" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="modalPhoneNumber" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="modalPhoneNumber">
+            <small class="form-text text-muted">Enter phone number or leave blank.</small>
+          </div>
+          <div class="mb-3">
+            <label for="modalLanguageSelector" class="form-label">Language</label>
+            <select class="form-select" id="modalLanguageSelector">
+              <option value="en">English</option>
+              <option value="de">German</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveProfileChanges">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Edit Profile Modal -->
+
   <script src="../js/supabase-config.js"></script>
   <script type="module" src="../js/supabase-client.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -229,6 +274,7 @@
   <script src="../js/notifications.js"></script> <!-- This is the new line -->
   <script type="module" src="../js/i18n.js"></script>
   <script src="../js/account-details.js"></script> <!-- Add this line -->
+<!--
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const languageSelector = document.getElementById('languageSelector');
@@ -250,5 +296,6 @@
     }
   });
 </script>
+-->
 </body>
 </html>
