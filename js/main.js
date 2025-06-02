@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                   }
 
-                  if (enteredCode === profile.verification_code) {
+                  if (enteredCode.trim() === String(profile.verification_code).trim()) {
                     const { error: updateError } = await window._supabase
                       .from('profiles')
                       .update({ is_verified_by_code: true })
