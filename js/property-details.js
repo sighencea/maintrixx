@@ -1,7 +1,13 @@
 document.addEventListener('DOMContentLoaded', async () => {
     let loadedPropertyDataForEditing = null;
+    let qrModalInstance = null;
 
     // Modal initializations
+    const qrModalEl = document.getElementById('qrCodeDisplayModal');
+    if (qrModalEl) {
+        qrModalInstance = new bootstrap.Modal(qrModalEl);
+    }
+
     const deleteConfirmModalElement = document.getElementById('deleteConfirmModal');
     const deleteConfirmModal = deleteConfirmModalElement ? new bootstrap.Modal(deleteConfirmModalElement) : null;
     const confirmDeleteButton = document.getElementById('confirmDeleteButton');
@@ -206,6 +212,55 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (propertyId) {
                     fetchAndDisplayTasks(propertyId);
                 }
+
+                // Dynamically add "Show QR Code" button to dropdown if URL exists
+                const dropdownMenu = document.querySelector('.dropdown-menu.dropdown-menu-end'); // Adjust selector if needed
+                if (dropdownMenu && loadedPropertyDataForEditing.qr_code_image_url) {
+                    const existingQrButton = document.getElementById('showQrCodeDropdownButton');
+                    if (existingQrButton) existingQrButton.parentElement.remove(); // Remove if it exists from a previous load
+
+                    const newLi = document.createElement('li');
+                    const newLink = document.createElement('a');
+                    newLink.className = 'dropdown-item';
+                    newLink.href = '#';
+                    newLink.id = 'showQrCodeDropdownButton';
+                    newLink.innerHTML = `<i class="bi bi-qr-code-scan"></i> <span data-i18n="propertyDetailsPage.showQrButton">Show QR Code</span>`;
+                    
+                    // Apply i18n translation manually if needed, or ensure i18n.js re-scans
+                    if (typeof i18next !== 'undefined' && typeof i18next.t === 'function') {
+                        newLink.querySelector('span').textContent = i18next.t('propertyDetailsPage.showQrButton', {defaultValue: 'Show QR Code'});
+                    }
+
+                    newLi.appendChild(newLink);
+
+                    // Insert before the first divider or at the end if no divider
+                    const divider = dropdownMenu.querySelector('hr.dropdown-divider');
+                    if (divider) {
+                        dropdownMenu.insertBefore(newLi, divider.parentElement);
+                    } else {
+                        dropdownMenu.appendChild(newLi);
+                    }
+
+                    newLink.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        if (qrModalInstance && loadedPropertyDataForEditing && loadedPropertyDataForEditing.qr_code_image_url) {
+                            const qrCodeModalImage = document.getElementById('qrCodeModalImage');
+                            const qrCodeDownloadLink = document.getElementById('qrCodeDownloadLink');
+                            
+                            if (qrCodeModalImage) qrCodeModalImage.src = loadedPropertyDataForEditing.qr_code_image_url;
+                            if (qrCodeDownloadLink) {
+                                qrCodeDownloadLink.href = loadedPropertyDataForEditing.qr_code_image_url;
+                                const propertyName = loadedPropertyDataForEditing.property_name || 'property';
+                                qrCodeDownloadLink.download = `qr_code_${propertyName.replace(/\s+/g, '_')}.png`;
+                            }
+                            qrModalInstance.show();
+                        } else {
+                            console.error('QR Modal or QR data missing for property.');
+                            alert('Could not display QR code. Data may be missing or modal not initialized.');
+                        }
+                    });
+                }
+
             } else {
                 console.warn('Property not found for ID:', propertyId);
                 showMessage('Property not found. The link may be outdated or incorrect.', 'warning');

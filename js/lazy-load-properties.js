@@ -1,5 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const propertiesContainer = document.getElementById('propertiesContainer');
+    let qrModalInstance = null; // For QR Code Display Modal
+    const qrModalEl = document.getElementById('qrCodeDisplayModal');
+    if (qrModalEl) {
+        qrModalInstance = new bootstrap.Modal(qrModalEl);
+    }
+
     let initialOffset = 0;
     const propertiesPerPage = 9; // Display 9 properties per fetch (3x3 grid)
     let isLoading = false;
@@ -44,7 +50,16 @@ document.addEventListener('DOMContentLoaded', () => {
                       <h5 class="card-title text-primary">${propertyName}</h5>
                       <p class="card-text text-secondary flex-grow-1">${propertyAddress}</p>
                       <p class="card-text"><small class="text-muted">Type: ${propertyType}</small></p>
-                      <span class="btn btn-sm btn-outline-primary mt-auto align-self-start">View Details</span>
+                      <div class="mt-auto d-flex justify-content-between align-items-center">
+                        <span class="btn btn-sm btn-outline-primary align-self-start">View Details</span>
+                        ${property.qr_code_image_url ? `
+                          <button type="button" class="btn btn-sm btn-outline-secondary qr-code-button" title="Show QR Code"
+                                  data-qr-url="${property.qr_code_image_url}"
+                                  data-property-name="${propertyName}">
+                            <i class="bi bi-qr-code"></i>
+                          </button>
+                        ` : ''}
+                      </div>
                     </div>
                   </div>
                 </a>
@@ -160,4 +175,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Attach scroll listener for lazy loading
     window.addEventListener('scroll', lazyScrollHandler);
     // Also consider an IntersectionObserver for a more modern/performant approach if issues with scroll handler.
+
+    // Event Listener for QR Code Buttons (using event delegation)
+    if (propertiesContainer && qrModalInstance) {
+        propertiesContainer.addEventListener('click', function(event) {
+            const qrButton = event.target.closest('.qr-code-button');
+            if (qrButton) {
+                event.preventDefault(); // Prevent any default anchor behavior if it were an <a>
+                const qrUrl = qrButton.dataset.qrUrl;
+                const propertyName = qrButton.dataset.propertyName || 'Property';
+                
+                const qrCodeModalImage = document.getElementById('qrCodeModalImage');
+                const qrCodeDownloadLink = document.getElementById('qrCodeDownloadLink');
+                // const qrCodeModalLabel = document.getElementById('qrCodeDisplayModalLabel'); // If we want to set title
+
+                if (qrCodeModalImage) qrCodeModalImage.src = qrUrl;
+                if (qrCodeDownloadLink) {
+                    qrCodeDownloadLink.href = qrUrl;
+                    qrCodeDownloadLink.download = `qr_code_${propertyName.replace(/\s+/g, '_')}.png`;
+                }
+                // if (qrCodeModalLabel) qrCodeModalLabel.textContent = `${propertyName} QR Code`;
+
+
+                qrModalInstance.show();
+            }
+        });
+    }
 });

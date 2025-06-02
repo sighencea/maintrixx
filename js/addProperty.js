@@ -291,6 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // ADD MODE LOGIC CONTINUES BELOW
+        const generateQr = document.getElementById('generateQrCodeCheckbox').checked; // Get checkbox value
+
         const formData = {
             property_name: document.getElementById('propertyName').value,
             address: document.getElementById('propertyAddress').value,
@@ -405,7 +407,9 @@ document.addEventListener('DOMContentLoaded', () => {
           // bedrooms, bathrooms, square_footage are removed
           property_details: formData.description, // Key changed here
           property_image_url: imageUrl,
-          company_id: companyId // Add the fetched company_id
+          company_id: companyId, // Add the fetched company_id
+          generate_qr_on_creation: generateQr, // Added for QR
+          qr_code_image_url: null // Added for QR
         };
 
         // 3. Call the 'create-property' Edge Function
@@ -415,12 +419,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (functionInvokeError) {
           console.error('Error invoking Edge Function:', functionInvokeError);
-          // Try to get specific JSON error response from the function if it's a HttpError from Deno.serve
           let errMsg = "Failed to create property. Network or function error.";
           if (functionInvokeError.context && typeof functionInvokeError.context.json === 'function') {
             try {
               const errJson = await functionInvokeError.context.json();
-              if (errJson.error && errJson.errors) { // Our specific validation structure
+              if (errJson.error && errJson.errors) {
                 errMsg = `Validation failed:\n${Object.values(errJson.errors).map(e => `- ${e}`).join('\n')}`;
               } else if (errJson.error) {
                 errMsg = errJson.error;
