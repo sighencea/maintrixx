@@ -20,6 +20,97 @@
       const user = data.session.user; // Get the user object
       initializeSignOutButton(); 
       fetchAndDisplayUserProfile(user); // New function call
+      fetchAndDisplayPropertyCount(user.id); // *** NEW CALL ***
+    }
+  }
+
+  // Add this new function inside the main IIFE, for example, after initializeSignOutButton
+  async function fetchAndDisplayUserProfile(user) {
+    const welcomeMessageElement = document.getElementById('welcomeMessage');
+    if (!welcomeMessageElement) {
+      return;
+    }
+
+    if (!window._supabase) {
+      console.error('Fetch Profile: Supabase client not available.');
+      welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileSupabaseError');
+      return;
+    }
+
+    console.log('Fetching profile for user ID:', user.id); // DEBUG
+
+    try {
+      const { data: profileData, error: profileError } = await window._supabase
+        .from('profiles')
+        .select('first_name')
+        .eq('id', user.id)
+        .single();
+
+      console.log('Supabase profile fetch response:', { profileData, profileError }); // DEBUG
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileLoadError');
+        // Display a more user-friendly error or log it appropriately
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger mt-2';
+        errorDiv.textContent = i18next.t('dashboardCheckJs.profileLoadErrorMessage', { message: profileError.message });
+        welcomeMessageElement.after(errorDiv); // Display error below welcome message
+      } else if (profileData) {
+        // If first_name is null or empty, provide a generic welcome.
+        const displayName = profileData.first_name ? profileData.first_name : 'User';
+        welcomeMessageElement.textContent = "Welcome " + displayName + ". We wish you a great day!";
+        console.log('Profile data:', profileData);
+      } else {
+        // This case (no error, no data with .single()) should ideally not happen if RLS allows access
+        // and the profile row exists. Could mean profile row doesn't exist for this auth.uid().
+        console.warn('No profile data returned for user:', user.id);
+        welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.welcomeProfileNotFound');
+      }
+    } catch (catchError) {
+      console.error('Catch error fetching profile:', catchError);
+      welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileUnexpectedError');
+    }
+  }
+
+  async function fetchAndDisplayPropertyCount(userId) {
+    const propertyCountElement = document.getElementById('propertyCount');
+    if (!propertyCountElement) {
+        console.error('Property count element not found in dashboard.html');
+        return;
+    }
+
+    try {
+        // 1. Fetch company_id for the user
+        const { data: companyData, error: companyError } = await window._supabase
+            .from('companies')
+            .select('id')
+            .eq('owner_id', userId)
+            .single();
+
+        if (companyError || !companyData) {
+            console.error('Error fetching company for user or no company found:', companyError);
+            propertyCountElement.textContent = '0';
+            return;
+        }
+
+        const companyId = companyData.id;
+
+        // 2. Fetch property count for the company
+        const { count, error: countError } = await window._supabase
+            .from('properties')
+            .select('*', { count: 'exact', head: true }) // Important: head:true makes it not fetch data
+            .eq('company_id', companyId);
+
+        if (countError) {
+            console.error('Error fetching property count:', countError);
+            propertyCountElement.textContent = '0';
+        } else {
+            propertyCountElement.textContent = count || '0';
+        }
+    } catch (error) {
+        console.error('An unexpected error occurred fetching property count:', error);
+        propertyCountElement.textContent = '0'; // Default to 0 on any unexpected error
     }
   }
 
