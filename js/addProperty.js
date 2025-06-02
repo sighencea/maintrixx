@@ -213,7 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           if (retriesLeft > 0) {
             console.log(`qrcode-generator not ready, ${retriesLeft} retries left. Retrying in 200ms...`);
-            setTimeout(() => attemptQrCodeGeneration(newPropertyId, userId, retriesLeft - 1), 200); // Pass userId in retry
+            // Note: We are not awaiting the setTimeout promise itself, but the recursive call will be.
+            // This means the current attemptQrCodeGeneration will finish, but the chain of retries might continue.
+            // If the library loads, one of the later calls will complete the QR generation.
+            // If all retries exhaust, the final error message will be shown.
+            // This is acceptable as the main property creation flow is what we are about to await.
+            setTimeout(() => attemptQrCodeGeneration(newPropertyId, userId, retriesLeft - 1), 200); 
           } else {
             console.error('qrcode-generator library did not load after multiple retries.');
             showMessage('Property created, but QR code generation failed: Required library (qrcode-generator) did not load. You can try generating it later.', 'warning');
@@ -373,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (generateQr) {
           console.log('User opted to generate QR code for property ID:', newPropertyId);
-          attemptQrCodeGeneration(newPropertyId, user.id); // Pass user.id here
+          await attemptQrCodeGeneration(newPropertyId, user.id); // Pass user.id here and AWAIT
         }
 
         showMessage('Property created successfully!', 'success');
