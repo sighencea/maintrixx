@@ -196,6 +196,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('Property created, QR uploaded, but failed to get its URL. Please check storage.', 'warning');
               } else {
                 const qrCodeImageUrl = publicUrlData.publicUrl;
+                // Update the property record with the QR code URL.
+                // Note: generate_qr_on_creation is no longer sent to create-property,
+                // but we can still use a similar field if needed for other logic, or remove it
+                // from the table update if it's purely a client-side decision flag now.
+                // For now, let's assume the DB field `generate_qr_on_creation` might still be useful
+                // to indicate *if* a QR was generated, even if not part of initial creation payload.
+                // Or, it could be removed from this update too if the presence of qr_code_image_url is sufficient.
+                // Let's keep it for now to match the previous logic's intent to record this.
                 const { error: updateError } = await window._supabase
                   .from('properties')
                   .update({ qr_code_image_url: qrCodeImageUrl, generate_qr_on_creation: true })
@@ -331,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { data: uploadData, error: uploadError } = await window._supabase.storage.from('property-images').upload(filePath, file, { cacheControl: '3600', upsert: false });
         if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
 
-        const { data: publicUrlData, error: publicUrlError } = window._supabase.storage.from('property-images').getPublicUrl(uploadData.path);
+        const { data: publicUrlData, error: publicUrlError } = await window._supabase.storage.from('property-images').getPublicUrl(uploadData.path);
         if (publicUrlError) throw new Error(`Failed to get image public URL: ${publicUrlError.message}`);
         const imageUrl = publicUrlData.publicUrl;
 
@@ -358,7 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
           property_details: formData.description, 
           property_image_url: imageUrl,
           company_id: companyId, 
-          generate_qr_on_creation: generateQr, 
           qr_code_image_url: null 
         };
 
