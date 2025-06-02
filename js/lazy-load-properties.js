@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // RLS is expected to filter by user
             const { data, error } = await window._supabase
                 .from('properties')
-                .select('id, property_name, address, property_image_url, property_type')
+                .select('id, property_name, address, property_image_url, property_type, qr_code_image_url') // Added qr_code_image_url
                 .order('created_at', { ascending: false })
                 .range(offset, offset + limit - 1);
 
