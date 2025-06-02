@@ -153,6 +153,72 @@ document.addEventListener('DOMContentLoaded', () => {
       formSubmitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${currentMode === 'edit' ? 'Saving Changes...' : 'Saving...'}`;
 
 
+      async function attemptQrCodeGeneration(newPropertyId, retriesLeft = 15) {
+        if (typeof qrious !== 'undefined') {
+          try {
+            console.log('qrious is ready. Generating QR code for property ID:', newPropertyId);
+            const propertyUrl = `${window.location.origin}/pages/property-details.html?id=${newPropertyId}`;
+            const qr = new qrious({
+              value: propertyUrl,
+              size: 256,
+              level: 'H'
+            });
+            const qrImageBlob = await new Promise(resolve => qr.toDataURL(dataUrl => {
+              fetch(dataUrl).then(res => res.blob()).then(resolve);
+            }));
+      
+            const filePath = `public/qr_${newPropertyId}.png`;
+            
+            const { data: uploadData, error: uploadError } = await window._supabase.storage
+              .from('property-qr-codes') // Make sure this bucket exists and RLS is set
+              .upload(filePath, qrImageBlob, {
+                cacheControl: '3600',
+                upsert: true 
+              });
+      
+            if (uploadError) {
+              console.error('Error uploading QR code:', uploadError);
+              showMessage('Property created, but QR code upload failed. You can generate it later.', 'warning');
+            } else {
+              const { data: publicUrlData } = window._supabase.storage
+                .from('property-qr-codes')
+                .getPublicUrl(filePath);
+      
+              if (!publicUrlData || !publicUrlData.publicUrl) {
+                console.error('Error getting public URL for QR code:', publicUrlData);
+                showMessage('Property created, QR uploaded, but failed to get its URL. Please check storage.', 'warning');
+              } else {
+                const qrCodeImageUrl = publicUrlData.publicUrl;
+                const { error: updateError } = await window._supabase
+                  .from('properties')
+                  .update({ qr_code_image_url: qrCodeImageUrl, generate_qr_on_creation: true }) // Ensure generate_qr_on_creation is also set true if it was true
+                  .eq('id', newPropertyId);
+      
+                if (updateError) {
+                  console.error('Error updating property with QR code URL:', updateError);
+                  showMessage('Property created, QR uploaded, but failed to update property record with QR URL.', 'warning');
+                } else {
+                  console.log('Property created and updated with QR code URL:', qrCodeImageUrl);
+                  // Potentially show a small success for QR specifically if desired, but not critical
+                  // showMessage('QR code generated and linked successfully.', 'success'); // Example
+                }
+              }
+            }
+          } catch (qrError) {
+            console.error('Error during QR code generation/upload process (within attempt):', qrError);
+            showMessage(`Property created, but an error occurred during QR code processing: ${qrError.message}`, 'warning');
+          }
+        } else {
+          if (retriesLeft > 0) {
+            console.log(`qrious not ready, ${retriesLeft} retries left. Retrying in 200ms...`);
+            setTimeout(() => attemptQrCodeGeneration(newPropertyId, retriesLeft - 1), 200);
+          } else {
+            console.error('QRious library did not load after multiple retries.');
+            showMessage('Property created, but QR code generation failed: Required library did not load. You can try generating it later from property details.', 'warning');
+          }
+        }
+      }
+
       try {
         if (currentMode === 'edit') {
           // Inside the 'if (currentMode === 'edit')' block:
@@ -217,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
               // No new image selected, so keep the existing one.
               // The existing image URL is already in the preview.
-              // If propertyImagePreview.src is a placeholder or empty, it means no image.
               if (propertyImagePreview.src && propertyImagePreview.src !== '#' && !propertyImagePreview.src.startsWith('data:')) {
                    updatedPropertyPayload.property_image_url = propertyImagePreview.src;
               } else {
@@ -331,9 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Upload image to Supabase Storage
         const file = formData.imageFile;
 
-        // Ensure we have user object to build the path, if your RLS for upload depends on it.
-        // The RLS policy (INSERT): (bucket_id = 'property-images') AND ((storage.foldername(name))[1] = 'users') AND ((storage.foldername(name))[2] = (auth.uid())::text)
-        // requires the path to start with 'users/{user_id}'.
         const { data: { user }, error: getUserError } = await window._supabase.auth.getUser();
         if (getUserError || !user) {
             console.error("User not authenticated for image upload:", getUserError);
@@ -372,9 +434,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const { data: companyData, error: companyError } = await window._supabase
             .from('companies')
             .select('id')
-            .eq('owner_id', user.id) // user object should be available from image upload section
+            .eq('owner_id', user.id) 
             .limit(1)
-            .single(); // .single() is good if we expect exactly one or zero
+            .single(); 
 
           if (companyError) {
             console.error('Error fetching company_id:', companyError);
@@ -387,13 +449,12 @@ document.addEventListener('DOMContentLoaded', () => {
           console.log('Fetched company_id:', companyId);
 
         } catch (e) {
-          // Re-throw or handle specific error for company_id fetching
           showMessage(e.message || 'Failed to fetch company details.', 'danger');
           if (formSubmitButton) {
             formSubmitButton.disabled = false;
-            formSubmitButton.textContent = originalSubmitButtonText || 'Save Property';  // Use outer scope original for add mode
+            formSubmitButton.textContent = originalSubmitButtonText || 'Save Property';
           }
-          return; // Stop submission
+          return; 
         }
         // --- End Fetch company_id ---
 
@@ -402,14 +463,12 @@ document.addEventListener('DOMContentLoaded', () => {
           property_name: formData.property_name,
           address: formData.address,
           property_type: formData.property_type,
-          property_occupier: formData.occupier, // Key changed here
-          // rent_price removed
-          // bedrooms, bathrooms, square_footage are removed
-          property_details: formData.description, // Key changed here
+          property_occupier: formData.occupier, 
+          property_details: formData.description, 
           property_image_url: imageUrl,
-          company_id: companyId, // Add the fetched company_id
-          generate_qr_on_creation: generateQr, // Added for QR
-          qr_code_image_url: null // Added for QR
+          company_id: companyId, 
+          generate_qr_on_creation: generateQr, 
+          qr_code_image_url: null 
         };
 
         // 3. Call the 'create-property' Edge Function
@@ -432,18 +491,11 @@ document.addEventListener('DOMContentLoaded', () => {
           } else if (functionInvokeError.message) {
             errMsg = functionInvokeError.message;
           }
-          throw new Error(errMsg); // Throw to be caught by the outer catch
+          throw new Error(errMsg); 
         }
 
-        // Edge function might have run but returned an error in its JSON response (e.g. if we didn't throw HTTP error)
-        // Our current Edge Function returns { success: true, ... } or an HTTP error for validation.
-        // So, if functionInvokeError is null, functionResponseData contains the body.
-        // The previous Edge Function returns `{ error: "message" }` OR `{ success: true }`
-        // The NEW Edge Function returns `{ error: "Validation failed", errors: {...} }` OR `{ success: true }`
-
-        // This check is more for functions that don't use HTTP status codes for errors
         if (functionResponseData && functionResponseData.error) {
-          if (functionResponseData.errors) { // Our structured validation errors
+          if (functionResponseData.errors) { 
             const messages = Object.values(functionResponseData.errors).map(e => `- ${e}`).join('\n');
             throw new Error(`Validation failed:\n${messages}`);
           }
@@ -455,56 +507,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // QR Code Generation and Upload (Conditional)
         if (generateQr) {
           console.log('User opted to generate QR code for property ID:', newPropertyId);
-          try {
-            const propertyUrl = `${window.location.origin}/pages/property-details.html?id=${newPropertyId}`;
-            const qr = new qrious({
-              value: propertyUrl,
-              size: 256,
-              level: 'H'
-            });
-            const qrImageBlob = await new Promise(resolve => qr.toDataURL(dataUrl => {
-              fetch(dataUrl).then(res => res.blob()).then(resolve);
-            }));
-
-            const filePath = `public/qr_${newPropertyId}.png`;
-            
-            const { data: uploadData, error: uploadError } = await window._supabase.storage
-              .from('property-qr-codes') // Make sure this bucket exists and RLS is set
-              .upload(filePath, qrImageBlob, {
-                cacheControl: '3600',
-                upsert: true 
-              });
-
-            if (uploadError) {
-              console.error('Error uploading QR code:', uploadError);
-              showMessage('Property created, but QR code upload failed. You can generate it later.', 'warning');
-            } else {
-              const { data: publicUrlData } = window._supabase.storage
-                .from('property-qr-codes')
-                .getPublicUrl(filePath);
-
-              if (!publicUrlData || !publicUrlData.publicUrl) {
-                console.error('Error getting public URL for QR code:', publicUrlData);
-                showMessage('Property created, QR uploaded, but failed to get its URL. Please check storage.', 'warning');
-              } else {
-                const qrCodeImageUrl = publicUrlData.publicUrl;
-                const { error: updateError } = await window._supabase
-                  .from('properties')
-                  .update({ qr_code_image_url: qrCodeImageUrl, generate_qr_on_creation: true })
-                  .eq('id', newPropertyId);
-
-                if (updateError) {
-                  console.error('Error updating property with QR code URL:', updateError);
-                  showMessage('Property created, QR uploaded, but failed to update property record with QR URL.', 'warning');
-                } else {
-                  console.log('Property created and updated with QR code URL:', qrCodeImageUrl);
-                }
-              }
-            }
-          } catch (qrError) {
-            console.error('Error during QR code generation/upload process:', qrError);
-            showMessage(`Property created, but an error occurred during QR code processing: ${qrError.message}`, 'warning');
-          }
+          // Call the new function here. It's async but we don't need to await it here
+          // as its success/failure is handled internally with showMessage.
+          // The main success message for property creation will appear regardless.
+          attemptQrCodeGeneration(newPropertyId);
         }
 
         showMessage('Property created successfully!', 'success');
@@ -519,31 +525,20 @@ document.addEventListener('DOMContentLoaded', () => {
           window.refreshPropertiesList();
         } else {
           console.warn('refreshPropertiesList function not found. Consider reloading page or manual refresh.');
-          // Fallback, though ideally refreshPropertiesList should always be available on properties.html
           alert("Property created successfully! Please refresh the page to see the updated list.");
-          // location.reload();
         }
 
       } catch (error) {
-        console.error('Submission error object:', error); // Log the whole error object for inspection
+        console.error('Submission error object:', error); 
         let displayMessage = error.message || 'An unexpected error occurred.';
-
-        // The detailed message construction is now expected to happen before throwing the error that gets caught here.
-        // So, error.message should already be formatted if it was a validation error.
-
         showMessage(displayMessage, 'danger');
       } finally {
-        // Reset button state. Text content will be handled by 'hidden.bs.modal' or upon next submission attempt.
         if (formSubmitButton) {
             formSubmitButton.disabled = false;
-            // Setting text here might be overridden by hidden.bs.modal, which is better for consistency
-            // For now, let hidden.bs.modal handle the text reset to original values for general cases.
-            // If an error occurs within 'add' or 'edit' specific try-catch, that takes precedence for text.
-            // This primarily ensures the spinner is removed and button is enabled if no other text was set.
             if (currentMode === 'edit' && formSubmitButton.innerHTML.includes('spinner')) {
-                 formSubmitButton.textContent = 'Save Changes'; // Or originalButtonText if it was specific to edit's finally
+                 formSubmitButton.textContent = 'Save Changes'; 
             } else if (currentMode === 'add' && formSubmitButton.innerHTML.includes('spinner')) {
-                 formSubmitButton.textContent = originalSubmitButtonText || 'Save Property'; // Outer scope original
+                 formSubmitButton.textContent = originalSubmitButtonText || 'Save Property'; 
             }
         }
       }
@@ -556,17 +551,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function showMessage(message, type = 'info') {
     if (addPropertyMessage) {
       addPropertyMessage.textContent = message;
-      addPropertyMessage.className = `alert alert-${type} alert-dismissible fade show`; // Added more bootstrap classes
+      addPropertyMessage.className = `alert alert-${type} alert-dismissible fade show`; 
       addPropertyMessage.style.display = 'block';
-      // Optional: Add a close button to the alert
-      // if (!addPropertyMessage.querySelector('.btn-close')) {
-      //    const closeButton = document.createElement('button');
-      //    closeButton.type = 'button';
-      //    closeButton.className = 'btn-close';
-      //    closeButton.setAttribute('data-bs-dismiss', 'alert');
-      //    closeButton.setAttribute('aria-label', 'Close');
-      //    addPropertyMessage.appendChild(closeButton);
-      // }
     } else {
       console.log (`Message for user (${type}):`, message);
     }
@@ -581,16 +567,15 @@ document.addEventListener('DOMContentLoaded', () => {
         propertyIdStoreInput.value = '';
       }
       if (modalTitleElement) {
-        modalTitleElement.textContent = originalModalTitle || 'Add New Property'; // Reset title
+        modalTitleElement.textContent = originalModalTitle || 'Add New Property'; 
       }
       if (submitButton) {
-        submitButton.textContent = originalSubmitButtonText || 'Save Property'; // Reset button text
-        submitButton.disabled = false; // Ensure button is re-enabled
+        submitButton.textContent = originalSubmitButtonText || 'Save Property'; 
+        submitButton.disabled = false; 
       }
 
-      if (addPropertyForm) addPropertyForm.reset(); // This will clear propertyImageFile.value
+      if (addPropertyForm) addPropertyForm.reset(); 
 
-      // Ensure file input is marked as required for 'add' mode.
       if (propertyImageFile) {
         propertyImageFile.setAttribute('required', 'required');
         console.log("Modal hidden, reset to ADD mode: 'required' attribute set for propertyImageFile.");
