@@ -286,11 +286,11 @@
   },
   "sixDigitCodeModal": {
     "title": "Enter Verification Code",
-    "description": "For your security, please enter your 6-digit verification code.",
-    "inputLabel": "6-Digit Code",
+    "description": "For your security, please enter your 8-digit verification code.",
+    "inputLabel": "8-Digit Code",
     "verifyButton": "Verify Code",
     "closeButton": "Close",
-    "invalidInput": "Please enter a valid 6-digit numerical code.",
+    "invalidInput": "Please enter a valid 8-digit numerical code.",
     "updateError": "Failed to update verification status. Please try again.",
     "success": "Verification successful! Redirecting...",
     "incorrectCode": "Incorrect code. Please try again."
