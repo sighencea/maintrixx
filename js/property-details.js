@@ -215,7 +215,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 // Dynamically add "Show QR Code" button to dropdown if URL exists
-                const dropdownMenu = document.querySelector('.dropdown-menu.dropdown-menu-end'); 
+                const propertyActionsContainer = document.querySelector('.d-flex.justify-content-between.align-items-center.mb-3');
+                const dropdownMenu = propertyActionsContainer ? propertyActionsContainer.querySelector('.dropdown-menu.dropdown-menu-end') : null;
+                
                 if (dropdownMenu && loadedPropertyDataForEditing.qr_code_image_url) {
                     const existingQrButton = document.getElementById('showQrCodeDropdownButton');
                     if (existingQrButton) existingQrButton.parentElement.remove(); 
