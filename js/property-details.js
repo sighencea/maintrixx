@@ -1,6 +1,16 @@
 document.addEventListener('DOMContentLoaded', async () => {
     let loadedPropertyDataForEditing = null;
 
+    // Modal initializations
+    const deleteConfirmModalElement = document.getElementById('deleteConfirmModal');
+    const deleteConfirmModal = deleteConfirmModalElement ? new bootstrap.Modal(deleteConfirmModalElement) : null;
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+
+    const deleteSuccessModalElement = document.getElementById('deleteSuccessModal');
+    const deleteSuccessModal = deleteSuccessModalElement ? new bootstrap.Modal(deleteSuccessModalElement) : null;
+    const deleteSuccessOkButton = document.getElementById('deleteSuccessOkButton');
+    // const deleteSuccessModalCloseButton = document.getElementById('deleteSuccessModalCloseButton'); // Not strictly needed if using hidden.bs.modal
+
     const propertyNameElement = document.getElementById('propertyName');
     const propertyImageElement = document.getElementById('propertyImage');
     const propertyAddressElement = document.getElementById('propertyAddress');
@@ -258,14 +268,106 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (deletePropertyLink) {
         deletePropertyLink.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent default link behavior
-            if (confirm('Are you sure you want to delete this property?')) {
-                console.log('Delete Property confirmed');
-                // Future implementation: Call Supabase to delete the property
-                // and then redirect or update UI.
+            event.preventDefault();
+            if (!loadedPropertyDataForEditing || !loadedPropertyDataForEditing.id) {
+                showMessage('Property data not loaded or incomplete. Cannot delete.', 'warning');
+                return;
+            }
+            if (deleteConfirmModal) {
+                deleteConfirmModal.show();
             } else {
-                console.log('Delete Property cancelled');
+                console.error("Delete confirmation modal instance not found.");
+                alert("Error: Delete confirmation dialog is missing.");
             }
         });
     }
+
+    if (confirmDeleteButton && deleteConfirmModal) {
+        confirmDeleteButton.addEventListener('click', async () => {
+            deleteConfirmModal.hide(); // Hide confirmation modal first
+
+            if (!loadedPropertyDataForEditing || !loadedPropertyDataForEditing.id) {
+                showMessage('Critical: Property data became unavailable before deletion confirmation.', 'danger');
+                // This might clear the page, which is fine as we'd redirect or show full error.
+                return;
+            }
+
+            const propertyId = loadedPropertyDataForEditing.id;
+            let imagePath = loadedPropertyDataForEditing.property_image_path; // This was added in loadPropertyDataAndRender
+
+            // Fallback if property_image_path wasn't populated for some reason (should be there)
+            if (!imagePath && loadedPropertyDataForEditing.property_image_url) {
+                imagePath = getImagePathFromUrl(loadedPropertyDataForEditing.property_image_url);
+            }
+
+            const payload = {
+                property_id: propertyId,
+                property_image_path: imagePath // Will be null if no image or path couldn't be derived
+            };
+
+            try {
+                confirmDeleteButton.disabled = true;
+
+                const { data, error: invokeError } = await window._supabase.functions.invoke('delete-property', {
+                    body: payload
+                });
+
+                if (invokeError) {
+                    throw new Error(`Function invocation error: ${invokeError.message}`);
+                }
+
+                if (data.error) { // Error from within the function logic (e.g., function threw an error string)
+                    throw new Error(`Deletion failed: ${data.error}`);
+                }
+
+                // Check for success boolean if returned by function
+                if (data.success) {
+                    if (deleteSuccessModal) {
+                        deleteSuccessModal.show();
+                    } else {
+                         // Fallback if success modal is missing, though it should redirect anyway
+                        alert("Property deleted successfully!");
+                        window.location.href = 'properties.html';
+                    }
+                } else {
+                    // If no specific error, but not success either.
+                    throw new Error('Property deletion failed due to an unknown server response.');
+                }
+
+            } catch (err) {
+                console.error('Error during property deletion process:', err);
+                // showMessage will clear the page and show the error.
+                // This might be okay for a critical error like deletion failure.
+                showMessage('Error deleting property: ' + err.message, 'danger');
+            } finally {
+                 confirmDeleteButton.disabled = false; // Re-enable button
+            }
+        });
+    }
+
+    // Handle redirection after deleteSuccessModal is hidden
+    if (deleteSuccessModalElement && deleteSuccessModal) {
+        deleteSuccessModalElement.addEventListener('hidden.bs.modal', () => {
+            // This event fires after the modal is fully hidden, regardless of how it was closed.
+            if (window.location.href.includes('property-details.html')) { // Check to prevent issues if already navigating
+                 window.location.href = 'properties.html';
+            }
+        });
+    }
+
+    // The OK button's primary job is to hide its own modal, which then triggers 'hidden.bs.modal'
+    if (deleteSuccessOkButton && deleteSuccessModal) {
+        deleteSuccessOkButton.addEventListener('click', () => {
+            deleteSuccessModal.hide();
+        });
+    }
+
+    // Also ensure the explicit close button in the success modal header triggers hide
+    const deleteSuccessModalDirectCloseButton = document.getElementById('deleteSuccessModalCloseButton');
+    if (deleteSuccessModalDirectCloseButton && deleteSuccessModal) {
+        deleteSuccessModalDirectCloseButton.addEventListener('click', () => {
+            deleteSuccessModal.hide();
+        });
+    }
+
 });
