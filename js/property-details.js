@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const { data: propertyDataResult, error } = await window._supabase
                 .from('properties')
-                .select('property_name, address, property_details, property_image_url, property_type, property_occupier')
+                .select('property_name, address, property_details, property_image_url, property_type, property_occupier, qr_code_image_url') // Added qr_code_image_url
                 .eq('id', propertyId)
                 .single();
 
@@ -195,7 +195,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadedPropertyDataForEditing = {
                     ...propertyDataResult,
                     id: propertyId,
-                    property_image_path: imagePath
+                    property_image_path: imagePath 
+                    // qr_code_image_url is now directly available in propertyDataResult and thus in loadedPropertyDataForEditing
                 };
 
                 propertyNameElement.textContent = propertyDataResult.property_name || 'N/A';
@@ -214,10 +215,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 // Dynamically add "Show QR Code" button to dropdown if URL exists
-                const dropdownMenu = document.querySelector('.dropdown-menu.dropdown-menu-end'); // Adjust selector if needed
+                const dropdownMenu = document.querySelector('.dropdown-menu.dropdown-menu-end'); 
                 if (dropdownMenu && loadedPropertyDataForEditing.qr_code_image_url) {
                     const existingQrButton = document.getElementById('showQrCodeDropdownButton');
-                    if (existingQrButton) existingQrButton.parentElement.remove(); // Remove if it exists from a previous load
+                    if (existingQrButton) existingQrButton.parentElement.remove(); 
 
                     const newLi = document.createElement('li');
                     const newLink = document.createElement('a');
@@ -226,14 +227,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     newLink.id = 'showQrCodeDropdownButton';
                     newLink.innerHTML = `<i class="bi bi-qr-code-scan"></i> <span data-i18n="propertyDetailsPage.showQrButton">Show QR Code</span>`;
                     
-                    // Apply i18n translation manually if needed, or ensure i18n.js re-scans
                     if (typeof i18next !== 'undefined' && typeof i18next.t === 'function') {
                         newLink.querySelector('span').textContent = i18next.t('propertyDetailsPage.showQrButton', {defaultValue: 'Show QR Code'});
                     }
 
                     newLi.appendChild(newLink);
 
-                    // Insert before the first divider or at the end if no divider
                     const divider = dropdownMenu.querySelector('hr.dropdown-divider');
                     if (divider) {
                         dropdownMenu.insertBefore(newLi, divider.parentElement);
@@ -283,23 +282,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (editPropertyLink) {
         editPropertyLink.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent default link behavior
+            event.preventDefault(); 
             if (loadedPropertyDataForEditing) {
-                // Ensure the data structure matches what openEditModal expects
-                // openEditModal expects: id, property_name, address, property_type,
-                // occupier/property_occupier, description/property_details, property_image_url
                 const modalData = {
-                    id: loadedPropertyDataForEditing.id, // Already included
+                    id: loadedPropertyDataForEditing.id, 
                     property_name: loadedPropertyDataForEditing.property_name,
                     address: loadedPropertyDataForEditing.address,
                     property_type: loadedPropertyDataForEditing.property_type,
                     property_occupier: loadedPropertyDataForEditing.property_occupier,
                     property_details: loadedPropertyDataForEditing.property_details,
                     property_image_url: loadedPropertyDataForEditing.property_image_url,
-                    old_image_path: loadedPropertyDataForEditing.property_image_path // Pass the path
+                    old_image_path: loadedPropertyDataForEditing.property_image_path 
                 };
-                // console.log("Data being sent to openEditModal:", JSON.stringify(modalData, null, 2)); // Kept for potential future debugging
-
                 if (typeof window.openEditModal === 'function') {
                     window.openEditModal(modalData);
                 } else {
@@ -315,7 +309,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (addTaskLink) {
         addTaskLink.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent default link behavior
+            event.preventDefault(); 
             console.log('Add Task clicked');
             // Future implementation: Redirect to add task page or open modal
         });
@@ -339,25 +333,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (confirmDeleteButton && deleteConfirmModal) {
         confirmDeleteButton.addEventListener('click', async () => {
-            deleteConfirmModal.hide(); // Hide confirmation modal first
+            deleteConfirmModal.hide(); 
 
             if (!loadedPropertyDataForEditing || !loadedPropertyDataForEditing.id) {
                 showMessage('Critical: Property data became unavailable before deletion confirmation.', 'danger');
-                // This might clear the page, which is fine as we'd redirect or show full error.
                 return;
             }
 
             const propertyId = loadedPropertyDataForEditing.id;
-            let imagePath = loadedPropertyDataForEditing.property_image_path; // This was added in loadPropertyDataAndRender
+            let imagePath = loadedPropertyDataForEditing.property_image_path; 
 
-            // Fallback if property_image_path wasn't populated for some reason (should be there)
             if (!imagePath && loadedPropertyDataForEditing.property_image_url) {
                 imagePath = getImagePathFromUrl(loadedPropertyDataForEditing.property_image_url);
             }
 
             const payload = {
                 property_id: propertyId,
-                property_image_path: imagePath // Will be null if no image or path couldn't be derived
+                property_image_path: imagePath 
             };
 
             try {
@@ -371,53 +363,44 @@ document.addEventListener('DOMContentLoaded', async () => {
                     throw new Error(`Function invocation error: ${invokeError.message}`);
                 }
 
-                if (data.error) { // Error from within the function logic (e.g., function threw an error string)
+                if (data.error) { 
                     throw new Error(`Deletion failed: ${data.error}`);
                 }
-
-                // Check for success boolean if returned by function
+                
                 if (data.success) {
                     if (deleteSuccessModal) {
                         deleteSuccessModal.show();
                     } else {
-                         // Fallback if success modal is missing, though it should redirect anyway
                         alert("Property deleted successfully!");
                         window.location.href = 'properties.html';
                     }
                 } else {
-                    // If no specific error, but not success either.
                     throw new Error('Property deletion failed due to an unknown server response.');
                 }
 
             } catch (err) {
                 console.error('Error during property deletion process:', err);
-                // showMessage will clear the page and show the error.
-                // This might be okay for a critical error like deletion failure.
                 showMessage('Error deleting property: ' + err.message, 'danger');
             } finally {
-                 confirmDeleteButton.disabled = false; // Re-enable button
+                 confirmDeleteButton.disabled = false; 
             }
         });
     }
-
-    // Handle redirection after deleteSuccessModal is hidden
+    
     if (deleteSuccessModalElement && deleteSuccessModal) {
         deleteSuccessModalElement.addEventListener('hidden.bs.modal', () => {
-            // This event fires after the modal is fully hidden, regardless of how it was closed.
-            if (window.location.href.includes('property-details.html')) { // Check to prevent issues if already navigating
+            if (window.location.href.includes('property-details.html')) { 
                  window.location.href = 'properties.html';
             }
         });
     }
 
-    // The OK button's primary job is to hide its own modal, which then triggers 'hidden.bs.modal'
     if (deleteSuccessOkButton && deleteSuccessModal) {
         deleteSuccessOkButton.addEventListener('click', () => {
             deleteSuccessModal.hide();
         });
     }
 
-    // Also ensure the explicit close button in the success modal header triggers hide
     const deleteSuccessModalDirectCloseButton = document.getElementById('deleteSuccessModalCloseButton');
     if (deleteSuccessModalDirectCloseButton && deleteSuccessModal) {
         deleteSuccessModalDirectCloseButton.addEventListener('click', () => {
