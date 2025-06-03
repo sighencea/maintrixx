@@ -120,23 +120,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalTitleElement) modalTitleElement.textContent = 'Edit Property';
     if (submitButton) submitButton.textContent = 'Save Changes';
 
-    // QR Code checkbox logic for Edit Mode
+    // --- Start Diagnostic Logging ---
+    console.log('--- openEditModal ---');
+    console.log('Editing property data:', JSON.stringify(propertyData, null, 2));
+
+    if (propertyData) {
+        console.log('Raw qr_code_image_url:', propertyData.qr_code_image_url);
+    } else {
+        console.log('propertyData object is null or undefined.');
+    }
+
     const generateQrCheckbox = addPropertyForm.querySelector('#generateQrCodeCheckbox');
-    if (generateQrCheckbox) {
-        const qrCheckboxContainer = generateQrCheckbox.closest('.form-check');
-        if (qrCheckboxContainer) {
-            if (propertyData.qr_code_image_url && propertyData.qr_code_image_url.trim() !== '') {
-                // QR code exists: hide the checkbox container, uncheck the box, and disable
-                qrCheckboxContainer.style.display = 'none';
-                generateQrCheckbox.checked = false;
-                generateQrCheckbox.disabled = true;
-            } else {
-                // No QR code: show checkbox container, ensure it's unchecked by default for edit, and enabled
-                qrCheckboxContainer.style.display = 'block'; // Explicitly set to block
-                generateQrCheckbox.checked = false; // User must opt-in to generate for existing property
-                generateQrCheckbox.disabled = false;
-            }
+    const qrCheckboxContainer = generateQrCheckbox ? generateQrCheckbox.closest('.form-check') : null;
+    console.log('generateQrCheckbox element:', generateQrCheckbox);
+    console.log('qrCheckboxContainer element:', qrCheckboxContainer);
+    // --- End Diagnostic Logging ---
+
+    // QR Code checkbox logic for Edit Mode
+    if (generateQrCheckbox && qrCheckboxContainer) { // Check elements exist
+        if (propertyData && propertyData.qr_code_image_url && propertyData.qr_code_image_url.trim() !== '') {
+            console.log('QR Exists Block: Attempting to hide checkbox.');
+            // QR code exists: hide the checkbox container, uncheck the box, and disable
+            qrCheckboxContainer.style.display = 'none';
+            console.log('qrCheckboxContainer display style set to "none".');
+            generateQrCheckbox.checked = false;
+            generateQrCheckbox.disabled = true;
+        } else {
+            console.log('QR Does Not Exist Block: Attempting to show checkbox.');
+            // No QR code: show checkbox container, ensure it's unchecked by default for edit, and enabled
+            qrCheckboxContainer.style.display = 'block'; // Explicitly set to block
+            console.log('qrCheckboxContainer display style set to "block".');
+            generateQrCheckbox.checked = false; // User must opt-in to generate for existing property
+            generateQrCheckbox.disabled = false;
         }
+    } else {
+        console.log('QR checkbox or its container not found. Skipping QR logic.');
     }
 
     addPropertyModalInstance.show();
