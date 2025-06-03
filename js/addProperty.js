@@ -125,14 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (generateQrCheckbox) {
         const qrCheckboxContainer = generateQrCheckbox.closest('.form-check');
         if (qrCheckboxContainer) {
-            if (propertyData.qr_code_image_url) {
+            if (propertyData.qr_code_image_url && propertyData.qr_code_image_url.trim() !== '') {
                 // QR code exists: hide the checkbox container, uncheck the box, and disable
                 qrCheckboxContainer.style.display = 'none';
                 generateQrCheckbox.checked = false;
                 generateQrCheckbox.disabled = true;
             } else {
                 // No QR code: show checkbox container, ensure it's unchecked by default for edit, and enabled
-                qrCheckboxContainer.style.display = ''; // Or 'block' if it's a block element
+                qrCheckboxContainer.style.display = 'block'; // Explicitly set to block
                 generateQrCheckbox.checked = false; // User must opt-in to generate for existing property
                 generateQrCheckbox.disabled = false;
             }
@@ -479,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (generateQrCheckbox) {
           const qrCheckboxContainer = generateQrCheckbox.closest('.form-check');
           if (qrCheckboxContainer) {
-              qrCheckboxContainer.style.display = ''; // Or 'block'
+              qrCheckboxContainer.style.display = 'block'; // Explicitly set to block for consistency
           }
           generateQrCheckbox.disabled = false; // Re-enable for add mode
           // addPropertyForm.reset() should handle setting it to the HTML default (checked)
