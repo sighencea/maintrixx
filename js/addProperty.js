@@ -299,20 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (functionResponseData && functionResponseData.error) throw new Error(functionResponseData.error);
             if (!functionResponseData || !functionResponseData.success) throw new Error('Failed to update property due to an unexpected server response.');
 
-            // QR Code generation for edited property if opted-in
-            const generateQrCheckboxOnEdit = addPropertyForm.querySelector('#generateQrCodeCheckbox');
-            if (generateQrCheckboxOnEdit && generateQrCheckboxOnEdit.checked && !generateQrCheckboxOnEdit.disabled) {
-                const { data: { user }, error: getUserError } = await window._supabase.auth.getUser();
-                if (getUserError || !user) {
-                    console.error('User not authenticated, cannot generate QR for edited property.');
-                    // Optionally show a message, but the main update succeeded.
-                    // showMessage('Property updated, but QR generation skipped: User not found.', 'warning');
-                } else {
-                    console.log('Attempting to generate QR code for edited property ID:', propertyId);
-                    // Ensure attemptQrCodeGeneration can handle null/undefined user.id gracefully or check here
-                    await attemptQrCodeGeneration(propertyId, user.id);
-                }
-            }
+            // QR code generation for EDITED properties is handled by a button added in 'shown.bs.modal'
+            // No automatic QR generation on general update anymore.
 
             showMessage('Property updated successfully!', 'success');
             if (addPropertyModalInstance) addPropertyModalInstance.hide();
@@ -332,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // ADD MODE LOGIC CONTINUES BELOW
-        const generateQr = document.getElementById('generateQrCodeCheckbox').checked;
+        // const generateQr = document.getElementById('generateQrCodeCheckbox').checked; // Checkbox removed
 
         const formData = {
             property_name: document.getElementById('propertyName').value,
@@ -413,10 +401,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const newPropertyId = functionResponseData.data.id;
 
-        if (generateQr) {
-          console.log('User opted to generate QR code for property ID:', newPropertyId);
-          await attemptQrCodeGeneration(newPropertyId, user.id); // Pass user.id here and AWAIT
-        }
+        // Always generate QR for new properties
+        console.log('Always generating QR code for new property ID:', newPropertyId);
+        await attemptQrCodeGeneration(newPropertyId, user.id);
 
         showMessage('Property created successfully!', 'success');
         addPropertyForm.reset();
@@ -477,67 +464,91 @@ document.addEventListener('DOMContentLoaded', () => {
         addPropertyMessage.className = 'alert';
       }
 
-      // Reset QR Checkbox container visibility and state for 'add' mode
-      const generateQrCheckbox = addPropertyForm.querySelector('#generateQrCodeCheckbox');
-      if (generateQrCheckbox) {
-          const qrCheckboxContainer = generateQrCheckbox.closest('.form-check');
-          if (qrCheckboxContainer) {
-              qrCheckboxContainer.style.display = 'block'; // Explicitly set to block for consistency
-          }
-          generateQrCheckbox.disabled = false; // Re-enable for add mode
-          // addPropertyForm.reset() should handle setting it to the HTML default (checked)
-          // generateQrCheckbox.checked = true; // Explicitly set to default for 'add' mode if reset() is not enough
+      // Reset QR Checkbox related elements are removed as the checkbox itself is gone.
+      // Clear the dynamic QR button placeholder if it exists
+      const qrButtonPlaceholder = document.getElementById('editModeQrButtonPlaceholder');
+      if (qrButtonPlaceholder) {
+          qrButtonPlaceholder.innerHTML = ''; // Clear any dynamic button
+          // Optionally remove the placeholder itself if it was dynamically added and you want a cleaner DOM for 'add' mode
+          // qrButtonPlaceholder.remove(); // Or just leave the empty div
       }
     });
 
-    // Event listener for when the modal is fully shown (for QR checkbox logic)
+    // Event listener for when the modal is fully shown (for QR button logic in edit mode)
     addPropertyModalElement.addEventListener('shown.bs.modal', function(event) {
         if (currentMode !== 'edit') {
-            const chk = document.getElementById('generateQrCodeCheckbox');
-            const cont = chk ? chk.closest('.form-check') : null;
-            if (chk && cont) {
-                cont.style.display = 'block';
-                chk.disabled = false;
-                // chk.checked = true; // HTML default, reset by form.reset() in 'hidden.bs.modal'
+            // In 'add' mode, ensure any dynamic QR button placeholder is cleared.
+            const qrButtonPlaceholder = document.getElementById('editModeQrButtonPlaceholder');
+            if (qrButtonPlaceholder) {
+                qrButtonPlaceholder.innerHTML = '';
             }
-            console.log('shown.bs.modal: Not in edit mode. QR checkbox reset for add mode.');
+            console.log('shown.bs.modal: Not in edit mode. QR button logic skipped.');
             return;
         }
 
         console.log('--- shown.bs.modal (edit mode) ---');
         const currentQrUrl = event.target.dataset.currentQrUrl;
-        // const propertyIdForQr = event.target.dataset.currentPropertyIdForQr; // Available if needed
+        // const propertyIdForQrFromDataset = event.target.dataset.currentPropertyIdForQr; // Available if needed
 
         console.log('Retrieved currentQrUrl from dataset (in shown.bs.modal):', currentQrUrl);
 
-        if (event.target.querySelector('.modal-body')) {
-            console.log('Modal body HTML (at shown.bs.modal for edit mode):', event.target.querySelector('.modal-body').innerHTML);
-        } else {
-            console.log('Modal body element (.modal-body) not found within event.target (the modal element).');
+        // Modal body HTML log (can be kept or removed if too verbose)
+        // if (event.target.querySelector('.modal-body')) {
+        //     console.log('Modal body HTML (at shown.bs.modal for edit mode):', event.target.querySelector('.modal-body').innerHTML);
+        // } else {
+        //     console.log('Modal body element (.modal-body) not found within event.target (the modal element).');
+        // }
+
+        // Remove or create a placeholder for the button to ensure no duplicates
+        let qrButtonPlaceholder = document.getElementById('editModeQrButtonPlaceholder');
+        if (!qrButtonPlaceholder) {
+            const descriptionField = addPropertyForm.querySelector('#propertyDescription');
+            if (descriptionField && descriptionField.parentElement) {
+                qrButtonPlaceholder = document.createElement('div');
+                qrButtonPlaceholder.id = 'editModeQrButtonPlaceholder';
+                qrButtonPlaceholder.classList.add('mb-3'); // Add some margin
+                descriptionField.parentElement.insertAdjacentElement('afterend', qrButtonPlaceholder);
+            }
         }
 
-        const generateQrCheckbox = document.getElementById('generateQrCodeCheckbox');
-        const qrCheckboxContainer = generateQrCheckbox ? generateQrCheckbox.closest('.form-check') : null;
+        if (qrButtonPlaceholder) {
+            qrButtonPlaceholder.innerHTML = ''; // Clear previous button if any
 
-        console.log('generateQrCheckbox element (in shown.bs.modal):', generateQrCheckbox);
-        console.log('qrCheckboxContainer element (in shown.bs.modal):', qrCheckboxContainer);
+            if (!currentQrUrl || currentQrUrl.trim() === '') {
+                // No QR code exists, show a button to generate one
+                console.log('Edit mode: No QR code. Displaying generate button.');
+                const generateQrButton = document.createElement('button');
+                generateQrButton.type = 'button';
+                generateQrButton.id = 'generateQrForEditedPropertyBtn';
+                generateQrButton.classList.add('btn', 'btn-outline-primary', 'mb-3');
+                generateQrButton.textContent = 'Generate QR Code';
 
-        if (generateQrCheckbox && qrCheckboxContainer) {
-            if (currentQrUrl && currentQrUrl.trim() !== '') {
-                console.log('QR Exists Block (in shown.bs.modal): Attempting to hide checkbox.');
-                qrCheckboxContainer.style.display = 'none';
-                generateQrCheckbox.checked = false;
-                generateQrCheckbox.disabled = true;
-                console.log('qrCheckboxContainer display style set to "none" (in shown.bs.modal).');
+                generateQrButton.addEventListener('click', async () => {
+                    const propertyIdForQr = addPropertyModalElement.dataset.currentPropertyIdForQr;
+                    if (!propertyIdForQr) {
+                        console.error('Property ID not found for QR generation.');
+                        showMessage('Could not generate QR: Property ID missing.', 'warning');
+                        return;
+                    }
+                    const { data: { user } } = await window._supabase.auth.getUser();
+                    if (!user) {
+                        console.error('User not authenticated for QR generation.');
+                        showMessage('Could not generate QR: User not authenticated.', 'warning');
+                        return;
+                    }
+
+                    generateQrButton.disabled = true;
+                    generateQrButton.textContent = 'Generating...';
+                    await attemptQrCodeGeneration(propertyIdForQr, user.id);
+                    generateQrButton.style.display = 'none';
+                    showMessage('QR Code generation attempted. It might take a moment to reflect if successful.', 'info');
+                });
+                qrButtonPlaceholder.appendChild(generateQrButton);
             } else {
-                console.log('QR Does Not Exist Block (in shown.bs.modal): Attempting to show checkbox.');
-                qrCheckboxContainer.style.display = 'block';
-                generateQrCheckbox.checked = false; // Default for edit mode if no QR
-                generateQrCheckbox.disabled = false;
-                console.log('qrCheckboxContainer display style set to "block" (in shown.bs.modal).');
+                 console.log('Edit mode: QR code exists. No generate button displayed.');
             }
         } else {
-            console.log('QR checkbox or its container not found (in shown.bs.modal). Skipping QR logic.');
+            console.log('QR button placeholder could not be found or created. Skipping button logic.');
         }
     });
   } // End of if (addPropertyModalElement)
