@@ -1,5 +1,10 @@
 // js/i18n.js
 
+window.i18nInitialized = new Promise((resolve, reject) => {
+  window.i18nResolve = resolve;
+  window.i18nReject = reject;
+});
+
 // Function to get user's language preference from Supabase
 async function getUserLangPreference() {
   if (!window._supabase) {
@@ -78,9 +83,18 @@ async function initI18n() {
     });
     updateContent();
     updateLanguageSelector(preferredLang); // Update selector to current language
-
+    if (window.i18nResolve) {
+      window.i18nResolve();
+      window.i18nResolve = null; // Clean up
+      window.i18nReject = null; // Clean up
+    }
   } catch (error) {
     console.error('Error initializing i18next:', error);
+    if (window.i18nReject) {
+      window.i18nReject(error);
+      window.i18nResolve = null; // Clean up
+      window.i18nReject = null; // Clean up
+    }
     updateContentDirectlyIfAble();
   }
 }

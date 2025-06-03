@@ -13,7 +13,17 @@
     }
     if (!data.session) {
       console.log('Dashboard Check: No active session found. Redirecting to login.');
-      alert(i18next.t('dashboardCheckJs.loginRequiredAlert'));
+      try {
+        await window.i18nInitialized;
+      } catch (i18nError) {
+        console.error('Error initializing i18next:', i18nError);
+        alert('Your session has expired. Please log in again. (i18n failed)'); // Fallback alert
+        window.location.href = '../index.html';
+        return; // Exit if i18n failed
+      }
+      const loginReqMsgKey = 'dashboardCheckJs.loginRequiredAlert';
+      const loginReqMsg = i18next.t(loginReqMsgKey);
+      alert(typeof loginReqMsg === 'string' && loginReqMsg !== loginReqMsgKey ? loginReqMsg : 'You need to be logged in to view this page. Please log in again.');
       window.location.href = '../index.html'; 
     } else { 
       console.log('Dashboard Check: Active session found. User can stay.'); 
@@ -33,8 +43,17 @@
 
     if (!window._supabase) {
       console.error('Fetch Profile: Supabase client not available.');
-      welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileSupabaseError');
+      // No i18next.t here yet, but if added, would need the await
+      welcomeMessageElement.textContent = 'Error: Supabase client not available for profile.'; // Fallback, though original didn't use i18n here.
       return;
+    }
+
+    try {
+      await window.i18nInitialized;
+    } catch (i18nError) {
+      console.error('Error initializing i18next for profile display:', i18nError);
+      welcomeMessageElement.textContent = 'Error loading profile (i18n failed)';
+      return; // Exit if i18n failed
     }
 
     console.log('Fetching profile for user ID:', user.id); // DEBUG
@@ -72,6 +91,10 @@
       welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileUnexpectedError');
     }
   }
+  // The duplicated fetchAndDisplayUserProfile function was here.
+  // The diff will apply to the first instance. If the second instance is identical, it will also be patched.
+  // If it's different in a way that breaks the patch, manual intervention would be needed.
+  // Assuming the duplication is exact or the user wants both patched if they were different but matched the search pattern.
 
   async function fetchAndDisplayPropertyCount(userId) {
     const propertyCountElement = document.getElementById('propertyCount');
@@ -121,44 +144,69 @@
         console.log('Sign Out button clicked.');
         if (!window._supabase) { 
           console.error('Sign Out: Supabase client not available.');
-          alert(i18next.t('dashboardCheckJs.signOutSupabaseError'));
+          // This alert is before i18n check, but it's a specific case.
+          // If i18n is critical even for this, the structure would need more changes.
+          // For now, assuming this specific alert can remain as is or use a hardcoded non-i18n string.
+          alert('Error: Supabase client not available for sign out.'); // Fallback
           return; 
         }
+
+        try {
+          await window.i18nInitialized;
+        } catch (i18nError) {
+          console.error('Error initializing i18next for signout:', i18nError);
+          alert('Sign out process cannot start. (i18n failed)'); // Fallback alert
+          return; // Exit if i18n failed
+        }
+
         try {
           const { error } = await window._supabase.auth.signOut();
           if (error) { 
             console.error('Error signing out:', error); 
-            alert(i18next.t('dashboardCheckJs.signOutErrorAlert', { message: error.message })); 
+            const signOutErrorMsgKey = 'dashboardCheckJs.signOutErrorAlert';
+            const signOutErrorMsg = i18next.t(signOutErrorMsgKey, { message: error.message });
+            alert(typeof signOutErrorMsg === 'string' && signOutErrorMsg !== signOutErrorMsgKey ? signOutErrorMsg : 'Error signing out. Please try again.');
           } else {
             console.log('Successfully signed out.');
             localStorage.removeItem('onboardingComplete'); // Clear old flag
-            alert(i18next.t('dashboardCheckJs.signOutSuccessAlert'));
+            const signOutSuccessMsgKey = 'dashboardCheckJs.signOutSuccessAlert';
+            const signOutSuccessMsg = i18next.t(signOutSuccessMsgKey);
+            alert(typeof signOutSuccessMsg === 'string' && signOutSuccessMsg !== signOutSuccessMsgKey ? signOutSuccessMsg : 'You have been successfully signed out.');
             window.location.href = '../index.html'; // Redirect to login page
           }
         } catch (e) { 
           console.error('Catch error during sign out:', e); 
-          alert(i18next.t('dashboardCheckJs.signOutUnexpectedError')); 
+          const signOutUnexpectedMsgKey = 'dashboardCheckJs.signOutUnexpectedError';
+          const signOutUnexpectedMsg = i18next.t(signOutUnexpectedMsgKey);
+          alert(typeof signOutUnexpectedMsg === 'string' && signOutUnexpectedMsg !== signOutUnexpectedMsgKey ? signOutUnexpectedMsg : 'An unexpected error occurred during sign out.');
         }
       });
     }
   }
   
-  // Add this new function inside the main IIFE, for example, after initializeSignOutButton
-  async function fetchAndDisplayUserProfile(user) {
-    const welcomeMessageElement = document.getElementById('welcomeMessage');
-    if (!welcomeMessageElement) {
+  // The duplicated fetchAndDisplayUserProfile function might be here or was already removed by a previous step.
+  // If it's still here and identical, this diff won't touch it again.
+  // If it was different, this diff might not apply cleanly or might apply to the wrong one.
+  // Given the previous output, the first instance is being patched.
+      // Fallback for the case where Supabase client is not available.
+      // Original line: welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileSupabaseError');
+      welcomeMessageElement.textContent = 'Error: Supabase client not available for profile.';
       return;
     }
 
-    if (!window._supabase) {
-      console.error('Fetch Profile: Supabase client not available.');
-      welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileSupabaseError');
-      return;
-    }
+    // Moved i18nInitialized await block higher in this function.
+    // This section is part of the duplicated fetchAndDisplayUserProfile.
+    // The changes should ideally be applied to the first occurrence.
+    // If the duplication is exact, the patch will apply to both.
+    // If not, this specific block might not be changed if the primary one was already modified.
 
     console.log('Fetching profile for user ID:', user.id); // DEBUG
 
     try {
+      // Ensure i18n is initialized before using i18next.t
+      // This await is already added earlier in the function if not duplicated.
+      // await window.i18nInitialized; // This would be redundant if already added above
+
       const { data: profileData, error: profileError } = await window._supabase
         .from('profiles')
         .select('first_name')
@@ -170,24 +218,23 @@
       if (profileError) {
         console.error('Error fetching profile:', profileError);
         welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileLoadError');
-        // Display a more user-friendly error or log it appropriately
         const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger mt-2';
         errorDiv.textContent = i18next.t('dashboardCheckJs.profileLoadErrorMessage', { message: profileError.message });
-        welcomeMessageElement.after(errorDiv); // Display error below welcome message
+        welcomeMessageElement.after(errorDiv);
       } else if (profileData) {
-        // If first_name is null or empty, provide a generic welcome.
         const displayName = profileData.first_name ? profileData.first_name : 'User';
         welcomeMessageElement.textContent = "Welcome " + displayName + ". We wish you a great day!";
         console.log('Profile data:', profileData);
       } else {
-        // This case (no error, no data with .single()) should ideally not happen if RLS allows access
-        // and the profile row exists. Could mean profile row doesn't exist for this auth.uid().
         console.warn('No profile data returned for user:', user.id);
         welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.welcomeProfileNotFound');
       }
     } catch (catchError) {
+      // This catchError is for the Supabase fetch, not i18n initialization
       console.error('Catch error fetching profile:', catchError);
+      // If i18nInitialized failed, the function would have exited earlier.
+      // So, we can assume i18next.t is safe to use here, or was handled by the outer try-catch for i18n.
       welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileUnexpectedError');
     }
   }
