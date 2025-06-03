@@ -184,61 +184,6 @@
     }
   }
   
-  // The duplicated fetchAndDisplayUserProfile function might be here or was already removed by a previous step.
-  // If it's still here and identical, this diff won't touch it again.
-  // If it was different, this diff might not apply cleanly or might apply to the wrong one.
-  // Given the previous output, the first instance is being patched.
-      // Fallback for the case where Supabase client is not available.
-      // Original line: welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileSupabaseError');
-      welcomeMessageElement.textContent = 'Error: Supabase client not available for profile.';
-      return;
-    }
-
-    // Moved i18nInitialized await block higher in this function.
-    // This section is part of the duplicated fetchAndDisplayUserProfile.
-    // The changes should ideally be applied to the first occurrence.
-    // If the duplication is exact, the patch will apply to both.
-    // If not, this specific block might not be changed if the primary one was already modified.
-
-    console.log('Fetching profile for user ID:', user.id); // DEBUG
-
-    try {
-      // Ensure i18n is initialized before using i18next.t
-      // This await is already added earlier in the function if not duplicated.
-      // await window.i18nInitialized; // This would be redundant if already added above
-
-      const { data: profileData, error: profileError } = await window._supabase
-        .from('profiles')
-        .select('first_name')
-        .eq('id', user.id)
-        .single();
-
-      console.log('Supabase profile fetch response:', { profileData, profileError }); // DEBUG
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-        welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileLoadError');
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'alert alert-danger mt-2';
-        errorDiv.textContent = i18next.t('dashboardCheckJs.profileLoadErrorMessage', { message: profileError.message });
-        welcomeMessageElement.after(errorDiv);
-      } else if (profileData) {
-        const displayName = profileData.first_name ? profileData.first_name : 'User';
-        welcomeMessageElement.textContent = "Welcome " + displayName + ". We wish you a great day!";
-        console.log('Profile data:', profileData);
-      } else {
-        console.warn('No profile data returned for user:', user.id);
-        welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.welcomeProfileNotFound');
-      }
-    } catch (catchError) {
-      // This catchError is for the Supabase fetch, not i18n initialization
-      console.error('Catch error fetching profile:', catchError);
-      // If i18nInitialized failed, the function would have exited earlier.
-      // So, we can assume i18next.t is safe to use here, or was handled by the outer try-catch for i18n.
-      welcomeMessageElement.textContent = i18next.t('dashboardCheckJs.profileUnexpectedError');
-    }
-  }
-
   // Initial check when the script runs
   if (document.readyState === 'loading') { 
     document.addEventListener('DOMContentLoaded', checkAuthSessionAndRedirect); 
