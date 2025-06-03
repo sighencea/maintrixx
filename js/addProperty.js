@@ -120,42 +120,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalTitleElement) modalTitleElement.textContent = 'Edit Property';
     if (submitButton) submitButton.textContent = 'Save Changes';
 
-    // --- Start Diagnostic Logging ---
+    // --- Start Diagnostic Logging (for context) ---
     console.log('--- openEditModal ---');
-    console.log('Editing property data:', JSON.stringify(propertyData, null, 2));
+    console.log('Editing property data (raw):', JSON.stringify(propertyData, null, 2));
 
     if (propertyData) {
-        console.log('Raw qr_code_image_url:', propertyData.qr_code_image_url);
-    } else {
-        console.log('propertyData object is null or undefined.');
-    }
-
-    const generateQrCheckbox = document.getElementById('generateQrCodeCheckbox');
-    const qrCheckboxContainer = generateQrCheckbox ? generateQrCheckbox.closest('.form-check') : null;
-    console.log('generateQrCheckbox element:', generateQrCheckbox);
-    console.log('qrCheckboxContainer element:', qrCheckboxContainer);
-    // --- End Diagnostic Logging ---
-
-    // QR Code checkbox logic for Edit Mode
-    if (generateQrCheckbox && qrCheckboxContainer) { // Check elements exist
-        if (propertyData && propertyData.qr_code_image_url && propertyData.qr_code_image_url.trim() !== '') {
-            console.log('QR Exists Block: Attempting to hide checkbox.');
-            // QR code exists: hide the checkbox container, uncheck the box, and disable
-            qrCheckboxContainer.style.display = 'none';
-            console.log('qrCheckboxContainer display style set to "none".');
-            generateQrCheckbox.checked = false;
-            generateQrCheckbox.disabled = true;
-        } else {
-            console.log('QR Does Not Exist Block: Attempting to show checkbox.');
-            // No QR code: show checkbox container, ensure it's unchecked by default for edit, and enabled
-            qrCheckboxContainer.style.display = 'block'; // Explicitly set to block
-            console.log('qrCheckboxContainer display style set to "block".');
-            generateQrCheckbox.checked = false; // User must opt-in to generate for existing property
-            generateQrCheckbox.disabled = false;
+        console.log('Raw qr_code_image_url (in openEditModal):', propertyData.qr_code_image_url);
+        // Store QR related data on the modal element for 'shown.bs.modal'
+        if (addPropertyModalElement) {
+            addPropertyModalElement.dataset.currentQrUrl = propertyData.qr_code_image_url || '';
+            addPropertyModalElement.dataset.currentPropertyIdForQr = propertyData.id || '';
         }
     } else {
-        console.log('QR checkbox or its container not found. Skipping QR logic.');
+        console.log('propertyData object is null or undefined (in openEditModal).');
+        if (addPropertyModalElement) {
+            addPropertyModalElement.dataset.currentQrUrl = '';
+            addPropertyModalElement.dataset.currentPropertyIdForQr = '';
+        }
     }
+    // --- End Diagnostic Logging (for context) ---
+
+    // QR Code checkbox visibility logic is now handled by 'shown.bs.modal' event listener
 
     addPropertyModalInstance.show();
   }
@@ -504,5 +489,50 @@ document.addEventListener('DOMContentLoaded', () => {
           // generateQrCheckbox.checked = true; // Explicitly set to default for 'add' mode if reset() is not enough
       }
     });
-  }
+
+    // Event listener for when the modal is fully shown (for QR checkbox logic)
+    addPropertyModalElement.addEventListener('shown.bs.modal', function(event) {
+        if (currentMode !== 'edit') {
+            const chk = document.getElementById('generateQrCodeCheckbox');
+            const cont = chk ? chk.closest('.form-check') : null;
+            if (chk && cont) {
+                cont.style.display = 'block';
+                chk.disabled = false;
+                // chk.checked = true; // HTML default, reset by form.reset() in 'hidden.bs.modal'
+            }
+            console.log('shown.bs.modal: Not in edit mode. QR checkbox reset for add mode.');
+            return;
+        }
+
+        console.log('--- shown.bs.modal (edit mode) ---');
+        const currentQrUrl = event.target.dataset.currentQrUrl;
+        // const propertyIdForQr = event.target.dataset.currentPropertyIdForQr; // Available if needed
+
+        console.log('Retrieved currentQrUrl from dataset (in shown.bs.modal):', currentQrUrl);
+
+        const generateQrCheckbox = document.getElementById('generateQrCodeCheckbox');
+        const qrCheckboxContainer = generateQrCheckbox ? generateQrCheckbox.closest('.form-check') : null;
+
+        console.log('generateQrCheckbox element (in shown.bs.modal):', generateQrCheckbox);
+        console.log('qrCheckboxContainer element (in shown.bs.modal):', qrCheckboxContainer);
+
+        if (generateQrCheckbox && qrCheckboxContainer) {
+            if (currentQrUrl && currentQrUrl.trim() !== '') {
+                console.log('QR Exists Block (in shown.bs.modal): Attempting to hide checkbox.');
+                qrCheckboxContainer.style.display = 'none';
+                generateQrCheckbox.checked = false;
+                generateQrCheckbox.disabled = true;
+                console.log('qrCheckboxContainer display style set to "none" (in shown.bs.modal).');
+            } else {
+                console.log('QR Does Not Exist Block (in shown.bs.modal): Attempting to show checkbox.');
+                qrCheckboxContainer.style.display = 'block';
+                generateQrCheckbox.checked = false; // Default for edit mode if no QR
+                generateQrCheckbox.disabled = false;
+                console.log('qrCheckboxContainer display style set to "block" (in shown.bs.modal).');
+            }
+        } else {
+            console.log('QR checkbox or its container not found (in shown.bs.modal). Skipping QR logic.');
+        }
+    });
+  } // End of if (addPropertyModalElement)
 });
