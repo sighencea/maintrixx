@@ -146,6 +146,79 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window.openEditModal = openEditModal; // Expose globally
 
+  async function attemptQrCodeGeneration(newPropertyId, userId, retriesLeft = 15) { // Added userId
+    if (typeof qrcode !== 'undefined') {
+      try {
+        console.log('qrcode-generator is ready. Generating QR code for property ID:', newPropertyId);
+        const propertyUrl = `${window.location.origin}/pages/property-details.html?id=${newPropertyId}`;
+
+        var qrInstance = qrcode(0, 'H');
+        qrInstance.addData(propertyUrl);
+        qrInstance.make();
+
+        var qrDataURL = qrInstance.createDataURL(4, 4);
+
+        const qrImageBlob = await new Promise(resolve => {
+          fetch(qrDataURL)
+            .then(res => res.blob())
+            .then(resolve);
+        });
+
+        const filePath = `users/${userId}/qr_codes/qr_${newPropertyId}.png`; // Updated filePath
+
+        const { data: uploadData, error: uploadError } = await window._supabase.storage
+          .from('property-qr-codes')
+          .upload(filePath, qrImageBlob, {
+            cacheControl: '3600',
+            upsert: true
+          });
+
+        if (uploadError) {
+          console.error('Error uploading QR code (qrcode-generator):', uploadError);
+          showMessage('Property created, but QR code upload failed. You can generate it later.', 'warning');
+        } else {
+          const { data: publicUrlData } = window._supabase.storage
+            .from('property-qr-codes')
+            .getPublicUrl(filePath);
+
+          if (!publicUrlData || !publicUrlData.publicUrl) {
+            console.error('Error getting public URL for QR code (qrcode-generator):', publicUrlData);
+            showMessage('Property created, QR uploaded, but failed to get its URL. Please check storage.', 'warning');
+          } else {
+            const qrCodeImageUrl = publicUrlData.publicUrl;
+            const { error: updateError } = await window._supabase
+              .from('properties')
+              .update({ qr_code_image_url: qrCodeImageUrl, generate_qr_on_creation: true })
+              .eq('id', newPropertyId);
+
+            if (updateError) {
+              console.error('Error updating property with QR code URL (qrcode-generator):', updateError);
+              showMessage('Property created, QR uploaded, but failed to update property record with QR URL.', 'warning');
+            } else {
+              console.log('Property created and updated with QR code URL (qrcode-generator):', qrCodeImageUrl);
+            }
+          }
+        }
+      } catch (qrError) {
+        console.error('Error during QR code generation/upload process (qrcode-generator):', qrError);
+        showMessage(`Property created, but an error occurred during QR code processing: ${qrError.message}`, 'warning');
+      }
+    } else {
+      if (retriesLeft > 0) {
+        console.log(`qrcode-generator not ready, ${retriesLeft} retries left. Retrying in 200ms...`);
+        // Note: We are not awaiting the setTimeout promise itself, but the recursive call will be.
+        // This means the current attemptQrCodeGeneration will finish, but the chain of retries might continue.
+        // If the library loads, one of the later calls will complete the QR generation.
+        // If all retries exhaust, the final error message will be shown.
+        // This is acceptable as the main property creation flow is what we are about to await.
+        setTimeout(() => attemptQrCodeGeneration(newPropertyId, userId, retriesLeft - 1), 200);
+      } else {
+        console.error('qrcode-generator library did not load after multiple retries.');
+        showMessage('Property created, but QR code generation failed: Required library (qrcode-generator) did not load. You can try generating it later.', 'warning');
+      }
+    }
+  }
+
   // Handle form submission
   if (addPropertyForm && window._supabase) {
     // Re-assign submitButton here if it wasn't assigned due to addPropertyForm not being found initially
@@ -173,80 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       formSubmitButton.disabled = true;
       formSubmitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${currentMode === 'edit' ? 'Saving Changes...' : 'Saving...'}`;
-
-
-      async function attemptQrCodeGeneration(newPropertyId, userId, retriesLeft = 15) { // Added userId
-        if (typeof qrcode !== 'undefined') {
-          try {
-            console.log('qrcode-generator is ready. Generating QR code for property ID:', newPropertyId);
-            const propertyUrl = `${window.location.origin}/pages/property-details.html?id=${newPropertyId}`;
-            
-            var qrInstance = qrcode(0, 'H'); 
-            qrInstance.addData(propertyUrl);
-            qrInstance.make();
-            
-            var qrDataURL = qrInstance.createDataURL(4, 4); 
-      
-            const qrImageBlob = await new Promise(resolve => {
-              fetch(qrDataURL)
-                .then(res => res.blob())
-                .then(resolve);
-            });
-      
-            const filePath = `users/${userId}/qr_codes/qr_${newPropertyId}.png`; // Updated filePath
-            
-            const { data: uploadData, error: uploadError } = await window._supabase.storage
-              .from('property-qr-codes')
-              .upload(filePath, qrImageBlob, {
-                cacheControl: '3600',
-                upsert: true 
-              });
-      
-            if (uploadError) {
-              console.error('Error uploading QR code (qrcode-generator):', uploadError);
-              showMessage('Property created, but QR code upload failed. You can generate it later.', 'warning');
-            } else {
-              const { data: publicUrlData } = window._supabase.storage
-                .from('property-qr-codes')
-                .getPublicUrl(filePath);
-      
-              if (!publicUrlData || !publicUrlData.publicUrl) {
-                console.error('Error getting public URL for QR code (qrcode-generator):', publicUrlData);
-                showMessage('Property created, QR uploaded, but failed to get its URL. Please check storage.', 'warning');
-              } else {
-                const qrCodeImageUrl = publicUrlData.publicUrl;
-                const { error: updateError } = await window._supabase
-                  .from('properties')
-                  .update({ qr_code_image_url: qrCodeImageUrl, generate_qr_on_creation: true })
-                  .eq('id', newPropertyId);
-      
-                if (updateError) {
-                  console.error('Error updating property with QR code URL (qrcode-generator):', updateError);
-                  showMessage('Property created, QR uploaded, but failed to update property record with QR URL.', 'warning');
-                } else {
-                  console.log('Property created and updated with QR code URL (qrcode-generator):', qrCodeImageUrl);
-                }
-              }
-            }
-          } catch (qrError) {
-            console.error('Error during QR code generation/upload process (qrcode-generator):', qrError);
-            showMessage(`Property created, but an error occurred during QR code processing: ${qrError.message}`, 'warning');
-          }
-        } else {
-          if (retriesLeft > 0) {
-            console.log(`qrcode-generator not ready, ${retriesLeft} retries left. Retrying in 200ms...`);
-            // Note: We are not awaiting the setTimeout promise itself, but the recursive call will be.
-            // This means the current attemptQrCodeGeneration will finish, but the chain of retries might continue.
-            // If the library loads, one of the later calls will complete the QR generation.
-            // If all retries exhaust, the final error message will be shown.
-            // This is acceptable as the main property creation flow is what we are about to await.
-            setTimeout(() => attemptQrCodeGeneration(newPropertyId, userId, retriesLeft - 1), 200); 
-          } else {
-            console.error('qrcode-generator library did not load after multiple retries.');
-            showMessage('Property created, but QR code generation failed: Required library (qrcode-generator) did not load. You can try generating it later.', 'warning');
-          }
-        }
-      }
 
       try {
         if (currentMode === 'edit') {
