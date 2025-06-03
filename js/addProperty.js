@@ -120,6 +120,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalTitleElement) modalTitleElement.textContent = 'Edit Property';
     if (submitButton) submitButton.textContent = 'Save Changes';
 
+    // QR Code checkbox logic for Edit Mode
+    const generateQrCheckbox = addPropertyForm.querySelector('#generateQrCodeCheckbox');
+    if (generateQrCheckbox) {
+        const qrCheckboxContainer = generateQrCheckbox.closest('.form-check');
+        if (qrCheckboxContainer) {
+            if (propertyData.qr_code_image_url) {
+                // QR code exists: hide the checkbox container, uncheck the box, and disable
+                qrCheckboxContainer.style.display = 'none';
+                generateQrCheckbox.checked = false;
+                generateQrCheckbox.disabled = true;
+            } else {
+                // No QR code: show checkbox container, ensure it's unchecked by default for edit, and enabled
+                qrCheckboxContainer.style.display = ''; // Or 'block' if it's a block element
+                generateQrCheckbox.checked = false; // User must opt-in to generate for existing property
+                generateQrCheckbox.disabled = false;
+            }
+        }
+    }
+
     addPropertyModalInstance.show();
   }
   window.openEditModal = openEditModal; // Expose globally
@@ -276,6 +295,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (functionResponseData && functionResponseData.error) throw new Error(functionResponseData.error);
             if (!functionResponseData || !functionResponseData.success) throw new Error('Failed to update property due to an unexpected server response.');
+
+            // QR Code generation for edited property if opted-in
+            const generateQrCheckboxOnEdit = addPropertyForm.querySelector('#generateQrCodeCheckbox');
+            if (generateQrCheckboxOnEdit && generateQrCheckboxOnEdit.checked && !generateQrCheckboxOnEdit.disabled) {
+                const { data: { user }, error: getUserError } = await window._supabase.auth.getUser();
+                if (getUserError || !user) {
+                    console.error('User not authenticated, cannot generate QR for edited property.');
+                    // Optionally show a message, but the main update succeeded.
+                    // showMessage('Property updated, but QR generation skipped: User not found.', 'warning');
+                } else {
+                    console.log('Attempting to generate QR code for edited property ID:', propertyId);
+                    // Ensure attemptQrCodeGeneration can handle null/undefined user.id gracefully or check here
+                    await attemptQrCodeGeneration(propertyId, user.id);
+                }
+            }
 
             showMessage('Property updated successfully!', 'success');
             if (addPropertyModalInstance) addPropertyModalInstance.hide();
@@ -438,6 +472,18 @@ document.addEventListener('DOMContentLoaded', () => {
         addPropertyMessage.style.display = 'none';
         addPropertyMessage.textContent = '';
         addPropertyMessage.className = 'alert';
+      }
+
+      // Reset QR Checkbox container visibility and state for 'add' mode
+      const generateQrCheckbox = addPropertyForm.querySelector('#generateQrCodeCheckbox');
+      if (generateQrCheckbox) {
+          const qrCheckboxContainer = generateQrCheckbox.closest('.form-check');
+          if (qrCheckboxContainer) {
+              qrCheckboxContainer.style.display = ''; // Or 'block'
+          }
+          generateQrCheckbox.disabled = false; // Re-enable for add mode
+          // addPropertyForm.reset() should handle setting it to the HTML default (checked)
+          // generateQrCheckbox.checked = true; // Explicitly set to default for 'add' mode if reset() is not enough
       }
     });
   }
