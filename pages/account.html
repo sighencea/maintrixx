@@ -62,7 +62,11 @@
               <img src="https://via.placeholder.com/120" class="img-fluid rounded-circle" alt="User Avatar"> 
               -->
             </div>
-            <div class="col-md-9">
+            <div class="col-md-9" id="profileDataContainer">
+              <div id="profileLoadingIndicator" style="display: none; text-align: center; padding: 20px;">
+                <span data-i18n="loadingText.profile">Loading profile information...</span>
+                <!-- Optional: add a spinner class here if you have CSS for it -->
+              </div>
               <form>
                 <div class="mb-3">
                   <label for="fullName" class="form-label" data-i18n="accountPage.profile.fullNameLabel">Full Name</label>

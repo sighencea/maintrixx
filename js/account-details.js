@@ -17,6 +17,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editProfileButton = document.getElementById('editProfileButton');
     const editProfileMessageElement = document.getElementById('editProfileMessage');
 
+    // Loading state elements
+    const profileDataContainer = document.getElementById('profileDataContainer');
+    const profileLoadingIndicator = document.getElementById('profileLoadingIndicator');
+
+    if (profileDataContainer && profileLoadingIndicator) {
+        profileDataContainer.style.display = 'none';
+        profileLoadingIndicator.style.display = 'block';
+    } else {
+        console.error('Profile data container or loading indicator not found.');
+    }
+
     if (!fullNameElement || !emailAddressElement || !phoneNumberElement || !languageDisplayElement ||
         !editProfileModalElement || !editProfileForm || !modalFirstNameElement || !modalLastNameElement ||
         !modalEmailAddressElement || !modalPhoneNumberElement || !modalLanguageSelectorElement ||
@@ -111,6 +122,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             emailAddressElement.value = 'Failed to load profile';
             phoneNumberElement.value = 'Failed to load profile';
             languageDisplayElement.value = 'Failed to load profile';
+        } finally {
+            if (profileDataContainer && profileLoadingIndicator) {
+                profileLoadingIndicator.style.display = 'none';
+                profileDataContainer.style.display = 'block';
+            }
         }
     };
 
