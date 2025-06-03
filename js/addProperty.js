@@ -126,22 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (propertyData) {
         console.log('Raw qr_code_image_url (in openEditModal):', propertyData.qr_code_image_url);
-        // Store QR related data on the modal element for 'shown.bs.modal'
-        if (addPropertyModalElement) {
-            addPropertyModalElement.dataset.currentQrUrl = propertyData.qr_code_image_url || '';
-            addPropertyModalElement.dataset.currentPropertyIdForQr = propertyData.id || '';
-        }
+        // Dataset properties for QR button removed
     } else {
         console.log('propertyData object is null or undefined (in openEditModal).');
-        if (addPropertyModalElement) {
-            addPropertyModalElement.dataset.currentQrUrl = '';
-            addPropertyModalElement.dataset.currentPropertyIdForQr = '';
-        }
     }
     // --- End Diagnostic Logging (for context) ---
 
-    // QR Code checkbox visibility logic is now handled by 'shown.bs.modal' event listener
-
+    // QR Code button logic removed from 'shown.bs.modal'
     addPropertyModalInstance.show();
   }
   window.openEditModal = openEditModal; // Expose globally
@@ -463,92 +454,20 @@ document.addEventListener('DOMContentLoaded', () => {
         addPropertyMessage.className = 'alert';
       }
 
-      // Reset QR Checkbox related elements are removed as the checkbox itself is gone.
-      // Clear the dynamic QR button placeholder if it exists
-      const qrButtonPlaceholder = document.getElementById('editModeQrButtonPlaceholder');
-      if (qrButtonPlaceholder) {
-          qrButtonPlaceholder.innerHTML = ''; // Clear any dynamic button
-          // Optionally remove the placeholder itself if it was dynamically added and you want a cleaner DOM for 'add' mode
-          // qrButtonPlaceholder.remove(); // Or just leave the empty div
-      }
+      // Clear the dynamic QR button placeholder (which no longer exists) - removed
     });
 
-    // Event listener for when the modal is fully shown (for QR button logic in edit mode)
+    // Event listener for 'shown.bs.modal' (QR button logic removed)
+    // If this listener has no other purpose, it could be removed entirely.
+    // For now, let's keep it but empty its edit-mode specific QR logic.
     addPropertyModalElement.addEventListener('shown.bs.modal', function(event) {
         if (currentMode !== 'edit') {
-            // In 'add' mode, ensure any dynamic QR button placeholder is cleared.
-            const qrButtonPlaceholder = document.getElementById('editModeQrButtonPlaceholder');
-            if (qrButtonPlaceholder) {
-                qrButtonPlaceholder.innerHTML = '';
-            }
-            console.log('shown.bs.modal: Not in edit mode. QR button logic skipped.');
+            console.log('shown.bs.modal: Not in edit mode. No QR button logic needed.');
             return;
         }
-
-        console.log('--- shown.bs.modal (edit mode) ---');
-        const currentQrUrl = event.target.dataset.currentQrUrl;
-        // const propertyIdForQrFromDataset = event.target.dataset.currentPropertyIdForQr; // Available if needed
-
-        console.log('Retrieved currentQrUrl from dataset (in shown.bs.modal):', currentQrUrl);
-
-        // Modal body HTML log (can be kept or removed if too verbose)
-        // if (event.target.querySelector('.modal-body')) {
-        //     console.log('Modal body HTML (at shown.bs.modal for edit mode):', event.target.querySelector('.modal-body').innerHTML);
-        // } else {
-        //     console.log('Modal body element (.modal-body) not found within event.target (the modal element).');
-        // }
-
-        // Remove or create a placeholder for the button to ensure no duplicates
-        let qrButtonPlaceholder = document.getElementById('editModeQrButtonPlaceholder');
-        if (!qrButtonPlaceholder) {
-            const descriptionField = addPropertyForm.querySelector('#propertyDescription');
-            if (descriptionField && descriptionField.parentElement) {
-                qrButtonPlaceholder = document.createElement('div');
-                qrButtonPlaceholder.id = 'editModeQrButtonPlaceholder';
-                qrButtonPlaceholder.classList.add('mb-3'); // Add some margin
-                descriptionField.parentElement.insertAdjacentElement('afterend', qrButtonPlaceholder);
-            }
-        }
-
-        if (qrButtonPlaceholder) {
-            qrButtonPlaceholder.innerHTML = ''; // Clear previous button if any
-
-            if (!currentQrUrl || currentQrUrl.trim() === '') {
-                // No QR code exists, show a button to generate one
-                console.log('Edit mode: No QR code. Displaying generate button.');
-                const generateQrButton = document.createElement('button');
-                generateQrButton.type = 'button';
-                generateQrButton.id = 'generateQrForEditedPropertyBtn';
-                generateQrButton.classList.add('btn', 'btn-outline-primary', 'mb-3');
-                generateQrButton.textContent = 'Generate QR Code';
-
-                generateQrButton.addEventListener('click', async () => {
-                    const propertyIdForQr = addPropertyModalElement.dataset.currentPropertyIdForQr;
-                    if (!propertyIdForQr) {
-                        console.error('Property ID not found for QR generation.');
-                        showMessage('Could not generate QR: Property ID missing.', 'warning');
-                        return;
-                    }
-                    const { data: { user } } = await window._supabase.auth.getUser();
-                    if (!user) {
-                        console.error('User not authenticated for QR generation.');
-                        showMessage('Could not generate QR: User not authenticated.', 'warning');
-                        return;
-                    }
-
-                    generateQrButton.disabled = true;
-                    generateQrButton.textContent = 'Generating...';
-                    await attemptQrCodeGeneration(propertyIdForQr, user.id);
-                    generateQrButton.style.display = 'none';
-                    showMessage('QR Code generation attempted. It might take a moment to reflect if successful.', 'info');
-                });
-                qrButtonPlaceholder.appendChild(generateQrButton);
-            } else {
-                 console.log('Edit mode: QR code exists. No generate button displayed.');
-            }
-        } else {
-            console.log('QR button placeholder could not be found or created. Skipping button logic.');
-        }
+        // All edit-mode QR button logic removed from here.
+        // Relevant console logs for currentQrUrl or propertyIdForQrFromDataset are also removed as they were tied to the button.
+        console.log('shown.bs.modal: Edit mode. QR button functionality has been removed.');
     });
   } // End of if (addPropertyModalElement)
 });
