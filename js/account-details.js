@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (profileDataContainer && profileLoadingIndicator) {
         profileDataContainer.style.display = 'none';
-        profileLoadingIndicator.style.display = 'block';
+        profileLoadingIndicator.classList.add('visible');
     } else {
         console.error('Profile data container or loading indicator not found.');
     }
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             languageDisplayElement.value = 'Failed to load profile';
         } finally {
             if (profileDataContainer && profileLoadingIndicator) {
-                profileLoadingIndicator.style.display = 'none';
+                profileLoadingIndicator.classList.remove('visible');
                 profileDataContainer.style.display = 'block';
             }
         }

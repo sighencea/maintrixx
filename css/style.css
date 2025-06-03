@@ -460,3 +460,13 @@ The original request was "stroke of all borders", not necessarily hover/active s
   padding-left: 2.25rem; /* Original 0.75rem * 3 */
   padding-right: 2.25rem; /* Original 0.75rem * 3 */
 }
+
+/* Account Page Profile Loading Indicator */
+#profileLoadingIndicator {
+    display: none; /* Hidden by default via CSS */
+    /* text-align and padding will be inherited from inline style or can be moved here */
+}
+
+#profileLoadingIndicator.visible {
+    display: block !important; /* Or 'flex', etc. !important to ensure override. */
+}
