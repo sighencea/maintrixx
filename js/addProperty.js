@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('propertyData object is null or undefined.');
     }
 
-    const generateQrCheckbox = addPropertyForm.querySelector('#generateQrCodeCheckbox');
+    const generateQrCheckbox = document.getElementById('generateQrCodeCheckbox');
     const qrCheckboxContainer = generateQrCheckbox ? generateQrCheckbox.closest('.form-check') : null;
     console.log('generateQrCheckbox element:', generateQrCheckbox);
     console.log('qrCheckboxContainer element:', qrCheckboxContainer);
