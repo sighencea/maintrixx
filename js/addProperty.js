@@ -510,6 +510,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log('Retrieved currentQrUrl from dataset (in shown.bs.modal):', currentQrUrl);
 
+        if (event.target.querySelector('.modal-body')) {
+            console.log('Modal body HTML (at shown.bs.modal for edit mode):', event.target.querySelector('.modal-body').innerHTML);
+        } else {
+            console.log('Modal body element (.modal-body) not found within event.target (the modal element).');
+        }
+
         const generateQrCheckbox = document.getElementById('generateQrCodeCheckbox');
         const qrCheckboxContainer = generateQrCheckbox ? generateQrCheckbox.closest('.form-check') : null;
 
