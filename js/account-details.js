@@ -182,6 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Optionally disable form fields here
                 return;
             }
+            console.log('[CompanySettings] User ID for query:', user.id);
 
             const { data: company, error: companyError } = await window._supabase
                 .from('companies')
@@ -189,10 +190,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .eq('owner_id', user.id)
                 .single();
 
+            console.log('[CompanySettings] Fetched company data:', company);
+            // Log error only if it's a real error, not just "no rows found"
+            if (companyError && companyError.code !== 'PGRST116') {
+              console.error('[CompanySettings] Error fetching company data:', companyError);
+            }
+
+
             const companySettingsMessage = document.getElementById('companySettingsMessage'); // Get message element
 
             if (companyError && companyError.code !== 'PGRST116') { // PGRST116 means no rows found, which is not an error for us here
-                console.error('Error fetching company settings:', companyError);
+                console.error('[CompanySettings] Error fetching company settings (reported to user):', companyError); // Log specifically for user-reported error
                 if (companySettingsMessage) {
                     companySettingsMessage.textContent = `Error loading company data: ${companyError.message}`;
                     companySettingsMessage.className = 'alert alert-danger';
@@ -214,20 +222,58 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const logoPreview = document.getElementById('logoPreview');
 
                 // Populate form fields
-                if (companyNameInput) companyNameInput.value = company.name || '';
-                if (companyAddressStreetInput) companyAddressStreetInput.value = company.address_street || '';
-                if (companyCityInput) companyCityInput.value = company.address_city || '';
-                if (companyStateInput) companyStateInput.value = company.address_state || '';
-                if (companyPostCodeInput) companyPostCodeInput.value = company.address_postal_code || '';
-                if (companyEmailInput) companyEmailInput.value = company.email || '';
-                if (companyPhoneInput) companyPhoneInput.value = company.phone_number || '';
-                if (companyWebsiteInput) companyWebsiteInput.value = company.website_url || '';
-                if (companyTaxIdInput) companyTaxIdInput.value = company.tax_id || '';
+                if (companyNameInput) {
+                    const companyNameValue = company.company_name; // Corrected: company_name
+                    console.log(`[CompanySettings] Attempting to set companyName with: '${companyNameValue}'`);
+                    companyNameInput.value = companyNameValue || '';
+                }
+                if (companyAddressStreetInput) {
+                    const companyAddressStreetValue = company.company_address_street; // Corrected: company_address_street
+                    console.log(`[CompanySettings] Attempting to set companyAddressStreet with: '${companyAddressStreetValue}'`);
+                    companyAddressStreetInput.value = companyAddressStreetValue || '';
+                }
+                if (companyCityInput) {
+                    const companyCityValue = company.company_address_city; // Corrected: company_address_city
+                    console.log(`[CompanySettings] Attempting to set companyCity with: '${companyCityValue}'`);
+                    companyCityInput.value = companyCityValue || '';
+                }
+                if (companyStateInput) {
+                    const companyStateValue = company.company_address_state; // Corrected: company_address_state
+                    console.log(`[CompanySettings] Attempting to set companyState with: '${companyStateValue}'`);
+                    companyStateInput.value = companyStateValue || '';
+                }
+                if (companyPostCodeInput) {
+                    const companyPostCodeValue = company.company_address_zip; // Corrected: company_address_zip
+                    console.log(`[CompanySettings] Attempting to set companyPostCode with: '${companyPostCodeValue}'`);
+                    companyPostCodeInput.value = companyPostCodeValue || '';
+                }
+                if (companyEmailInput) {
+                    const companyEmailValue = company.company_email; // Corrected: company_email
+                    console.log(`[CompanySettings] Attempting to set companyEmail with: '${companyEmailValue}'`);
+                    companyEmailInput.value = companyEmailValue || '';
+                }
+                if (companyPhoneInput) {
+                    const companyPhoneValue = company.company_phone; // Corrected: company_phone
+                    console.log(`[CompanySettings] Attempting to set companyPhone with: '${companyPhoneValue}'`);
+                    companyPhoneInput.value = companyPhoneValue || '';
+                }
+                if (companyWebsiteInput) {
+                    const companyWebsiteValue = company.company_website; // Corrected: company_website
+                    console.log(`[CompanySettings] Attempting to set companyWebsite with: '${companyWebsiteValue}'`);
+                    companyWebsiteInput.value = companyWebsiteValue || '';
+                }
+                if (companyTaxIdInput) {
+                    const companyTaxIdValue = company.company_tax_id; // Corrected: company_tax_id
+                    console.log(`[CompanySettings] Attempting to set companyTaxId with: '${companyTaxIdValue}'`);
+                    companyTaxIdInput.value = companyTaxIdValue || '';
+                }
 
                 // Handle logo preview
                 if (logoPreview) {
-                    if (company.company_logo_url) {
-                        logoPreview.src = company.company_logo_url;
+                    const logoUrl = company.company_logo_url; // This was already correct
+                    console.log(`[CompanySettings] Attempting to set logoPreview with src: '${logoUrl}'`);
+                    if (logoUrl) {
+                        logoPreview.src = logoUrl;
                         logoPreview.style.display = 'block';
                     } else {
                         logoPreview.style.display = 'none';
@@ -235,6 +281,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }
                 if (companySettingsMessage) {
+                     console.log('[CompanySettings] Company information loaded successfully.');
                      companySettingsMessage.textContent = 'Company information loaded.'; // Optional success message
                      companySettingsMessage.className = 'alert alert-success';
                      setTimeout(() => { companySettingsMessage.textContent = ''; companySettingsMessage.className='';}, 3000);
@@ -247,15 +294,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     companySettingsMessage.className = 'alert alert-info';
                 }
                 // Clear form fields if no company data is found (optional, depending on desired behavior)
+                console.log('[CompanySettings] Resetting companySettingsForm.');
                 document.getElementById('companySettingsForm').reset(); // Resets all fields in the form
                 const logoPreview = document.getElementById('logoPreview');
                 if (logoPreview) {
+                    console.log('[CompanySettings] Hiding logoPreview as no company data/logo found.');
                     logoPreview.style.display = 'none';
                     logoPreview.src = '#';
                 }
             }
         } catch (error) {
-            console.error('An unexpected error occurred in loadCompanySettings:', error);
+            console.error('[CompanySettings] An unexpected error occurred in loadCompanySettings:', error);
             const companySettingsMessage = document.getElementById('companySettingsMessage');
             if (companySettingsMessage) {
                 companySettingsMessage.textContent = 'Failed to load company settings due to an unexpected error.';
