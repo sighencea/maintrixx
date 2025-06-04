@@ -4,7 +4,6 @@ let editTaskModalInstance = null;
 
 // Asynchronous function to fetch tasks and related data from Supabase
 async function fetchTasksAndRelatedData() {
-  console.log('[DEBUG] Entering fetchTasksAndRelatedData');
   if (!window._supabase) {
     console.error("Supabase client is not available.");
     const tasksTableBody = document.getElementById('tasksTableBody');
@@ -15,8 +14,6 @@ async function fetchTasksAndRelatedData() {
   }
 
   try {
-    console.log('[DEBUG] Supabase client (_supabase):', window._supabase);
-    console.log('[DEBUG] About to query Supabase tasks...');
     const { data: fetchedTasks, error } = await window._supabase
       .from('tasks')
       .select(`
@@ -30,9 +27,6 @@ async function fetchTasksAndRelatedData() {
         profiles ( first_name, last_name )
       `);
 
-    console.log('[DEBUG] Supabase raw response - fetchedTasks:', fetchedTasks);
-    console.log('[DEBUG] Supabase raw response - error:', error);
-
     if (error) {
       console.error("Error fetching tasks:", error);
       const tasksTableBody = document.getElementById('tasksTableBody');
@@ -43,8 +37,6 @@ async function fetchTasksAndRelatedData() {
     }
 
     if (!fetchedTasks) {
-      // This case might be redundant if error is always set, but good for safety
-      console.log('[DEBUG] No tasks fetched and no error reported, returning empty array.');
       return [];
     }
 
@@ -57,7 +49,6 @@ async function fetchTasksAndRelatedData() {
       dueDate: task.task_due_date
     }));
 
-    console.log('[DEBUG] Mapped tasks:', mappedTasks);
     return mappedTasks;
 
   } catch (e) {
@@ -99,7 +90,6 @@ function formatDate(isoDate) {
 
 // Function to render tasks into the table
 function renderTasks(tasks) {
-  console.log('[DEBUG] Entering renderTasks with tasks:', tasks);
   const tasksTableBody = document.getElementById('tasksTableBody');
   if (!tasksTableBody) {
     console.error("Tasks table body not found!");
@@ -171,8 +161,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const tasks = await fetchTasksAndRelatedData();
     renderTasks(tasks);
-  } catch (error) { // Changed 'err' to 'error' to match usage
-    console.error('[DEBUG] Error in DOMContentLoaded or during task fetching/rendering:', error);
+  } catch (error) {
+    console.error('Error during page initialization or task fetching:', error);
     const tasksTableBody = document.getElementById('tasksTableBody');
     if (tasksTableBody) {
       tasksTableBody.innerHTML = `<tr><td colspan="6">Failed to load tasks. Error: ${error.message}</td></tr>`;
