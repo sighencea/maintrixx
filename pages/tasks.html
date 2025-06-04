@@ -48,9 +48,64 @@
     </div>
     
     <div class="container mt-4 p-4">
-      <p>This is where tasks will be displayed</p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Task title</th>
+            <th scope="col">Property</th>
+            <th scope="col">Assigned to</th>
+            <th scope="col">Status</th>
+            <th scope="col">Due date</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tasksTableBody">
+          <!-- Task rows will be dynamically inserted here -->
+        </tbody>
+      </table>
     </div>
 
+  </div>
+
+  <!-- View Task Modal -->
+  <div class="modal fade" id="viewTaskModal" tabindex="-1" aria-labelledby="viewTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewTaskModalLabel">View Task Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="viewTaskModalBody">
+            <p>Loading task details...</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="editTaskModalBody">
+            <p>Loading task editor...</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="saveTaskChanges">Save Changes</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="../js/supabase-config.js"></script>
@@ -59,5 +114,6 @@
   <script type="module" src="../js/dashboard_check.js"></script> 
   <script src="../js/main.js"></script>
   <script type="module" src="../js/i18n.js"></script>
+  <script type="module" src="../js/tasks-display.js"></script>
 </body>
 </html>
