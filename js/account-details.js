@@ -147,7 +147,291 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    // Function to load and display company settings
+    async function loadCompanySettings() {
+        if (!window._supabase) {
+            console.error('Supabase client is not available for company settings.');
+            const companySettingsMessage = document.getElementById('companySettingsMessage');
+            if (companySettingsMessage) {
+                companySettingsMessage.textContent = 'Error: Supabase client not found.';
+                companySettingsMessage.className = 'alert alert-danger';
+            }
+            return;
+        }
+
+        try {
+            const { data: { user }, error: userError } = await window._supabase.auth.getUser();
+
+            if (userError) {
+                console.error('Error fetching user for company settings:', userError);
+                const companySettingsMessage = document.getElementById('companySettingsMessage');
+                if (companySettingsMessage) {
+                    companySettingsMessage.textContent = 'Error fetching user information.';
+                    companySettingsMessage.className = 'alert alert-danger';
+                }
+                return;
+            }
+
+            if (!user) {
+                console.log('No user logged in, cannot load company settings.');
+                const companySettingsMessage = document.getElementById('companySettingsMessage');
+                if (companySettingsMessage) {
+                    companySettingsMessage.textContent = 'Please log in to view company settings.';
+                    companySettingsMessage.className = 'alert alert-info';
+                }
+                // Optionally disable form fields here
+                return;
+            }
+
+            const { data: company, error: companyError } = await window._supabase
+                .from('companies')
+                .select('*')
+                .eq('owner_id', user.id)
+                .single();
+
+            const companySettingsMessage = document.getElementById('companySettingsMessage'); // Get message element
+
+            if (companyError && companyError.code !== 'PGRST116') { // PGRST116 means no rows found, which is not an error for us here
+                console.error('Error fetching company settings:', companyError);
+                if (companySettingsMessage) {
+                    companySettingsMessage.textContent = `Error loading company data: ${companyError.message}`;
+                    companySettingsMessage.className = 'alert alert-danger';
+                }
+                return;
+            }
+
+            if (company) {
+                // Get references to form elements
+                const companyNameInput = document.getElementById('companyName');
+                const companyAddressStreetInput = document.getElementById('companyAddressStreet');
+                const companyCityInput = document.getElementById('companyCity');
+                const companyStateInput = document.getElementById('companyState');
+                const companyPostCodeInput = document.getElementById('companyPostCode');
+                const companyEmailInput = document.getElementById('companyEmail');
+                const companyPhoneInput = document.getElementById('companyPhone');
+                const companyWebsiteInput = document.getElementById('companyWebsite');
+                const companyTaxIdInput = document.getElementById('companyTaxId');
+                const logoPreview = document.getElementById('logoPreview');
+
+                // Populate form fields
+                if (companyNameInput) companyNameInput.value = company.name || '';
+                if (companyAddressStreetInput) companyAddressStreetInput.value = company.address_street || '';
+                if (companyCityInput) companyCityInput.value = company.address_city || '';
+                if (companyStateInput) companyStateInput.value = company.address_state || '';
+                if (companyPostCodeInput) companyPostCodeInput.value = company.address_postal_code || '';
+                if (companyEmailInput) companyEmailInput.value = company.email || '';
+                if (companyPhoneInput) companyPhoneInput.value = company.phone_number || '';
+                if (companyWebsiteInput) companyWebsiteInput.value = company.website_url || '';
+                if (companyTaxIdInput) companyTaxIdInput.value = company.tax_id || '';
+
+                // Handle logo preview
+                if (logoPreview) {
+                    if (company.company_logo_url) {
+                        logoPreview.src = company.company_logo_url;
+                        logoPreview.style.display = 'block';
+                    } else {
+                        logoPreview.style.display = 'none';
+                        logoPreview.src = '#'; // Clear src
+                    }
+                }
+                if (companySettingsMessage) {
+                     companySettingsMessage.textContent = 'Company information loaded.'; // Optional success message
+                     companySettingsMessage.className = 'alert alert-success';
+                     setTimeout(() => { companySettingsMessage.textContent = ''; companySettingsMessage.className='';}, 3000);
+                }
+
+            } else {
+                console.log('No company information set up yet for this user.');
+                if (companySettingsMessage) {
+                    companySettingsMessage.textContent = 'No company information has been set up yet.';
+                    companySettingsMessage.className = 'alert alert-info';
+                }
+                // Clear form fields if no company data is found (optional, depending on desired behavior)
+                document.getElementById('companySettingsForm').reset(); // Resets all fields in the form
+                const logoPreview = document.getElementById('logoPreview');
+                if (logoPreview) {
+                    logoPreview.style.display = 'none';
+                    logoPreview.src = '#';
+                }
+            }
+        } catch (error) {
+            console.error('An unexpected error occurred in loadCompanySettings:', error);
+            const companySettingsMessage = document.getElementById('companySettingsMessage');
+            if (companySettingsMessage) {
+                companySettingsMessage.textContent = 'Failed to load company settings due to an unexpected error.';
+                companySettingsMessage.className = 'alert alert-danger';
+            }
+        }
+    }
+
     await window.loadAndDisplayAccountDetails(); // Initial load
+    await loadCompanySettings(); // Load company settings after profile details
+
+    // Company Settings Form Elements & Logic
+    const companySettingsForm = document.getElementById('companySettingsForm');
+    const saveCompanySettingsButton = document.getElementById('saveCompanySettingsButton');
+    const companyLogoInput = document.getElementById('companyLogo');
+    const logoPreview = document.getElementById('logoPreview'); // Ensure this ID matches your HTML for the preview img tag
+    const companySettingsMessage = document.getElementById('companySettingsMessage');
+
+    if (companyLogoInput && logoPreview) {
+        companyLogoInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    logoPreview.src = e.target.result;
+                    logoPreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+            // If no file is selected, the preview remains as is or shows the previously loaded server logo.
+            // Clearing it here might be confusing if the user decides not to change the logo after all.
+        });
+    }
+
+    if (companySettingsForm && saveCompanySettingsButton) {
+        saveCompanySettingsButton.addEventListener('click', async (event) => {
+            event.preventDefault();
+            saveCompanySettingsButton.disabled = true;
+            if(companySettingsMessage) {
+                companySettingsMessage.textContent = '';
+                companySettingsMessage.className = '';
+            }
+
+            const { data: { user }, error: authError } = await window._supabase.auth.getUser();
+            if (authError || !user) {
+                if(companySettingsMessage) {
+                    companySettingsMessage.textContent = 'User not authenticated. Please log in again.';
+                    companySettingsMessage.className = 'alert alert-danger';
+                }
+                saveCompanySettingsButton.disabled = false;
+                return;
+            }
+
+            const companyName = document.getElementById('companyName')?.value.trim();
+            const companyAddressStreet = document.getElementById('companyAddressStreet')?.value.trim();
+            const companyCity = document.getElementById('companyCity')?.value.trim();
+            const companyState = document.getElementById('companyState')?.value.trim();
+            const companyPostCode = document.getElementById('companyPostCode')?.value.trim();
+            const companyEmail = document.getElementById('companyEmail')?.value.trim();
+            const companyPhone = document.getElementById('companyPhone')?.value.trim();
+            const companyWebsite = document.getElementById('companyWebsite')?.value.trim();
+            const companyTaxId = document.getElementById('companyTaxId')?.value.trim();
+
+            if (!companyName || !companyAddressStreet || !companyCity || !companyState || !companyPostCode || !companyEmail) {
+                if(companySettingsMessage) {
+                    companySettingsMessage.textContent = 'Please fill in all required fields: Company Name, Street, City, State, Post Code, and Email.';
+                    companySettingsMessage.className = 'alert alert-danger';
+                }
+                saveCompanySettingsButton.disabled = false;
+                return;
+            }
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(companyEmail)) {
+                if(companySettingsMessage) {
+                    companySettingsMessage.textContent = 'Please enter a valid email address.';
+                    companySettingsMessage.className = 'alert alert-danger';
+                }
+                saveCompanySettingsButton.disabled = false;
+                return;
+            }
+
+            let currentLogoUrl = null;
+            if (logoPreview && logoPreview.src && !logoPreview.src.startsWith('data:') && logoPreview.src !== window.location.href + '#' /* check if it's not placeholder */) {
+                 // Check if src is not a data URL (new upload preview) and not just '#'
+                if (logoPreview.style.display !== 'none') { // and it's visible
+                    currentLogoUrl = logoPreview.src;
+                }
+            }
+
+            let companyLogoUrlToSave = currentLogoUrl; // Assume existing logo by default if any
+            const logoFile = companyLogoInput.files[0];
+
+            if (logoFile) {
+                if(companySettingsMessage) {
+                    companySettingsMessage.textContent = 'Uploading logo...';
+                    companySettingsMessage.className = 'alert alert-info';
+                }
+                const fileExtension = logoFile.name.split('.').pop();
+                const fileName = `user_${user.id}/company_logo_${Date.now()}.${fileExtension}`;
+
+                try {
+                    const { data: uploadData, error: uploadError } = await window._supabase.storage
+                        .from('agency-logos')
+                        .upload(fileName, logoFile, {
+                            cacheControl: '3600',
+                            upsert: true
+                        });
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: publicUrlData } = window._supabase.storage
+                        .from('agency-logos')
+                        .getPublicUrl(fileName);
+
+                    companyLogoUrlToSave = publicUrlData.publicUrl;
+                    if(companySettingsMessage) companySettingsMessage.textContent = 'Logo uploaded. Saving details...';
+
+                } catch (error) {
+                    console.error('Error uploading company logo:', error);
+                    if(companySettingsMessage) {
+                        companySettingsMessage.textContent = `Error uploading logo: ${error.message}`;
+                        companySettingsMessage.className = 'alert alert-danger';
+                    }
+                    saveCompanySettingsButton.disabled = false;
+                    return;
+                }
+            }
+
+            const companyData = {
+                company_name: companyName,
+                address_street: companyAddressStreet,
+                address_city: companyCity,
+                address_state: companyState,
+                address_postal_code: companyPostCode,
+                email: companyEmail,
+                phone_number: companyPhone || null,
+                website_url: companyWebsite || null,
+                tax_id: companyTaxId || null,
+                company_logo_url: companyLogoUrlToSave
+            };
+
+            if(companySettingsMessage) {
+                companySettingsMessage.textContent = 'Saving company details...';
+                companySettingsMessage.className = 'alert alert-info';
+            }
+
+            try {
+                const { data: functionResponse, error: functionError } = await window._supabase.functions.invoke('save-company-details', {
+                    body: JSON.stringify(companyData)
+                });
+
+                if (functionError) throw functionError;
+                if (functionResponse && functionResponse.error) throw new Error(functionResponse.error);
+
+                if(companySettingsMessage) {
+                    companySettingsMessage.textContent = 'Company settings saved successfully!';
+                    companySettingsMessage.className = 'alert alert-success';
+                }
+                await loadCompanySettings();
+            } catch (error) {
+                console.error('Error saving company settings:', error);
+                if(companySettingsMessage) {
+                    companySettingsMessage.textContent = `Error saving settings: ${error.message || 'Unknown error'}`;
+                    companySettingsMessage.className = 'alert alert-danger';
+                }
+            } finally {
+                saveCompanySettingsButton.disabled = false;
+                if(companySettingsMessage){
+                    setTimeout(() => {
+                        companySettingsMessage.textContent = '';
+                        companySettingsMessage.className = '';
+                    }, 5000);
+                }
+            }
+        });
+    }
 
     // Populate Modal on Show Event
     if (editProfileModalElement && editProfileButton) {

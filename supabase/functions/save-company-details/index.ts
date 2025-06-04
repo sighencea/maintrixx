@@ -1,28 +1,27 @@
 import { serve } from 'https://deno.land/std@0.161.0/http/server.ts'
-import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Define a type for the expected request body
+// Updated interface to match client-side js/account-details.js
 interface CompanyData {
   company_name: string;
-  company_address_street: string;
-  company_email: string;
-  company_city: string;
-  company_state: string;
-  company_address_zip: string; // Matched to client-side js/agency_setup.js
-  company_phone?: string | null;
-  company_website?: string | null;
-  company_tax_id?: string | null;
+  address_street: string; // Changed from company_address_street
+  email: string;          // Changed from company_email
+  address_city: string;   // Changed from company_city
+  address_state: string;  // Changed from company_state
+  address_postal_code: string; // Changed from company_address_zip
+  phone_number?: string | null;   // Changed from company_phone
+  website_url?: string | null;    // Changed from company_website
+  tax_id?: string | null;         // Changed from company_tax_id
   company_logo_url?: string | null;
 }
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://www.afiaro.com', // Specific origin
+  'Access-Control-Allow-Origin': 'https://www.afiaro.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS', // Specify allowed methods
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 serve(async (req: Request) => {
-  // Handle OPTIONS request for CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -34,25 +33,22 @@ serve(async (req: Request) => {
 
     if (!supabaseUrl || !serviceRoleKey || !anonKey) {
       console.error('Missing Supabase environment variables');
-      return new Response(JSON.stringify({ error: 'Server configuration error: Missing Supabase environment variables.' }), {
+      return new Response(JSON.stringify({ error: 'Server configuration error.' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Create Supabase admin client for privileged operations
     const supabaseAdminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // 1. Get User from JWT
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Missing authorization header.' }), {
-        status: 401, // Unauthorized
+        status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Create a client with the user's token to verify their identity
     const userSupabaseClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -61,108 +57,165 @@ serve(async (req: Request) => {
     if (userError || !user) {
       console.error('User retrieval error:', userError?.message || 'User not found.');
       return new Response(JSON.stringify({ error: 'Invalid token or user not found.' }), {
-        status: 403, // Forbidden
+        status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
     const userId = user.id;
 
-    // 2. Parse Request Body
     if (req.body === null) {
         return new Response(JSON.stringify({ error: 'Request body is missing.' }), {
-        status: 400, // Bad Request
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    const companyData = (await req.json()) as CompanyData;
+    // Make sure to parse the body as JSON. The client sends a stringified JSON.
+    const companyData = JSON.parse(await req.text()) as CompanyData;
 
-    // 3. Server-Side Validation
+
+    // Server-Side Validation based on updated CompanyData interface
     const requiredFields: (keyof CompanyData)[] = [
-      'company_name', 'company_address_street', 'company_email',
-      'company_city', 'company_state', 'company_address_zip'
+      'company_name', 'address_street', 'email',
+      'address_city', 'address_state', 'address_postal_code'
     ];
     const missingFields = requiredFields.filter(field => !companyData[field]);
 
     if (missingFields.length > 0) {
       return new Response(JSON.stringify({ error: `Missing required company fields: ${missingFields.join(', ')}.` }), {
-        status: 400, // Bad Request
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(companyData.company_email)) {
+    if (!emailRegex.test(companyData.email)) {
       return new Response(JSON.stringify({ error: 'Invalid company email format.' }), {
-        status: 400, // Bad Request
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // 4. Database Operations (using admin client)
-    // Insert into companies table
-    const { data: companyInsertData, error: companyInsertError } = await supabaseAdminClient
+    // Upsert Logic
+    let companyResponseData;
+    let operationType = '';
+
+    // 1. Check for existing company
+    const { data: existingCompany, error: fetchError } = await supabaseAdminClient
       .from('companies')
-      .insert([{
-        owner_id: userId,
-        company_name: companyData.company_name,
-        company_address_street: companyData.company_address_street,
-        company_email: companyData.company_email,
-        company_address_city: companyData.company_city,
-        company_address_state: companyData.company_state,
-        company_address_zip: companyData.company_address_zip,
-        company_phone: companyData.company_phone || null,
-        company_website: companyData.company_website || null,
-        company_tax_id: companyData.company_tax_id || null,
-        company_logo_url: companyData.company_logo_url || null,
-      }])
-      .select()
-      .single();
+      .select('id, company_logo_url') // Select existing logo URL as well
+      .eq('owner_id', userId)
+      .maybeSingle();
 
-    if (companyInsertError) {
-      console.error('Error inserting company:', companyInsertError.message);
-      return new Response(JSON.stringify({ error: 'Failed to save company information.', details: companyInsertError.message }), {
-        status: 500, // Internal Server Error
+    if (fetchError) {
+      console.error('Error fetching existing company:', fetchError.message);
+      return new Response(JSON.stringify({ error: 'Failed to check for existing company.', details: fetchError.message }), {
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Update profiles table
+    if (existingCompany) {
+      // 2.a. Update existing company
+      operationType = 'updated';
+      const { data: companyUpdateData, error: companyUpdateError } = await supabaseAdminClient
+        .from('companies')
+        .update({
+          company_name: companyData.company_name,
+          company_address_street: companyData.address_street,
+          company_email: companyData.email,
+          company_address_city: companyData.address_city,
+          company_address_state: companyData.address_state,
+          company_address_zip: companyData.address_postal_code,
+          company_phone: companyData.phone_number || null,
+          company_website: companyData.website_url || null,
+          company_tax_id: companyData.tax_id || null,
+          // Preserve existing logo if companyData.company_logo_url is undefined.
+          // If companyData.company_logo_url is null, it means user wants to remove it.
+          // If companyData.company_logo_url has a value, it's a new/updated logo.
+          company_logo_url: companyData.company_logo_url !== undefined ? companyData.company_logo_url : existingCompany.company_logo_url,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('owner_id', userId) // or .eq('id', existingCompany.id)
+        .select()
+        .single();
+
+      if (companyUpdateError) {
+        console.error('Error updating company:', companyUpdateError.message);
+        return new Response(JSON.stringify({ error: 'Failed to update company information.', details: companyUpdateError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      companyResponseData = companyUpdateData;
+    } else {
+      // 2.b. Insert new company
+      operationType = 'inserted';
+      const { data: companyInsertData, error: companyInsertError } = await supabaseAdminClient
+        .from('companies')
+        .insert([{
+          owner_id: userId,
+          company_name: companyData.company_name,
+          company_address_street: companyData.address_street,
+          company_email: companyData.email,
+          company_address_city: companyData.address_city,
+          company_address_state: companyData.address_state,
+          company_address_zip: companyData.address_postal_code,
+          company_phone: companyData.phone_number || null,
+          company_website: companyData.website_url || null,
+          company_tax_id: companyData.tax_id || null,
+          company_logo_url: companyData.company_logo_url || null,
+          // created_at is handled by default value or trigger if set up in DB
+        }])
+        .select()
+        .single();
+
+      if (companyInsertError) {
+        console.error('Error inserting company:', companyInsertError.message);
+        return new Response(JSON.stringify({ error: 'Failed to save new company information.', details: companyInsertError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      companyResponseData = companyInsertData;
+    }
+
+    // 3. Update profiles table (common for both insert and update)
     const { error: profileUpdateError } = await supabaseAdminClient
       .from('profiles')
-      .update({ is_admin: true, has_company_set_up: true })
+      .update({ is_admin: true, has_company_set_up: true }) // User setting up company is admin of that company context
       .eq('id', userId);
 
     if (profileUpdateError) {
       console.error('Error updating profile:', profileUpdateError.message);
-      // CRITICAL: Company was inserted, but profile update failed.
-      // This state should be logged for potential manual reconciliation.
-      // For now, return an error indicating partial success or specific failure.
+      // Log critical error: company op succeeded but profile update failed.
       return new Response(JSON.stringify({
-        error: 'Company information saved, but failed to update profile status. Please contact support.',
+        error: `Company information ${operationType}, but failed to update profile status. Please contact support.`,
         details: profileUpdateError.message
       }), {
-        status: 500, // Internal Server Error (or a custom status code)
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ success: true, message: 'Company details saved successfully.', company: companyInsertData }), {
+    return new Response(JSON.stringify({
+        success: true,
+        message: `Company details ${operationType} successfully.`,
+        company: companyResponseData
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200, // OK or 201 Created
+      status: 200,
     });
 
   } catch (e) {
     console.error('Unexpected error in function:', e.message, e.stack);
-    // Check if it's a JSON parsing error
     if (e instanceof SyntaxError && e.message.includes('JSON')) {
         return new Response(JSON.stringify({ error: 'Invalid JSON in request body.', details: e.message }), {
-            status: 400, // Bad Request
+            status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     }
     return new Response(JSON.stringify({ error: 'Server error.', details: e.message }), {
-      status: 500, // Internal Server Error
+      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
