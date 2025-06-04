@@ -31,14 +31,24 @@
   },
   "signUpPage": {
     "pageTitle": "Registrieren - Immobilien Hub",
-    "formTitle": "Konto erstellen",
+    "formTitle": "Agenturkonto erstellen",
     "formSubtitle": "Füllen Sie das folgende Formular aus, um loszulegen.",
     "firstNameLabel": "Vorname",
     "emailLabel": "E-Mail-Addresse",
     "passwordLabel": "Passwort",
     "signUpButton": "Registrieren",
     "switchToSignInPrompt": "Bereits ein Konto? ",
-    "switchToSignInLink": "Hier anmelden"
+    "switchToSignInLink": "Hier anmelden",
+    "accountTypeTitle": "Kontotyp auswählen",
+    "accountTypeSubtitle": "Wählen Sie, wie Sie Property Hub nutzen möchten.",
+    "accountType": {
+      "agency": "Agenturkonto",
+      "user": "Benutzerkonto"
+    },
+    "accountTypeLabel": "Kontotyp",
+    "continueButton": "Weiter",
+    "userAccountInfoTitle": "Informationen zum Benutzerkonto",
+    "userAccountInfoText": "So richten Sie ein neues Konto ein: Als Benutzer benötigen Sie ein Konto, das von der Agentur eingerichtet wurde, die Ihre Immobilie verwaltet. Bitte setzen Sie sich mit dieser in Verbindung und bitten Sie sie, Ihnen ein neues Konto einzurichten. Sobald dies geschehen ist, können Sie sich auf der Anmeldeseite in Ihr Konto einloggen."
   },
   "dashboardPage": {
     "title": "Dashboard - Immobilien Hub",
@@ -81,6 +91,9 @@
     },
     "modal": {
       "addTitle": "Neue Immobilie hinzufügen",
+      "generateQrLabel": "QR-Code generieren und speichern",
+      "qrDisplayTitle": "Immobilien QR-Code",
+      "downloadQrButton": "Herunterladen",
       "propertyNameLabel": "Immobilienname",
       "addressLabel": "Adresse",
       "typeLabel": "Immobilientyp",
@@ -201,7 +214,15 @@
       "signInFailed": "Anmeldung fehlgeschlagen: {{message}}",
       "loginFailedCheckCredentials": "Anmeldung fehlgeschlagen. Überprüfen Sie Ihre Anmeldedaten.",
       "success": "Anmeldung erfolgreich! Weiterleitung...",
-      "unexpectedError": "Unerwarteter Anmeldefehler."
+      "unexpectedError": "Unerwarteter Anmeldefehler.",
+      "profileError": "Beim Zugriff auf Ihr Profil ist ein Problem aufgetreten. Bitte versuchen Sie es erneut.",
+      "profileFetchFailed": "Fehler beim Abrufen Ihrer Profilinformationen. Bitte versuchen Sie es später erneut.",
+      "profileNotFound": "Ihr Benutzerprofil wurde nicht gefunden. Bitte kontaktieren Sie den Support.",
+      "modalError": "Das Dialogfeld für den Bestätigungscode konnte nicht angezeigt werden. Bitte versuchen Sie es erneut.",
+      "unexpectedProfileError": "Beim Überprüfen Ihres Profils ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+      "successVerificationDone": "Anmeldung erfolgreich. Kontostatus wird überprüft...",
+      "profileFetchFailedAfterVerification": "Verifizierung erfolgreich, aber vollständige Profildetails konnten nicht abgerufen werden. Bitte versuchen Sie erneut, sich anzumelden, oder kontaktieren Sie den Support, falls das Problem weiterhin besteht.",
+      "verificationSuccessCheckStatus": "Verifizierung erfolgreich! Kontostatus wird überprüft..."
     }
   },
   "notificationsJs": {
@@ -278,5 +299,19 @@
     "alertAccountExistsResend": "Dieses Konto existiert bereits. Wenn Sie Ihre E-Mail-Adresse nicht bestätigt haben, können Sie den Bestätigungslink unten erneut senden.",
     "alertEmailNotVerifiedResend": "Ihre E-Mail-Adresse ist nicht bestätigt. Bitte überprüfen Sie Ihren Posteingang oder senden Sie die Bestätigungs-E-Mail unten erneut.",
     "alertSignupEmailResent": "Diese E-Mail-Adresse ist bereits registriert, aber nicht bestätigt. Eine neue Bestätigungs-E-Mail wurde an {{email}} gesendet. Bitte überprüfen Sie Ihren Posteingang."
+  },
+  "sixDigitCodeModal": {
+    "title": "Bestätigungscode eingeben",
+    "description": "Zu Ihrer Sicherheit geben Sie bitte Ihren 8-stelligen Bestätigungscode ein.",
+    "inputLabel": "8-stelliger Code",
+    "verifyButton": "Code bestätigen",
+    "closeButton": "Schließen",
+    "invalidInput": "Bitte geben Sie einen gültigen 8-stelligen numerischen Code ein.",
+    "updateError": "Aktualisierung des Verifizierungsstatus fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "success": "Verifizierung erfolgreich! Weiterleitung...",
+    "incorrectCode": "Falscher Code. Bitte versuchen Sie es erneut."
+  },
+  "propertyDetailsPage": {
+    "showQrButton": "QR-Code anzeigen"
   }
 }
