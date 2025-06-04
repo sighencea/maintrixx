@@ -31,14 +31,24 @@
   },
   "signUpPage": {
     "pageTitle": "Sign Up - Property Hub",
-    "formTitle": "Create Account",
+    "formTitle": "Create Agency Account",
     "formSubtitle": "Fill out the form below to get started.",
     "firstNameLabel": "First Name",
     "emailLabel": "Email address",
     "passwordLabel": "Password",
     "signUpButton": "Sign Up",
     "switchToSignInPrompt": "Already have an account? ",
-    "switchToSignInLink": "Sign in here"
+    "switchToSignInLink": "Sign in here",
+    "accountTypeTitle": "Select Account Type",
+    "accountTypeSubtitle": "Choose how you want to use Property Hub.",
+    "accountType": {
+      "agency": "Agency Account",
+      "user": "User Account"
+    },
+    "accountTypeLabel": "Account Type",
+    "continueButton": "Continue",
+    "userAccountInfoTitle": "User Account Information",
+    "userAccountInfoText": "How to set up a new account: As a User, you require to have an account set up by the Agency that is managing your property. Please get in touch with them and ask them to set you up with a new account. Once done, you can sign into your account on the Sign In page."
   },
   "dashboardPage": {
     "title": "Dashboard - Property Hub",
@@ -209,7 +219,10 @@
       "profileFetchFailed": "Error retrieving your profile information. Please try again later.",
       "profileNotFound": "Your user profile was not found. Please contact support.",
       "modalError": "Could not display the verification code dialog. Please try again.",
-      "unexpectedProfileError": "An unexpected error occurred while checking your profile. Please try again."
+      "unexpectedProfileError": "An unexpected error occurred while checking your profile. Please try again.",
+      "successVerificationDone": "Sign in successful. Checking account status...",
+      "profileFetchFailedAfterVerification": "Verification successful, but failed to retrieve full profile details. Please try logging in again or contact support if the issue persists.",
+      "verificationSuccessCheckStatus": "Verification successful! Checking account status..."
     }
   },
   "notificationsJs": {
