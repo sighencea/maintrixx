@@ -109,7 +109,7 @@ serve(async (req: Request) => {
         company_address_street: companyData.company_address_street,
         company_email: companyData.company_email,
         company_address_city: companyData.company_city,
-        company_state: companyData.company_state,
+        company_address_state: companyData.company_state,
         company_address_zip: companyData.company_address_zip,
         company_phone: companyData.company_phone || null,
         company_website: companyData.company_website || null,
