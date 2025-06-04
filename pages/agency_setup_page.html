@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n-title="agencySetupPage.pageTitle">Agency Company Setup - Property Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/i18next/i18next.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="bg-light">
+  <div class="page-content-wrapper">
+    <div class="container mt-5 mb-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+          <div class="card shadow-sm">
+            <div class="card-body p-4 p-md-5">
+              <h1 class="h3 mb-4 fw-semibold text-center" data-i18n="agencySetupPage.mainTitle">Set Up Your Agency Company</h1>
+              <p class="text-muted mb-4 text-center" data-i18n="agencySetupPage.mainSubtitle">Please provide your company details below to complete your agency profile.</p>
+
+              <form id="agencySetupForm">
+                <!-- Company Logo -->
+                <div class="mb-3">
+                  <label for="companyLogo" class="form-label" data-i18n="agencySetupPage.logoLabel">Company Logo (Optional)</label>
+                  <input class="form-control" type="file" id="companyLogo" accept="image/*">
+                  <div class="mt-2 text-center">
+                    <img id="logoPreview" src="#" alt="Logo Preview" class="img-thumbnail" style="max-width: 150px; max-height: 150px; display: none;">
+                  </div>
+                </div>
+
+                <!-- Company Name -->
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="companyName" placeholder="Your Company LLC" required>
+                  <label for="companyName" data-i18n="agencySetupPage.nameLabel">Company Name</label>
+                </div>
+
+                <!-- Company Address (Street) -->
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="companyAddressStreet" placeholder="123 Main St" required>
+                  <label for="companyAddressStreet" data-i18n="agencySetupPage.addressStreetLabel">Company Address (Street and Number)</label>
+                </div>
+
+                <!-- Company City -->
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="companyCity" placeholder="Anytown" required>
+                  <label for="companyCity" data-i18n="agencySetupPage.cityLabel">Company City</label>
+                </div>
+
+                <!-- Company State -->
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="companyState" placeholder="CA" required>
+                  <label for="companyState" data-i18n="agencySetupPage.stateLabel">Company State</label>
+                </div>
+
+                <!-- Company Post Code -->
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="companyPostCode" placeholder="90210" required>
+                  <label for="companyPostCode" data-i18n="agencySetupPage.postCodeLabel">Company Post Code</label>
+                </div>
+
+                <!-- Company Email -->
+                <div class="form-floating mb-3">
+                  <input type="email" class="form-control" id="companyEmail" placeholder="contact@yourcompany.com" required>
+                  <label for="companyEmail" data-i18n="agencySetupPage.emailLabel">Company Email</label>
+                </div>
+
+                <!-- Company Phone -->
+                <div class="form-floating mb-3">
+                  <input type="tel" class="form-control" id="companyPhone" placeholder="(555) 123-4567">
+                  <label for="companyPhone" data-i18n="agencySetupPage.phoneLabel">Company Phone (Optional)</label>
+                </div>
+
+                <!-- Company Website -->
+                <div class="form-floating mb-3">
+                  <input type="url" class="form-control" id="companyWebsite" placeholder="https://yourcompany.com">
+                  <label for="companyWebsite" data-i18n="agencySetupPage.websiteLabel">Company Website (Optional)</label>
+                </div>
+
+                <!-- Company Tax ID -->
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="companyTaxId" placeholder="Your Tax ID or VAT Number">
+                  <label for="companyTaxId" data-i18n="agencySetupPage.taxIdLabel">Company Tax ID / VAT Number (Optional)</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 mt-3" id="saveCompanyButton" data-i18n="agencySetupPage.saveButton">Save Company Information</button>
+
+                <div id="agencySetupMessage" class="mt-3"></div>
+              </form>
+            </div>
+          </div>
+           <p class="mt-4 mb-3 text-muted text-center">&copy; <span id="currentYear"></span> Property Hub</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/supabase-config.js"></script>
+  <script type="module" src="../js/supabase-client.js"></script>
+  <script type="module" src="../js/agency_setup.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Placeholder for i18n initialization, if needed on this page specifically -->
+  <!-- <script type="module" src="../js/i18n.js"></script> -->
+   <script>
+    // Dynamic Year for Footer
+    const currentYearSpan = document.getElementById('currentYear');
+    if (currentYearSpan) {
+      currentYearSpan.textContent = new Date().getFullYear();
+    }
+    // Basic i18n placeholder - will be replaced by actual i18n logic if page-specific init is used
+    // For now, this ensures data-i18n attributes don't cause errors if i18n.js isn't loaded for this page.
+    window.i18next = window.i18next || { t: (key) => key.split('.').pop() };
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            el.textContent = i18next.t(el.getAttribute('data-i18n'));
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            document.title = i18next.t(el.getAttribute('data-i18n-title'));
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            el.placeholder = i18next.t(el.getAttribute('data-i18n-placeholder'));
+        });
+    });
+  </script>
+</body>
+</html>

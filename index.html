@@ -64,24 +64,48 @@
 
           <!-- Sign Up Section View -->
           <div id="signUpFormSectionView" style="display: none;">
-            <h2 class="h3 mb-1 fw-semibold" data-i18n="signUpPage.formTitle">Create Account</h2>
-            <p class="text-muted mb-4" data-i18n="signUpPage.formSubtitle">Fill out the form below to get started.</p>
-            <form id="signUpForm">
+            <!-- Account Type Selection Step -->
+            <div id="accountTypeSelectionView">
+              <h2 class="h3 mb-1 fw-semibold" data-i18n="signUpPage.accountTypeTitle">Select Account Type</h2>
+              <p class="text-muted mb-4" data-i18n="signUpPage.accountTypeSubtitle">Choose how you want to use Property Hub.</p>
               <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="signUpFirstName" placeholder="John Doe" required>
-                <label for="signUpFirstName" data-i18n="signUpPage.firstNameLabel">First Name</label>
+                <select class="form-select" id="accountTypeSelect">
+                  <option value="agency" selected data-i18n="signUpPage.accountType.agency">Agency Account</option>
+                  <option value="user" data-i18n="signUpPage.accountType.user">User Account</option>
+                </select>
+                <label for="accountTypeSelect" data-i18n="signUpPage.accountTypeLabel">Account Type</label>
               </div>
-              <div class="form-floating mb-3">
-                <input type="email" class="form-control" id="signUpEmail" placeholder="name@example.com" required>
-                <label for="signUpEmail" data-i18n="signUpPage.emailLabel">Email address</label>
-              </div>
-              <div class="form-floating mb-3">
-                <input type="password" class="form-control" id="signUpPassword" placeholder="Password" required minlength="6">
-                <label for="signUpPassword" data-i18n="signUpPage.passwordLabel">Password</label>
-              </div>
-              <button class="btn btn-primary w-100 py-2" type="submit" id="signUpButton" data-i18n="signUpPage.signUpButton">Sign Up</button>
-              <div id="signUpUserMessage" class="mt-3"></div>
-            </form>
+              <button class="btn btn-primary w-100 py-2" id="accountTypeContinueButton" data-i18n="signUpPage.continueButton">Continue</button>
+            </div>
+
+            <!-- User Account Info View (Initially Hidden) -->
+            <div id="userAccountInfoView" style="display: none;">
+              <h2 class="h3 mb-1 fw-semibold" data-i18n="signUpPage.userAccountInfoTitle">User Account Information</h2>
+              <p class="text-muted mb-4" data-i18n="signUpPage.userAccountInfoText">How to set up a new account: As a User, you require to have an account set up by the Agency that is managing your property. Please get in touch with them and ask them to set you up with a new account. Once done, you can sign into your account on the Sign In page.</p>
+              <!-- Optional: Add a button to go back to account type selection or to Sign In page -->
+            </div>
+
+            <!-- Agency Signup Form View (Initially Hidden) -->
+            <div id="agencySignupFormView" style="display: none;">
+              <h2 class="h3 mb-1 fw-semibold" data-i18n="signUpPage.formTitle">Create Agency Account</h2>
+              <p class="text-muted mb-4" data-i18n="signUpPage.formSubtitle">Fill out the form below to get started.</p>
+              <form id="signUpForm">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="signUpFirstName" placeholder="John Doe" required>
+                  <label for="signUpFirstName" data-i18n="signUpPage.firstNameLabel">First Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input type="email" class="form-control" id="signUpEmail" placeholder="name@example.com" required>
+                  <label for="signUpEmail" data-i18n="signUpPage.emailLabel">Email address</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input type="password" class="form-control" id="signUpPassword" placeholder="Password" required minlength="6">
+                  <label for="signUpPassword" data-i18n="signUpPage.passwordLabel">Password</label>
+                </div>
+                <button class="btn btn-primary w-100 py-2" type="submit" id="signUpButton" data-i18n="signUpPage.signUpButton">Sign Up</button>
+                <div id="signUpUserMessage" class="mt-3"></div>
+              </form>
+            </div>
           </div>
           <p class="mt-5 mb-3 text-muted text-center">&copy; <span id="currentYear"></span> Property Hub</p>
         </div>
