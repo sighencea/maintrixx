@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const signInFormSectionView = document.getElementById('signInFormSectionView');
   const signUpFormSectionView = document.getElementById('signUpFormSectionView');
 
+  // Account Type Selection Elements
+  const accountTypeSelectionView = document.getElementById('accountTypeSelectionView');
+  const accountTypeSelect = document.getElementById('accountTypeSelect');
+  const accountTypeContinueButton = document.getElementById('accountTypeContinueButton');
+  const userAccountInfoView = document.getElementById('userAccountInfoView');
+  const agencySignupFormView = document.getElementById('agencySignupFormView');
+
   // Resend Verification Modal Elements (IDs remain the same)
   const resendVerificationModalEl = document.getElementById('resendVerificationModal');
   const resendModal = resendVerificationModalEl ? new bootstrap.Modal(resendVerificationModalEl) : null;
@@ -29,6 +36,9 @@ document.addEventListener('DOMContentLoaded', function () {
   if (signInFormSectionView && signUpFormSectionView) {
     signInFormSectionView.style.display = 'block'; // Show Sign In by default
     signUpFormSectionView.style.display = 'none';  // Hide Sign Up by default
+    if (accountTypeSelectionView) accountTypeSelectionView.style.display = 'block'; // Show account type selection initially
+    if (userAccountInfoView) userAccountInfoView.style.display = 'none';
+    if (agencySignupFormView) agencySignupFormView.style.display = 'none';
     setupAuthToggle('signUp'); // Initially, display link to switch TO Sign Up
   }
 
@@ -70,9 +80,15 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         if (nextViewToShow === 'signUp') {
           if (signInFormSectionView) signInFormSectionView.style.display = 'none';
-          if (signUpFormSectionView) signUpFormSectionView.style.display = 'block';
+          if (signUpFormSectionView) {
+            signUpFormSectionView.style.display = 'block';
+            // Reset to account type selection step
+            if (accountTypeSelectionView) accountTypeSelectionView.style.display = 'block';
+            if (userAccountInfoView) userAccountInfoView.style.display = 'none';
+            if (agencySignupFormView) agencySignupFormView.style.display = 'none';
+          }
           setupAuthToggle('signIn');
-        } else {
+        } else { // Switching to Sign In
           if (signUpFormSectionView) signUpFormSectionView.style.display = 'none';
           if (signInFormSectionView) signInFormSectionView.style.display = 'block';
           setupAuthToggle('signUp');
@@ -80,6 +96,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (signInMessage) signInMessage.textContent = '';
         if (signUpUserMessage) signUpUserMessage.textContent = '';
+
+        // Clear any previous selections or form states in sign up view when switching
+        if (accountTypeSelect) accountTypeSelect.value = 'agency'; // Reset dropdown
 
         const resendModalEl = document.getElementById('resendVerificationModal');
         const resendModalInstance = bootstrap.Modal.getInstance(resendModalEl);
@@ -94,10 +113,38 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Sign-up Logic (ID of form is still 'signUpForm')
+  // Account Type Selection Logic
+  if (accountTypeContinueButton) {
+    accountTypeContinueButton.addEventListener('click', function(event) {
+      event.preventDefault();
+      const selectedAccountType = accountTypeSelect ? accountTypeSelect.value : 'agency';
+
+      if (accountTypeSelectionView) accountTypeSelectionView.style.display = 'none';
+      if (signUpUserMessage) { signUpUserMessage.textContent = ''; signUpUserMessage.className = '';}
+
+
+      if (selectedAccountType === 'user') {
+        if (userAccountInfoView) userAccountInfoView.style.display = 'block';
+        if (agencySignupFormView) agencySignupFormView.style.display = 'none';
+      } else { // 'agency'
+        if (userAccountInfoView) userAccountInfoView.style.display = 'none';
+        if (agencySignupFormView) agencySignupFormView.style.display = 'block';
+      }
+    });
+  }
+
+  // Sign-up Logic (ID of form is still 'signUpForm')
   if (signUpForm) {
     console.log('Sign-up form listener attached.');
     signUpForm.addEventListener('submit', async function (event) {
       event.preventDefault();
+
+      // Ensure this form submission is only for agency sign-up
+      if (!agencySignupFormView || agencySignupFormView.style.display === 'none') {
+        console.log('Sign up attempt ignored, agency form not visible.');
+        return;
+      }
+
       if (resendModal) resendModal.hide(); // Hide modal on new submission attempt
       if (signUpUserMessage) { signUpUserMessage.textContent = ''; signUpUserMessage.className = '';}
 
@@ -265,35 +312,41 @@ document.addEventListener('DOMContentLoaded', function () {
           try {
             const { data: profile, error: profileError } = await window._supabase
               .from('profiles')
-              .select('is_verified_by_code, verification_code')
+              .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin') // Fetched more fields
               .eq('id', userId)
               .single();
 
             if (profileError) {
               console.error('Error fetching profile from Supabase:', profileError);
               if (signInMessage) {
-                signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed'); // New i18n key
+                signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
                 signInMessage.className = 'alert alert-danger';
               }
               return;
             } else if (!profile) {
               console.warn('User profile not found for user_id:', userId);
               if (signInMessage) {
-                signInMessage.textContent = i18next.t('mainJs.signIn.profileNotFound'); // New i18n key
+                signInMessage.textContent = i18next.t('mainJs.signIn.profileNotFound');
                 signInMessage.className = 'alert alert-danger';
               }
-              // Potentially sign out the user if profile is mandatory and not found
-              // await window._supabase.auth.signOut();
               return;
             }
 
             if (profile.is_verified_by_code) {
-              if (signInMessage) { // Show success before redirecting
-                signInMessage.textContent = i18next.t('mainJs.signIn.success'); 
+              if (signInMessage) {
+                signInMessage.textContent = i18next.t('mainJs.signIn.successVerificationDone'); // e.g. "Sign in successful. Checking account status..."
                 signInMessage.className = 'alert alert-success';
               }
-              localStorage.setItem('onboardingComplete', 'true');
-              window.location.href = 'pages/dashboard.html';
+              // Check if company is set up
+              if (profile.has_company_set_up === false) {
+                // User is verified but company not set up
+                localStorage.removeItem('onboardingComplete'); // Ensure it's not set
+                window.location.href = 'pages/agency_setup_page.html';
+              } else {
+                // User is verified and company is set up
+                localStorage.setItem('onboardingComplete', 'true');
+                window.location.href = 'pages/dashboard.html';
+              }
             } else {
               // Show 6-digit code modal
               if (signInMessage) signInMessage.textContent = ''; // Clear any previous sign-in messages
@@ -347,12 +400,35 @@ document.addEventListener('DOMContentLoaded', function () {
                       }
                       if (sixDigitCodeModalInstance) sixDigitCodeModalInstance.hide();
                       
-                      if (signInMessage) { // Show overall success message on main page
-                         signInMessage.textContent = i18next.t('mainJs.signIn.success'); 
-                         signInMessage.className = 'alert alert-success';
+                      // Fetch updated profile to check has_company_set_up
+                      const { data: updatedProfile, error: fetchError } = await window._supabase
+                        .from('profiles')
+                        .select('id, has_company_set_up, is_admin')
+                        .eq('id', userId)
+                        .single();
+
+                      if (fetchError || !updatedProfile) {
+                        console.error('Error fetching updated profile after 6-digit code verification:', fetchError);
+                        if (signInMessage) {
+                            signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailedAfterVerification');
+                            signInMessage.className = 'alert alert-warning';
+                        }
+                        // Fallback to dashboard to prevent user being stuck
+                        localStorage.setItem('onboardingComplete', 'true');
+                        window.location.href = 'pages/dashboard.html';
+                      } else {
+                        if (signInMessage) {
+                           signInMessage.textContent = i18next.t('mainJs.signIn.verificationSuccessCheckStatus');
+                           signInMessage.className = 'alert alert-success';
+                        }
+                        if (updatedProfile.has_company_set_up === false) {
+                          localStorage.removeItem('onboardingComplete'); // Ensure it's not set
+                          window.location.href = 'pages/agency_setup_page.html';
+                        } else {
+                          localStorage.setItem('onboardingComplete', 'true');
+                          window.location.href = 'pages/dashboard.html';
+                        }
                       }
-                      localStorage.setItem('onboardingComplete', 'true');
-                      window.location.href = 'pages/dashboard.html';
                     }
                   } else {
                     if (sixDigitCodeMessage) {
