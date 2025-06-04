@@ -225,6 +225,10 @@
       "successVerificationDone": "Sign in successful. Checking account status...",
       "profileFetchFailedAfterVerification": "Verification successful, but failed to retrieve full profile details. Please try logging in again or contact support if the issue persists.",
       "verificationSuccessCheckStatus": "Verification successful! Checking account status..."
+    },
+    "languageModal": {
+      "saveError": "Could not save language preference: {{message}}",
+      "unexpectedError": "An unexpected error occurred while saving your language preference: {{message}}"
     }
   },
   "notificationsJs": {
@@ -318,7 +322,7 @@
   },
   "agencySetupPage": {
     "pageTitle": "Agency Company Setup - Property Hub",
-    "mainTitle": "Set Up Your Agency Company",
+    "mainTitle": "Let's set up your Agency",
     "mainSubtitle": "Please provide your company details below to complete your agency profile.",
     "logoLabel": "Company Logo (Optional)",
     "nameLabel": "Company Name",
@@ -345,5 +349,13 @@
       "unexpected": "An unexpected error occurred: {{message}}"
     },
     "success": "Company information saved successfully! Redirecting..."
+  },
+  "languageSelectionModal": {
+    "title": "Select Your Preferred Language",
+    "description": "Please choose the language you'd like to use in Property Hub.",
+    "optionEnglish": "English",
+    "optionGerman": "German",
+    "selectLabel": "Language",
+    "continueButton": "Continue"
   }
 }

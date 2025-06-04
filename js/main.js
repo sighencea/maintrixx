@@ -36,6 +36,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const submitSixDigitCodeButton = document.getElementById('submitSixDigitCodeButton');
   const sixDigitCodeMessage = document.getElementById('sixDigitCodeMessage');
 
+  // Language Selection Modal Elements
+  const languageSelectionModalEl = document.getElementById('languageSelectionModal');
+  const languageSelectDropdown = document.getElementById('languageSelectDropdown');
+  const saveLanguagePreferenceButton = document.getElementById('saveLanguagePreferenceButton');
+  let languageSelectionModalInstance = null;
+  if (languageSelectionModalEl) {
+    languageSelectionModalInstance = new bootstrap.Modal(languageSelectionModalEl);
+  }
+  let currentUserIdForLanguagePref = null;
+
 
   // Initial View Setup - Updated for new section views
   if (signInFormSectionView && signUpFormSectionView) {
@@ -365,8 +375,10 @@ document.addEventListener('DOMContentLoaded', function () {
               // Check if company is set up
               if (profile.has_company_set_up === false) {
                 // User is verified but company not set up
+                currentUserIdForLanguagePref = userId;
                 localStorage.removeItem('onboardingComplete'); // Ensure it's not set
-                window.location.href = 'pages/agency_setup_page.html';
+                if (languageSelectionModalInstance) languageSelectionModalInstance.show();
+                // window.location.href = 'pages/agency_setup_page.html'; // Old logic
               } else {
                 // User is verified and company is set up
                 localStorage.setItem('onboardingComplete', 'true');
@@ -447,8 +459,10 @@ document.addEventListener('DOMContentLoaded', function () {
                            signInMessage.className = 'alert alert-success';
                         }
                         if (updatedProfile.has_company_set_up === false) {
+                          currentUserIdForLanguagePref = userId;
                           localStorage.removeItem('onboardingComplete'); // Ensure it's not set
-                          window.location.href = 'pages/agency_setup_page.html';
+                          if (languageSelectionModalInstance) languageSelectionModalInstance.show();
+                          // window.location.href = 'pages/agency_setup_page.html'; // Old logic
                         } else {
                           localStorage.setItem('onboardingComplete', 'true');
                           window.location.href = 'pages/dashboard.html';
@@ -504,6 +518,50 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+
+  // Language Preference Modal Save Button Logic
+  if (saveLanguagePreferenceButton) {
+    saveLanguagePreferenceButton.addEventListener('click', async function(event) {
+      event.preventDefault();
+      const selectedLang = languageSelectDropdown ? languageSelectDropdown.value : 'en';
+
+      if (!currentUserIdForLanguagePref) {
+        console.error('User ID not available for saving language preference.');
+        alert(i18next.t('mainJs.languageModal.saveError', { message: 'User ID missing.'}) || 'Could not save language preference: User ID missing.');
+        return;
+      }
+
+      this.disabled = true;
+
+      try {
+        const { error: updateError } = await window._supabase
+          .from('profiles')
+          .update({ preferred_ui_language: selectedLang })
+          .eq('id', currentUserIdForLanguagePref);
+
+        if (updateError) {
+          console.error('Error updating language preference:', updateError);
+          alert(i18next.t('mainJs.languageModal.saveError', { message: updateError.message }) || `Failed to save language preference: ${updateError.message}`);
+        } else {
+          localStorage.setItem('preferredLang', selectedLang);
+          if (window.i18next) {
+            await window.i18next.changeLanguage(selectedLang);
+            // Potentially re-translate static elements if any are visible behind modal, though usually not necessary
+          }
+          if (languageSelectionModalInstance) languageSelectionModalInstance.hide();
+          // Now redirect to agency setup page
+          window.location.href = 'pages/agency_setup_page.html';
+        }
+      } catch (e) {
+        console.error('Unexpected error saving language preference:', e);
+        alert(i18next.t('mainJs.languageModal.unexpectedError', { message: e.message }) || `An unexpected error occurred: ${e.message}`);
+      } finally {
+        this.disabled = false;
+        currentUserIdForLanguagePref = null; // Clear the user ID after attempt
+      }
+    });
+  }
+
 
   // Resend Verification Email Modal Logic
   if (resendEmailModalButton) {

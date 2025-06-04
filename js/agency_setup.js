@@ -149,6 +149,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
 
+                // Process Company Website URL
+                let processedWebsiteUrl = companyWebsiteInput.value.trim();
+                if (processedWebsiteUrl) {
+                  if (!/^https?:\/\//i.test(processedWebsiteUrl)) {
+                    processedWebsiteUrl = 'https://' + processedWebsiteUrl;
+                  }
+                } else {
+                  processedWebsiteUrl = null; // Ensure empty input becomes null
+                }
+
                 const companyData = {
                     company_name: companyNameInput.value.trim(),
                     company_address_street: companyAddressStreetInput.value.trim(),
@@ -157,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     company_state: companyStateInput.value.trim(),
                     company_address_zip: companyPostCodeInput.value.trim(), // Renamed from companyPostCodeInput for consistency
                     company_phone: companyPhoneInput.value.trim() || null,
-                    company_website: companyWebsiteInput.value.trim() || null,
+                    company_website: processedWebsiteUrl,
                     company_tax_id: companyTaxIdInput.value.trim() || null,
                     company_logo_url: companyLogoUrl
                 };
