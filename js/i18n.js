@@ -58,7 +58,7 @@ async function saveUserLangPreference(lang) {
 // i18next initialization
 async function initI18n() {
   try {
-    let preferredLang = localStorage.getItem('preferred_ui_language'); // Get from localStorage first
+    let preferredLang = localStorage.getItem('preferredLang'); // Get from localStorage first
     if (!preferredLang && window._supabase) { // If not in localStorage, try Supabase
         const userLang = await getUserLangPreference();
         if (userLang) preferredLang = userLang;
@@ -168,7 +168,7 @@ window.changeLanguage = async (lang) => {
     return;
   }
   await i18next.changeLanguage(lang);
-  localStorage.setItem('preferred_ui_language', lang); // Save to localStorage
+  localStorage.setItem('preferredLang', lang); // Save to localStorage
   await saveUserLangPreference(lang); // Save to Supabase
   updateContent();
   updateLanguageSelector(lang);

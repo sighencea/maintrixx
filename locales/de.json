@@ -225,6 +225,10 @@
       "successVerificationDone": "Anmeldung erfolgreich. Kontostatus wird überprüft...",
       "profileFetchFailedAfterVerification": "Verifizierung erfolgreich, aber vollständige Profildetails konnten nicht abgerufen werden. Bitte versuchen Sie erneut, sich anzumelden, oder kontaktieren Sie den Support, falls das Problem weiterhin besteht.",
       "verificationSuccessCheckStatus": "Verifizierung erfolgreich! Kontostatus wird überprüft..."
+    },
+    "languageModal": {
+      "saveError": "Spracheinstellung konnte nicht gespeichert werden: {{message}}",
+      "unexpectedError": "Beim Speichern Ihrer Spracheinstellung ist ein unerwarteter Fehler aufgetreten: {{message}}"
     }
   },
   "notificationsJs": {
@@ -345,5 +349,13 @@
       "unexpected": "Ein unerwarteter Fehler ist aufgetreten: {{message}}"
     },
     "success": "Firmeninformationen erfolgreich gespeichert! Weiterleitung..."
+  },
+  "languageSelectionModal": {
+    "title": "Bevorzugte Sprache auswählen",
+    "description": "Bitte wählen Sie die Sprache aus, die Sie in Property Hub verwenden möchten.",
+    "optionEnglish": "Englisch",
+    "optionGerman": "Deutsch",
+    "selectLabel": "Sprache",
+    "continueButton": "Weiter"
   }
 }
