@@ -24,23 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (profileDataContainer && profileLoadingIndicator) {
         profileDataContainer.style.display = 'none';
         profileLoadingIndicator.classList.add('visible');
-        // ---- START DEBUG STYLING ----
-        profileLoadingIndicator.style.backgroundColor = 'lime';
-        profileLoadingIndicator.style.color = 'black';
-        // Padding is already applied via inline style in HTML or CSS, but we can ensure it here too.
-        // profileLoadingIndicator.style.padding = '20px';
-        profileLoadingIndicator.style.border = '5px solid red';
-        profileLoadingIndicator.style.fontSize = '20px';
-        profileLoadingIndicator.style.position = 'fixed'; // Use fixed to ensure it's in viewport
-        profileLoadingIndicator.style.top = '40%'; // Position it clearly
-        profileLoadingIndicator.style.left = '30%';
-        profileLoadingIndicator.style.width = '40%'; // Give it some dimensions
-        profileLoadingIndicator.style.height = 'auto'; // Auto height based on content
-        profileLoadingIndicator.style.minHeight = '50px'; // Ensure it has some min height
-        profileLoadingIndicator.style.zIndex = '99999'; // Max z-index
-        profileLoadingIndicator.textContent = 'DEBUG: PROFILE LOADER IS HERE AND SHOULD BE VISIBLE!'; // Override text content for debug
-        console.log('DEBUG: Applied debug styles to profileLoadingIndicator.');
-        // ---- END DEBUG STYLING ----
+        // Debug styling removed
     } else {
         console.error('Profile data container or loading indicator not found.');
     }
@@ -141,8 +125,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             languageDisplayElement.value = 'Failed to load profile';
         } finally {
             if (profileDataContainer && profileLoadingIndicator) {
-                // profileLoadingIndicator.classList.remove('visible');
-                // profileDataContainer.style.display = 'block';
+                profileLoadingIndicator.classList.remove('visible');
+                profileDataContainer.style.display = 'block';
             }
         }
     };
