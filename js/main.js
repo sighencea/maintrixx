@@ -17,6 +17,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const userAccountInfoView = document.getElementById('userAccountInfoView');
   const agencySignupFormView = document.getElementById('agencySignupFormView');
 
+  // Disable continue button initially
+  if (accountTypeContinueButton) {
+    accountTypeContinueButton.disabled = true;
+  }
+
   // Resend Verification Modal Elements (IDs remain the same)
   const resendVerificationModalEl = document.getElementById('resendVerificationModal');
   const resendModal = resendVerificationModalEl ? new bootstrap.Modal(resendVerificationModalEl) : null;
@@ -86,19 +91,22 @@ document.addEventListener('DOMContentLoaded', function () {
             if (accountTypeSelectionView) accountTypeSelectionView.style.display = 'block';
             if (userAccountInfoView) userAccountInfoView.style.display = 'none';
             if (agencySignupFormView) agencySignupFormView.style.display = 'none';
+            // Reset dropdown and button state
+            if (accountTypeSelect) accountTypeSelect.value = '';
+            if (accountTypeContinueButton) accountTypeContinueButton.disabled = true;
           }
           setupAuthToggle('signIn');
         } else { // Switching to Sign In
           if (signUpFormSectionView) signUpFormSectionView.style.display = 'none';
           if (signInFormSectionView) signInFormSectionView.style.display = 'block';
+          // Reset dropdown and button state when switching away from sign-up view as well
+          if (accountTypeSelect) accountTypeSelect.value = '';
+          if (accountTypeContinueButton) accountTypeContinueButton.disabled = true;
           setupAuthToggle('signUp');
         }
 
         if (signInMessage) signInMessage.textContent = '';
         if (signUpUserMessage) signUpUserMessage.textContent = '';
-
-        // Clear any previous selections or form states in sign up view when switching
-        if (accountTypeSelect) accountTypeSelect.value = 'agency'; // Reset dropdown
 
         const resendModalEl = document.getElementById('resendVerificationModal');
         const resendModalInstance = bootstrap.Modal.getInstance(resendModalEl);
@@ -112,21 +120,38 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Sign-up Logic (ID of form is still 'signUpForm')
   // Account Type Selection Logic
+  if (accountTypeSelect) {
+    accountTypeSelect.addEventListener('change', function() {
+      if (signUpUserMessage) { signUpUserMessage.textContent = ''; signUpUserMessage.className = '';}
+      if (accountTypeContinueButton) {
+        accountTypeContinueButton.disabled = this.value === "";
+      }
+    });
+  }
+
   if (accountTypeContinueButton) {
     accountTypeContinueButton.addEventListener('click', function(event) {
       event.preventDefault();
-      const selectedAccountType = accountTypeSelect ? accountTypeSelect.value : 'agency';
+
+      if (!accountTypeSelect || accountTypeSelect.value === "") {
+        if (signUpUserMessage) {
+          signUpUserMessage.textContent = i18next.t('mainJs.signup.selectAccountTypePrompt');
+          signUpUserMessage.className = 'alert alert-warning';
+        }
+        return;
+      }
+      const selectedAccountType = accountTypeSelect.value;
 
       if (accountTypeSelectionView) accountTypeSelectionView.style.display = 'none';
+      // Message cleared by dropdown change listener, but good to ensure
       if (signUpUserMessage) { signUpUserMessage.textContent = ''; signUpUserMessage.className = '';}
 
 
       if (selectedAccountType === 'user') {
         if (userAccountInfoView) userAccountInfoView.style.display = 'block';
         if (agencySignupFormView) agencySignupFormView.style.display = 'none';
-      } else { // 'agency'
+      } else { // 'agency' or other valid types
         if (userAccountInfoView) userAccountInfoView.style.display = 'none';
         if (agencySignupFormView) agencySignupFormView.style.display = 'block';
       }
