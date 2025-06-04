@@ -43,7 +43,8 @@
     "accountTypeSubtitle": "Choose how you want to use Property Hub.",
     "accountType": {
       "agency": "Agency Account",
-      "user": "User Account"
+      "user": "User Account",
+      "placeholder": "Please choose an account type..."
     },
     "accountTypeLabel": "Account Type",
     "continueButton": "Continue",
@@ -206,7 +207,8 @@
       "accountExists": "Account exists, check email for confirmation.",
       "success": "Sign-up successful! Please check your email to confirm.",
       "successUnexpected": "Sign-up successful, awaiting confirmation (unexpected response). Check email.",
-      "unexpectedError": "Unexpected sign-up error."
+      "unexpectedError": "Unexpected sign-up error.",
+      "selectAccountTypePrompt": "Please select an account type to continue."
     },
     "signIn": {
       "fillFields": "Please fill in both email and password.",
@@ -313,5 +315,35 @@
   },
   "propertyDetailsPage": {
     "showQrButton": "Show QR Code"
+  },
+  "agencySetupPage": {
+    "pageTitle": "Agency Company Setup - Property Hub",
+    "mainTitle": "Set Up Your Agency Company",
+    "mainSubtitle": "Please provide your company details below to complete your agency profile.",
+    "logoLabel": "Company Logo (Optional)",
+    "nameLabel": "Company Name",
+    "addressStreetLabel": "Company Address (Street and Number)",
+    "cityLabel": "Company City",
+    "stateLabel": "Company State",
+    "postCodeLabel": "Company Post Code",
+    "emailLabel": "Company Email",
+    "phoneLabel": "Company Phone (Optional)",
+    "websiteLabel": "Company Website (Optional)",
+    "taxIdLabel": "Company Tax ID / VAT Number (Optional)",
+    "saveButton": "Save Company Information"
+  },
+  "agencySetup": {
+    "validation": {
+      "requiredFields": "Please fill in all required fields.",
+      "invalidEmail": "Please enter a valid email address."
+    },
+    "error": {
+      "noSession": "No active session. Please log in again.",
+      "logoUploadFailed": "Logo upload failed: {{message}}",
+      "getPublicUrlFailed": "Failed to get logo URL: {{message}}",
+      "functionInvocationFailed": "Failed to save company details: {{message}}",
+      "unexpected": "An unexpected error occurred: {{message}}"
+    },
+    "success": "Company information saved successfully! Redirecting..."
   }
 }

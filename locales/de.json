@@ -43,7 +43,8 @@
     "accountTypeSubtitle": "Wählen Sie, wie Sie Property Hub nutzen möchten.",
     "accountType": {
       "agency": "Agenturkonto",
-      "user": "Benutzerkonto"
+      "user": "Benutzerkonto",
+      "placeholder": "Bitte wählen Sie einen Kontotyp..."
     },
     "accountTypeLabel": "Kontotyp",
     "continueButton": "Weiter",
@@ -206,7 +207,8 @@
       "accountExists": "Konto existiert bereits, überprüfen Sie Ihre E-Mails zur Bestätigung.",
       "success": "Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mails zur Bestätigung.",
       "successUnexpected": "Registrierung erfolgreich, warte auf Bestätigung (unerwartete Antwort). E-Mail prüfen.",
-      "unexpectedError": "Unerwarteter Registrierungsfehler."
+      "unexpectedError": "Unerwarteter Registrierungsfehler.",
+      "selectAccountTypePrompt": "Bitte wählen Sie einen Kontotyp aus, um fortzufahren."
     },
     "signIn": {
       "fillFields": "Bitte geben Sie sowohl E-Mail als auch Passwort ein.",
@@ -313,5 +315,35 @@
   },
   "propertyDetailsPage": {
     "showQrButton": "QR-Code anzeigen"
+  },
+  "agencySetupPage": {
+    "pageTitle": "Agentur-Setup - Property Hub",
+    "mainTitle": "Richten Sie Ihre Agenturfirma ein",
+    "mainSubtitle": "Bitte geben Sie unten Ihre Firmendetails ein, um Ihr Agenturprofil zu vervollständigen.",
+    "logoLabel": "Firmenlogo (Optional)",
+    "nameLabel": "Firmenname",
+    "addressStreetLabel": "Firmenadresse (Straße und Hausnummer)",
+    "cityLabel": "Stadt",
+    "stateLabel": "Bundesland/Kanton",
+    "postCodeLabel": "Postleitzahl",
+    "emailLabel": "Firmen-E-Mail",
+    "phoneLabel": "Firmentelefon (Optional)",
+    "websiteLabel": "Firmenwebseite (Optional)",
+    "taxIdLabel": "Steuer-ID / USt-IdNr. (Optional)",
+    "saveButton": "Firmeninformationen speichern"
+  },
+  "agencySetup": {
+    "validation": {
+      "requiredFields": "Bitte füllen Sie alle Pflichtfelder aus.",
+      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein."
+    },
+    "error": {
+      "noSession": "Keine aktive Sitzung. Bitte erneut anmelden.",
+      "logoUploadFailed": "Logo-Upload fehlgeschlagen: {{message}}",
+      "getPublicUrlFailed": "Logo-URL konnte nicht abgerufen werden: {{message}}",
+      "functionInvocationFailed": "Speichern der Firmendetails fehlgeschlagen: {{message}}",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten: {{message}}"
+    },
+    "success": "Firmeninformationen erfolgreich gespeichert! Weiterleitung..."
   }
 }
