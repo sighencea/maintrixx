@@ -121,71 +121,73 @@
           <h5 class="mb-0" data-i18n="accountPage.company.title">Company Settings</h5>
         </div>
         <div class="card-body">
-          <form>
-            <div class="row">
-              <div class="col-md-12 mb-3">
-                <label class="form-label" data-i18n="accountPage.company.logoLabel">Company Logo</label>
-                <div class="mb-2 text-center"> <!-- Added text-center for better icon alignment if it's block/inline-block -->
-                  <!-- Placeholder for current logo -->
-                  <i class="bi bi-palette-fill fa-4x text-secondary"></i>
-                </div>
-                <input class="form-control form-control-sm" type="file" id="companyLogoUpload">
-                <small class="form-text text-muted" data-i18n="accountPage.company.logoHelpText">Upload a new logo (e.g., PNG, JPG up to 2MB). Display only, no actual upload.</small>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="companyName" class="form-label" data-i18n="accountPage.company.nameLabel">Company Name</label>
-                <input type="text" class="form-control" id="companyName" value="Example Corp. (Dummy)">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="companyPhone" class="form-label" data-i18n="accountPage.company.phoneLabel">Company Phone</label>
-                <input type="tel" class="form-control" id="companyPhone" value="+1 555 123 4567 (Dummy)">
-              </div>
-            </div>
-
+          <form id="companySettingsForm">
+            <!-- Company Logo -->
             <div class="mb-3">
-              <label for="companyEmail" class="form-label" data-i18n="accountPage.company.emailLabel">Company Contact Email</label>
-              <input type="email" class="form-control" id="companyEmail" value="contact@examplecorp.com (Dummy)">
+              <label for="companyLogo" class="form-label" data-i18n="agencySetupPage.logoLabel">Company Logo (Optional)</label>
+              <input class="form-control" type="file" id="companyLogo" accept="image/*">
+              <div class="mt-2 text-center">
+                <img id="logoPreview" src="#" alt="Logo Preview" class="img-thumbnail" style="max-width: 150px; max-height: 150px; display: none;">
+              </div>
             </div>
 
+            <!-- Company Name -->
             <div class="mb-3">
-              <label for="companyAddressStreet" class="form-label" data-i18n="accountPage.company.streetLabel">Street Address</label>
-              <textarea class="form-control" id="companyAddressStreet" rows="2">123 Main Street (Dummy)</textarea>
+              <label for="companyName" class="form-label" data-i18n="agencySetupPage.nameLabel">Company Name</label>
+              <input type="text" class="form-control" id="companyName" placeholder="Your Company LLC" required>
             </div>
 
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label for="companyAddressCity" class="form-label" data-i18n="accountPage.company.cityLabel">City</label>
-                <input type="text" class="form-control" id="companyAddressCity" value="Anytown (Dummy)">
-              </div>
-              <div class="col-md-3 mb-3">
-                <label for="companyAddressState" class="form-label" data-i18n="accountPage.company.stateLabel">State/Province</label>
-                <input type="text" class="form-control" id="companyAddressState" value="CA (Dummy)">
-              </div>
-              <div class="col-md-2 mb-3">
-                <label for="companyAddressZip" class="form-label" data-i18n="accountPage.company.zipLabel">Zip/Postal Code</label>
-                <input type="text" class="form-control" id="companyAddressZip" value="90210 (Dummy)">
-              </div>
-              <div class="col-md-3 mb-3">
-                <label for="companyAddressCountry" class="form-label" data-i18n="accountPage.company.countryLabel">Country</label>
-                <input type="text" class="form-control" id="companyAddressCountry" value="USA (Dummy)">
-              </div>
+            <!-- Company Address (Street) -->
+            <div class="mb-3">
+              <label for="companyAddressStreet" class="form-label" data-i18n="agencySetupPage.addressStreetLabel">Company Address (Street and Number)</label>
+              <input type="text" class="form-control" id="companyAddressStreet" placeholder="123 Main St" required>
             </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="companyWebsite" class="form-label" data-i18n="accountPage.company.websiteLabel">Company Website (Optional)</label>
-                <input type="url" class="form-control" id="companyWebsite" value="https://www.examplecorp.com (Dummy)">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="companyTaxId" class="form-label" data-i18n="accountPage.company.taxIdLabel">Tax ID / VAT Number (Optional)</label>
-                <input type="text" class="form-control" id="companyTaxId" value="VAT123456789 (Dummy)">
-              </div>
+            <!-- Company City -->
+            <div class="mb-3">
+              <label for="companyCity" class="form-label" data-i18n="agencySetupPage.cityLabel">Company City</label>
+              <input type="text" class="form-control" id="companyCity" placeholder="Anytown" required>
             </div>
-            
-            <button type="submit" class="btn btn-primary" data-i18n="accountPage.company.saveButton">Save Company Settings</button>
+
+            <!-- Company State -->
+            <div class="mb-3">
+              <label for="companyState" class="form-label" data-i18n="agencySetupPage.stateLabel">Company State</label>
+              <input type="text" class="form-control" id="companyState" placeholder="CA" required>
+            </div>
+
+            <!-- Company Post Code -->
+            <div class="mb-3">
+              <label for="companyPostCode" class="form-label" data-i18n="agencySetupPage.postCodeLabel">Company Post Code</label>
+              <input type="text" class="form-control" id="companyPostCode" placeholder="90210" required>
+            </div>
+
+            <!-- Company Email -->
+            <div class="mb-3">
+              <label for="companyEmail" class="form-label" data-i18n="agencySetupPage.emailLabel">Company Email</label>
+              <input type="email" class="form-control" id="companyEmail" placeholder="contact@yourcompany.com" required>
+            </div>
+
+            <!-- Company Phone -->
+            <div class="mb-3">
+              <label for="companyPhone" class="form-label" data-i18n="agencySetupPage.phoneLabel">Company Phone (Optional)</label>
+              <input type="tel" class="form-control" id="companyPhone" placeholder="(555) 123-4567">
+            </div>
+
+            <!-- Company Website -->
+            <div class="mb-3">
+              <label for="companyWebsite" class="form-label" data-i18n="agencySetupPage.websiteLabel">Company Website (Optional)</label>
+              <input type="url" class="form-control" id="companyWebsite" placeholder="https://yourcompany.com">
+            </div>
+
+            <!-- Company Tax ID -->
+            <div class="mb-3">
+              <label for="companyTaxId" class="form-label" data-i18n="agencySetupPage.taxIdLabel">Company Tax ID / VAT Number (Optional)</label>
+              <input type="text" class="form-control" id="companyTaxId" placeholder="Your Tax ID or VAT Number">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 mt-3" id="saveCompanySettingsButton" data-i18n="accountPage.company.saveButton">Save Company Settings</button>
+
+            <div id="companySettingsMessage" class="mt-3"></div>
           </form>
         </div>
       </div>
