@@ -1,4 +1,13 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    // Hide Company Settings for non-admins
+    const isAdminString = localStorage.getItem('userIsAdmin');
+    if (isAdminString === 'false') {
+      const companySettingsSection = document.getElementById('companySettingsSection');
+      if (companySettingsSection) {
+        companySettingsSection.style.display = 'none';
+      }
+    }
+
     // Main page elements
     const fullNameElement = document.getElementById('fullName');
     const emailAddressElement = document.getElementById('emailAddress');
@@ -133,6 +142,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Function to load and display company settings
     async function loadCompanySettings() {
+        // If user is not admin and section is already hidden by initial check, skip loading
+        if (isAdminString === 'false' && document.getElementById('companySettingsSection')?.style.display === 'none') {
+            console.log('Company settings section hidden for non-admin. Skipping loadCompanySettings.');
+            return;
+        }
+
         if (!window._supabase) {
             console.error('Supabase client is not available for company settings.');
             const companySettingsMessage = document.getElementById('companySettingsMessage');
@@ -590,3 +605,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+[end of js/account-details.js]
