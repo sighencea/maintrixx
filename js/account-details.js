@@ -713,9 +713,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 let newAvatarUrl = null;
+                let oldAvatarUrlToDelete = null;
                 const imageFile = profileImageUploadElement ? profileImageUploadElement.files[0] : null;
 
+                // Before uploading, get current avatar_url if a new file is selected
                 if (imageFile) {
+                    const { data: currentProfileData, error: currentProfileError } = await window._supabase
+                        .from('profiles')
+                        .select('avatar_url')
+                        .eq('id', user.id)
+                        .single();
+                    if (currentProfileError) {
+                        console.warn('Could not fetch current avatar_url before upload:', currentProfileError.message);
+                    } else if (currentProfileData && currentProfileData.avatar_url) {
+                        oldAvatarUrlToDelete = currentProfileData.avatar_url;
+                    }
+
                     if(editProfileMessageElement) {
                         editProfileMessageElement.textContent = 'Uploading profile image...';
                         editProfileMessageElement.className = 'alert alert-info';
@@ -774,10 +787,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // If no new image was uploaded and newAvatarUrl is null,
                 // 'avatar_url' is not added to 'updates', so Supabase won't change it.
 
-                const { error: updateError } = await window._supabase
+                const { data: updatedProfile, error: updateError } = await window._supabase
                     .from('profiles')
                     .update(updates)
-                    .eq('id', user.id);
+                    .eq('id', user.id)
+                    .select('avatar_url') // Select the potentially updated avatar_url
+                    .single();
 
                 if (updateError) {
                     console.error('Error updating profile:', updateError);
@@ -788,6 +803,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                     editProfileMessageElement.textContent = 'Profile updated successfully!';
                     editProfileMessageElement.className = 'alert alert-success';
                     editProfileMessageElement.style.display = 'block';
+
+                    // Attempt to delete old avatar AFTER profile update is successful
+                    if (oldAvatarUrlToDelete && newAvatarUrl && oldAvatarUrlToDelete !== newAvatarUrl) {
+                        try {
+                            // Extract file path from URL. Example: .../profile-images/user_userid/image.png
+                            // The path for Supabase storage remove is 'user_userid/image.png'
+                            const oldFilePath = oldAvatarUrlToDelete.substring(oldAvatarUrlToDelete.indexOf(`user_${user.id}/`));
+                            if (oldFilePath) {
+                                console.log(`Attempting to delete old profile image: ${oldFilePath}`);
+                                const { error: deleteError } = await window._supabase.storage
+                                    .from('profile-images')
+                                    .remove([oldFilePath]);
+                                if (deleteError) {
+                                    console.warn('Failed to delete old profile image:', deleteError.message);
+                                    // Do not block success message for this, just log it
+                                } else {
+                                    console.log('Old profile image deleted successfully.');
+                                }
+                            }
+                        } catch (deleteException) {
+                            console.warn('Exception while trying to delete old profile image:', deleteException.message);
+                        }
+                    }
 
                     // Consider calling loadAndDisplayAccountDetails if not reloading
                     window.location.reload(); // Reloads to show changes including avatar
