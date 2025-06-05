@@ -159,12 +159,11 @@ function renderTasks(tasks) {
     let statusText = task.status || 'N/A'; // Default text
 
     // Normalize status for comparison and determine display text
-    console.log('Processing status raw:', task.status, '| Lowercase for switch:', (task.status || '').toLowerCase());
     const lowerCaseStatus = (task.status || '').toLowerCase();
 
     switch (lowerCaseStatus) {
       case 'new':
-        statusSpan.classList.add('badge-custom-yellow');
+        statusSpan.classList.add('badge-custom-blue');
         statusText = 'New';
         break;
       case 'not started':

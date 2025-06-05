@@ -296,6 +296,11 @@ body {
   background-color: #DCFCE7 !important;
 }
 
+.badge-custom-blue {
+  color: #0D6EFD !important; /* Bootstrap primary blue for text */
+  background-color: #E7F0FF !important; /* A very light blue for background */
+}
+
 /* Global Border Color Overrides to #E5E7EB */
 
 /* Form Inputs */
