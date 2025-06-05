@@ -153,7 +153,54 @@
         </div>
         <div class="modal-body">
           <div id="addNewTaskModalBody">
-            <p>New task form will go here...</p>
+            <form id="createTaskForm">
+              <div class="mb-3">
+                <label for="taskTitleInput" class="form-label">Task Title</label>
+                <input type="text" class="form-control" id="taskTitleInput" required>
+              </div>
+              <div class="mb-3">
+                <label for="taskDescriptionInput" class="form-label">Description</label>
+                <textarea class="form-control" id="taskDescriptionInput" rows="3"></textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="taskDueDateInput" class="form-label">Due Date</label>
+                  <input type="date" class="form-control" id="taskDueDateInput">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="taskPriorityInput" class="form-label">Priority</label>
+                  <select class="form-select" id="taskPriorityInput" required>
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="taskStatusInput" class="form-label">Status</label>
+                <select class="form-select" id="taskStatusInput" required>
+                  <option value="New" selected>New</option>
+                  <option value="Not started">Not started</option>
+                  <option value="In progress">In progress</option>
+                  <option value="Done">Done</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="taskPropertySelect" class="form-label">Property</label>
+                <select class="form-select" id="taskPropertySelect" required>
+                  <option value="" selected disabled>Loading properties...</option>
+                  <!-- Property options will be populated here by JavaScript -->
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="taskStaffSelect" class="form-label">Assign to Staff (includes you if applicable)</label>
+                <select class="form-select" id="taskStaffSelect" required>
+                  <option value="" selected disabled>Loading staff...</option>
+                  <!-- Staff options will be populated here by JavaScript -->
+                </select>
+              </div>
+            </form>
           </div>
         </div>
         <div class="modal-footer">

@@ -35,6 +35,139 @@ async function getCurrentUserProfile() {
   }
 }
 
+// Function to populate dropdowns in the Create Task Modal
+async function populateCreateTaskModalDropdowns() {
+  const supabase = window._supabase;
+  if (!supabase) {
+    console.error('Supabase client is not available for populating dropdowns.');
+    // Optionally, update modal to show a general error
+    const propertySelect = document.getElementById('taskPropertySelect');
+    const staffSelect = document.getElementById('taskStaffSelect');
+    if (propertySelect) propertySelect.innerHTML = '<option value="" selected disabled>Error: DB Connection</option>';
+    if (staffSelect) staffSelect.innerHTML = '<option value="" selected disabled>Error: DB Connection</option>';
+    document.getElementById('saveNewTaskBtn').disabled = true;
+    return;
+  }
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    console.error('Error fetching user or no user logged in for dropdowns:', userError);
+    const propertySelect = document.getElementById('taskPropertySelect');
+    const staffSelect = document.getElementById('taskStaffSelect');
+    if (propertySelect) propertySelect.innerHTML = '<option value="" selected disabled>Error: User Auth</option>';
+    if (staffSelect) staffSelect.innerHTML = '<option value="" selected disabled>Error: User Auth</option>';
+    document.getElementById('saveNewTaskBtn').disabled = true;
+    return;
+  }
+
+  let companyId;
+  try {
+    const { data: companyData, error: companyError } = await supabase
+      .from('companies')
+      .select('id')
+      .eq('owner_id', user.id)
+      .single();
+
+    if (companyError || !companyData) {
+      console.error('Error fetching company ID or no company found for user:', companyError);
+      const propertySelect = document.getElementById('taskPropertySelect');
+      const staffSelect = document.getElementById('taskStaffSelect');
+      if (propertySelect) propertySelect.innerHTML = '<option value="" selected disabled>Error: No Company</option>';
+      if (staffSelect) staffSelect.innerHTML = '<option value="" selected disabled>Error: No Company</option>';
+      document.getElementById('saveNewTaskBtn').disabled = true;
+      return;
+    }
+    companyId = companyData.id;
+  } catch (e) {
+    console.error('Exception fetching company ID:', e);
+    const propertySelect = document.getElementById('taskPropertySelect');
+    const staffSelect = document.getElementById('taskStaffSelect');
+    if (propertySelect) propertySelect.innerHTML = '<option value="" selected disabled>Error: Company Exception</option>';
+    if (staffSelect) staffSelect.innerHTML = '<option value="" selected disabled>Error: Company Exception</option>';
+    document.getElementById('saveNewTaskBtn').disabled = true;
+    return;
+  }
+
+  const propertySelect = document.getElementById('taskPropertySelect');
+  const staffSelect = document.getElementById('taskStaffSelect');
+  const saveNewTaskBtn = document.getElementById('saveNewTaskBtn');
+
+  if (!propertySelect || !staffSelect || !saveNewTaskBtn) {
+    console.error('One or more modal elements (propertySelect, staffSelect, saveNewTaskBtn) not found.');
+    // No saveNewTaskBtn.disabled = true here as it might not exist.
+    return;
+  }
+
+  propertySelect.innerHTML = '<option value="" selected disabled>Loading properties...</option>';
+  staffSelect.innerHTML = '<option value="" selected disabled>Loading staff...</option>';
+  propertySelect.disabled = true;
+  staffSelect.disabled = true;
+  saveNewTaskBtn.disabled = true;
+
+  // Fetch properties
+  try {
+    const { data: properties, error: propertiesError } = await supabase
+      .from('properties')
+      .select('id, property_name')
+      .eq('company_id', companyId);
+
+    if (propertiesError) {
+      console.error('Error fetching properties:', propertiesError);
+      propertySelect.innerHTML = '<option value="" selected disabled>Error loading properties</option>';
+    } else {
+      propertySelect.innerHTML = '<option value="" selected disabled>Select a property</option>';
+      if (properties && properties.length > 0) {
+        properties.forEach(prop => {
+          const option = document.createElement('option');
+          option.value = prop.id;
+          option.textContent = prop.property_name;
+          propertySelect.appendChild(option);
+        });
+      } else {
+        propertySelect.innerHTML = '<option value="" selected disabled>No properties found</option>';
+      }
+    }
+  } catch (e) {
+    console.error('Exception fetching properties:', e);
+    propertySelect.innerHTML = '<option value="" selected disabled>Exception loading properties</option>';
+  } finally {
+    propertySelect.disabled = false;
+  }
+
+  // Fetch staff members
+  try {
+    const { data: staffMembers, error: staffError } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name')
+      .eq('company_id', companyId);
+
+    if (staffError) {
+      console.error('Error fetching staff members:', staffError);
+      staffSelect.innerHTML = '<option value="" selected disabled>Error loading staff</option>';
+    } else {
+      staffSelect.innerHTML = '<option value="" selected disabled>Assign to staff</option>';
+      if (staffMembers && staffMembers.length > 0) {
+        staffMembers.forEach(staff => {
+          const option = document.createElement('option');
+          option.value = staff.id;
+          option.textContent = `${staff.first_name || ''} ${staff.last_name || ''}`.trim();
+          staffSelect.appendChild(option);
+        });
+      } else {
+        staffSelect.innerHTML = '<option value="" selected disabled>No staff found</option>';
+      }
+    }
+  } catch (e) {
+    console.error('Exception fetching staff:', e);
+    staffSelect.innerHTML = '<option value="" selected disabled>Exception loading staff</option>';
+  } finally {
+    staffSelect.disabled = false;
+  }
+
+  if (companyId) {
+    saveNewTaskBtn.disabled = false;
+  }
+}
 
 // Asynchronous function to fetch tasks and related data from Supabase
 async function fetchTasksAndRelatedData() {
@@ -251,7 +384,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       // Add event listener for the "Add New Task" button if admin and button exists
       if (addNewTaskBtn && addNewTaskModalInstance) {
-        addNewTaskBtn.addEventListener('click', function() {
+        addNewTaskBtn.addEventListener('click', async function() { // Made async
+          try {
+            await populateCreateTaskModalDropdowns(); // Call the new function
+          } catch (error) {
+            console.error("Error populating create task modal dropdowns:", error);
+            // Modal will still open, dropdowns will show their error/loading state.
+          }
           addNewTaskModalInstance.show();
         });
       }
@@ -291,6 +430,125 @@ document.addEventListener('DOMContentLoaded', async () => {
           editTaskModalBody.innerHTML = `<p>Editing Task ID: ${taskId}</p><p><em>(Edit form will go here)</em></p>`;
         }
         editTaskModalInstance.show();
+      }
+    });
+  }
+
+  // Event listener for the "Save Task" button in the "Add New Task" modal
+  const saveNewTaskButton = document.getElementById('saveNewTaskBtn');
+  if (saveNewTaskButton && addNewTaskModalInstance) {
+    saveNewTaskButton.addEventListener('click', async function(event) {
+      event.preventDefault(); // Good practice, though current button type isn't submit
+
+      const title = document.getElementById('taskTitleInput').value.trim();
+      const description = document.getElementById('taskDescriptionInput').value.trim();
+      const dueDate = document.getElementById('taskDueDateInput').value;
+      const priority = document.getElementById('taskPriorityInput').value; // New field
+      const status = document.getElementById('taskStatusInput').value; // Changed ID
+      const propertyId = document.getElementById('taskPropertySelect').value;
+      const staffId = document.getElementById('taskStaffSelect').value;
+
+      // Client-side validation
+      if (!title) {
+        alert('Task title is required.');
+        return;
+      }
+      if (!propertyId) {
+        alert('Please select a property.');
+        saveNewTaskButton.disabled = false;
+        saveNewTaskButton.textContent = 'Save Task';
+        return;
+      }
+      if (!staffId) {
+        alert('Please assign a staff member.');
+        saveNewTaskButton.disabled = false;
+        saveNewTaskButton.textContent = 'Save Task';
+        return;
+      }
+      if (!priority) {
+        alert('Please select a task priority.');
+        saveNewTaskButton.disabled = false;
+        saveNewTaskButton.textContent = 'Save Task';
+        return;
+      }
+      if (!status) {
+        alert('Please select a task status.');
+        saveNewTaskButton.disabled = false;
+        saveNewTaskButton.textContent = 'Save Task';
+        return;
+      }
+
+      saveNewTaskButton.disabled = true;
+      saveNewTaskButton.textContent = 'Saving...';
+
+      const taskPayload = {
+        task_title: title,
+        task_description: description,
+        task_due_date: dueDate || null,
+        property_id: propertyId,
+        staff_id: staffId,
+        task_status: status, // Value from the new taskStatusInput
+        task_priority: priority // Add new priority field
+      };
+
+      try {
+        if (!window._supabase || !window._supabase.functions) {
+          throw new Error('Supabase client or functions API is not available.');
+        }
+
+        const { data: responseData, error: functionError } = await window._supabase.functions.invoke('create-task', {
+          body: taskPayload
+        });
+
+        if (functionError) {
+          // Attempt to parse Supabase Edge Function error details if available
+          let errMsg = functionError.message;
+          if (functionError.context && functionError.context.error && functionError.context.error.message) {
+            errMsg = functionError.context.error.message;
+          } else if (typeof functionError === 'object' && functionError !== null && functionError.details) {
+             errMsg = functionError.details;
+          }
+          throw new Error(`Function error: ${errMsg}`);
+        }
+
+        // Check for errors returned in the responseData structure itself
+        // This depends on how your Edge Function is structured to return errors.
+        // Assuming your function might return { error: "message" } for application-level errors
+        if (responseData && responseData.error) {
+          throw new Error(responseData.error);
+        }
+
+        // Assuming your function returns { success: true, ... } or similar for success
+        // and might not have a specific success flag but implies success if no error.
+        // If responseData is null or doesn't indicate success explicitly (and no error was thrown),
+        // it might be an unexpected response from the function.
+        if (!responseData) { // Or check for a specific success flag like !responseData.success
+          throw new Error('Task creation failed or function returned an unexpected response. Please try again.');
+        }
+
+        // If functionError was null, but responseData indicates failure (e.g. through a specific field)
+        // Example: if (responseData && responseData.status === 'error') { throw new Error(responseData.message); }
+
+
+        alert('Task created successfully!'); // Replace with a nicer notification if available
+
+        const createTaskForm = document.getElementById('createTaskForm');
+        if (createTaskForm) {
+          createTaskForm.reset();
+        }
+
+        addNewTaskModalInstance.hide();
+
+        // Refresh the tasks list
+        const tasks = await fetchTasksAndRelatedData();
+        renderTasks(tasks);
+
+      } catch (error) {
+        console.error('Error creating task:', error);
+        alert(`Error creating task: ${error.message}`); // Replace with a nicer notification
+      } finally {
+        saveNewTaskButton.disabled = false;
+        saveNewTaskButton.textContent = 'Save Task';
       }
     });
   }
