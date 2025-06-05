@@ -79,7 +79,7 @@ async function fetchTasksAndRelatedData() {
       title: task.task_title,
       property: task.properties ? task.properties.property_name : 'N/A',
       assignedTo: task.profiles ? `${task.profiles.first_name || ''} ${task.profiles.last_name || ''}`.trim() : 'N/A',
-      status: task.task_status,
+      status: task.task_status, // Keep original status for logic
       dueDate: task.task_due_date
     }));
 
@@ -154,7 +154,43 @@ function renderTasks(tasks) {
     tr.appendChild(tdAssignedTo);
 
     const tdStatus = document.createElement('td');
-    tdStatus.textContent = task.status || 'N/A';
+    const statusSpan = document.createElement('span');
+    statusSpan.classList.add('badge-custom-base');
+    let statusText = task.status || 'N/A'; // Default text
+
+    // Normalize status for comparison and determine display text
+    const lowerCaseStatus = (task.status || '').toLowerCase();
+
+    switch (lowerCaseStatus) {
+      case 'new':
+        statusSpan.classList.add('badge-custom-yellow');
+        statusText = 'New';
+        break;
+      case 'not started':
+        statusSpan.style.cssText = "background-color: #F1F3F4; color: #666666;";
+        statusText = 'Not started';
+        break;
+      case 'in progress':
+        statusSpan.classList.add('badge-custom-yellow');
+        statusText = 'In progress'; // Matching filter option
+        break;
+      case 'completed': // Data might have "Completed"
+      case 'done':      // Filter and display use "Done"
+        statusSpan.classList.add('badge-custom-green');
+        statusText = 'Done';
+        break;
+      case 'cancelled':
+        statusSpan.classList.add('badge-custom-red');
+        statusText = 'Cancelled';
+        break;
+      default:
+        // For unknown statuses, use a generic badge or just base styling
+        // statusSpan.classList.add('badge', 'bg-secondary'); // Option for Bootstrap's generic badge
+        statusText = task.status || 'N/A'; // Show original status if not mapped
+        break;
+    }
+    statusSpan.textContent = statusText;
+    tdStatus.appendChild(statusSpan);
     tr.appendChild(tdStatus);
 
     const tdDueDate = document.createElement('td');
