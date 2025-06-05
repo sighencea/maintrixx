@@ -62,7 +62,8 @@
           <div class="row align-items-center">
             <div class="col-md-3 text-center mb-3 mb-md-0">
               <!-- Placeholder for Avatar -->
-              <i class="bi bi-person-circle fa-7x text-secondary"></i>
+              <img id="currentProfileImage" src="#" alt="User Avatar" class="img-fluid rounded-circle" style="width: 120px; height: 120px; object-fit: cover; display: none;">
+              <i id="defaultProfileIcon" class="bi bi-person-circle fa-7x text-secondary" style="display: block;"></i>
               <!-- Or an actual placeholder image: 
               <img src="https://via.placeholder.com/120" class="img-fluid rounded-circle" alt="User Avatar"> 
               -->
@@ -237,6 +238,12 @@
         <form id="editProfileForm">
           <!-- Alert for messages -->
           <div id="editProfileMessage" class="alert" style="display:none;" role="alert"></div>
+
+          <div class="mb-3">
+            <label for="profileImageUpload" class="form-label" data-i18n="accountPage.profile.profileImageLabel">Profile Image</label>
+            <input type="file" id="profileImageUpload" class="form-control" accept="image/*">
+            <img id="profileImagePreviewModal" src="#" alt="Profile Preview" class="img-thumbnail mt-2" style="max-width: 150px; max-height: 150px; display: none;">
+          </div>
 
           <div class="mb-3">
             <label for="modalFirstName" class="form-label">First Name</label>

@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     let companyLogoInput;
     let logoPreview;
     let companySettingsMessage;
+    let profileImageUploadElement;
+    let profileImagePreviewModalElement;
+    let currentProfileImageElement;
+    let defaultProfileIconElement;
 
     // Assign loading state elements early
     profileDataContainer = document.getElementById('profileDataContainer');
@@ -114,13 +118,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         companyLogoInput = document.getElementById('companyLogo');
         logoPreview = document.getElementById('logoPreview');
         companySettingsMessage = document.getElementById('companySettingsMessage');
+        profileImageUploadElement = document.getElementById('profileImageUpload');
+        profileImagePreviewModalElement = document.getElementById('profileImagePreviewModal');
+        currentProfileImageElement = document.getElementById('currentProfileImage');
+        defaultProfileIconElement = document.getElementById('defaultProfileIcon');
 
 
     if (!fullNameElement || !emailAddressElement || !phoneNumberElement || !languageDisplayElement ||
         !editProfileModalElement || !editProfileForm || !modalFirstNameElement || !modalLastNameElement ||
         !modalEmailAddressElement || !modalPhoneNumberElement || !modalLanguageSelectorElement ||
         !saveProfileChangesButton || !editProfileButton || !editProfileMessageElement ||
-        !companySettingsForm || !saveCompanySettingsButton || !companyLogoInput || !logoPreview || !companySettingsMessage) {
+        !companySettingsForm || !saveCompanySettingsButton || !companyLogoInput || !logoPreview || !companySettingsMessage ||
+        !profileImageUploadElement || !profileImagePreviewModalElement || !currentProfileImageElement || !defaultProfileIconElement) {
         console.error('One or more critical elements not found in account.html. Page functionality will be limited.');
         // Hide loading indicator and show data container (even if empty/error)
         if (profileDataContainer && profileLoadingIndicator) {
@@ -165,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const { data: profile, error: profileError } = await window._supabase
                 .from('profiles')
-                .select('first_name, last_name, email, phone_number, preferred_ui_language')
+                .select('first_name, last_name, email, phone_number, preferred_ui_language, avatar_url')
                 .eq('id', user.id)
                 .single();
 
@@ -175,10 +184,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if(emailAddressElement) emailAddressElement.value = 'Error loading profile data';
                 if(phoneNumberElement) phoneNumberElement.value = 'Error loading profile data';
                 if(languageDisplayElement) languageDisplayElement.value = 'Error loading profile data';
+                if(currentProfileImageElement) currentProfileImageElement.style.display = 'none';
+                if(defaultProfileIconElement) defaultProfileIconElement.style.display = 'block';
                 return;
             }
 
             if (profile) {
+                // Display avatar or default icon
+                if (profile.avatar_url) {
+                    if(currentProfileImageElement) {
+                        currentProfileImageElement.src = profile.avatar_url;
+                        currentProfileImageElement.style.display = 'block';
+                    }
+                    if(defaultProfileIconElement) defaultProfileIconElement.style.display = 'none';
+                } else {
+                    if(currentProfileImageElement) currentProfileImageElement.style.display = 'none';
+                    if(defaultProfileIconElement) defaultProfileIconElement.style.display = 'block';
+                }
+
                 const firstName = profile.first_name || '';
                 const lastName = profile.last_name || '';
                 if(fullNameElement) fullNameElement.value = `${firstName} ${lastName}`.trim() || 'Name not set';
@@ -214,6 +237,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if(emailAddressElement) emailAddressElement.value = 'Profile not found';
                 if(phoneNumberElement) phoneNumberElement.value = 'Profile not found';
                 if(languageDisplayElement) languageDisplayElement.value = 'Profile not found';
+                if(currentProfileImageElement) currentProfileImageElement.style.display = 'none';
+                if(defaultProfileIconElement) defaultProfileIconElement.style.display = 'block';
             }
         } catch (error) {
             console.error('An unexpected error occurred in loadAndDisplayAccountDetails:', error);
@@ -221,6 +246,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if(emailAddressElement) emailAddressElement.value = 'Failed to load profile';
             if(phoneNumberElement) phoneNumberElement.value = 'Failed to load profile';
             if(languageDisplayElement) languageDisplayElement.value = 'Failed to load profile';
+            if(currentProfileImageElement) currentProfileImageElement.style.display = 'none';
+            if(defaultProfileIconElement) defaultProfileIconElement.style.display = 'block';
         } finally {
             if (profileDataContainer && profileLoadingIndicator) {
                 profileLoadingIndicator.classList.remove('visible');
@@ -596,9 +623,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 const { data: profile, error: profileErr } = await window._supabase
                     .from('profiles')
-                    .select('first_name, last_name, email, phone_number, preferred_ui_language')
+                    .select('first_name, last_name, email, phone_number, preferred_ui_language, avatar_url')
                     .eq('id', user.id)
                     .single();
+
+                // Reset profile image upload elements
+                if (profileImageUploadElement) profileImageUploadElement.value = null;
+                if (profileImagePreviewModalElement) {
+                    profileImagePreviewModalElement.src = '#';
+                    profileImagePreviewModalElement.style.display = 'none';
+                    // Optionally, if you want to show current avatar in modal preview:
+                    // if (profile && profile.avatar_url) {
+                    //    profileImagePreviewModalElement.src = profile.avatar_url;
+                    //    profileImagePreviewModalElement.style.display = 'block';
+                    // }
+                }
 
                 if (profileErr || !profile) {
                     editProfileMessageElement.textContent = 'Error fetching profile for editing.';
@@ -630,6 +669,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Event Listener for Profile Image Upload
+    if (profileImageUploadElement && profileImagePreviewModalElement) {
+        profileImageUploadElement.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileImagePreviewModalElement.src = e.target.result;
+                    profileImagePreviewModalElement.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                // Optionally hide preview if no file is selected
+                // profileImagePreviewModalElement.src = '#';
+                // profileImagePreviewModalElement.style.display = 'none';
+            }
+        });
+    }
+
     // Handle Save Changes
     if (saveProfileChangesButton && editProfileForm) {
         saveProfileChangesButton.addEventListener('click', async () => {
@@ -654,6 +712,54 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
 
+                let newAvatarUrl = null;
+                const imageFile = profileImageUploadElement ? profileImageUploadElement.files[0] : null;
+
+                if (imageFile) {
+                    if(editProfileMessageElement) {
+                        editProfileMessageElement.textContent = 'Uploading profile image...';
+                        editProfileMessageElement.className = 'alert alert-info';
+                        editProfileMessageElement.style.display = 'block';
+                    }
+
+                    const fileExtension = imageFile.name.split('.').pop();
+                    const fileName = `user_${user.id}/profile_image_${Date.now()}.${fileExtension}`;
+
+                    try {
+                        const { data: uploadData, error: uploadError } = await window._supabase.storage
+                            .from('profile-images')
+                            .upload(fileName, imageFile, {
+                                cacheControl: '3600',
+                                upsert: true
+                            });
+
+                        if (uploadError) {
+                            console.error('Error uploading profile image:', uploadError);
+                            if(editProfileMessageElement) {
+                               editProfileMessageElement.textContent = `Error uploading image: ${uploadError.message}`;
+                               editProfileMessageElement.className = 'alert alert-danger';
+                            }
+                            // Do not return yet, let user decide if they want to save other data or try again
+                        } else {
+                            const { data: publicUrlData } = window._supabase.storage
+                                .from('profile-images')
+                                .getPublicUrl(fileName);
+                            newAvatarUrl = publicUrlData.publicUrl;
+                            if(editProfileMessageElement) {
+                               editProfileMessageElement.textContent = 'Image uploaded. Saving profile...';
+                               // ClassName will be updated by subsequent profile save messages
+                            }
+                        }
+                    } catch (storageError) {
+                        console.error('Supabase storage error:', storageError);
+                        if(editProfileMessageElement) {
+                           editProfileMessageElement.textContent = `Storage error: ${storageError.message}`;
+                           editProfileMessageElement.className = 'alert alert-danger';
+                        }
+                        // Do not return yet
+                    }
+                }
+
                 const updates = {
                     first_name: firstName,
                     last_name: lastName,
@@ -661,6 +767,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     preferred_ui_language: preferredLanguage,
                     updated_at: new Date()
                 };
+
+                if (newAvatarUrl) {
+                    updates.avatar_url = newAvatarUrl;
+                }
+                // If no new image was uploaded and newAvatarUrl is null,
+                // 'avatar_url' is not added to 'updates', so Supabase won't change it.
 
                 const { error: updateError } = await window._supabase
                     .from('profiles')
@@ -677,8 +789,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     editProfileMessageElement.className = 'alert alert-success';
                     editProfileMessageElement.style.display = 'block';
 
-                    window.location.reload();
+                    // Consider calling loadAndDisplayAccountDetails if not reloading
+                    window.location.reload(); // Reloads to show changes including avatar
 
+                    // The following might not be reached if reload is too fast,
+                    // but good for cases where reload is removed or conditional.
                     if (window.loadAndDisplayAccountDetails) {
                         await window.loadAndDisplayAccountDetails();
                     }
@@ -688,14 +803,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                         if (modalInstance) {
                            modalInstance.hide();
                         }
-                        editProfileMessageElement.style.display = 'none';
+                        if (editProfileMessageElement) editProfileMessageElement.style.display = 'none';
                     }, 1500);
                 }
             } catch (e) {
                 console.error('Error saving profile changes:', e);
-                editProfileMessageElement.textContent = 'An unexpected error occurred while saving.';
-                editProfileMessageElement.className = 'alert alert-danger';
-                editProfileMessageElement.style.display = 'block';
+                if(editProfileMessageElement) {
+                    editProfileMessageElement.textContent = 'An unexpected error occurred while saving.';
+                    editProfileMessageElement.className = 'alert alert-danger';
+                    editProfileMessageElement.style.display = 'block';
+                }
             }
         });
     }
