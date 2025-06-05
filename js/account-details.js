@@ -79,24 +79,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editProfileButton = document.getElementById('editProfileButton');
     const editProfileMessageElement = document.getElementById('editProfileMessage');
 
-    // Loading state elements
-    const fullNameElement = document.getElementById('fullName');
-    const emailAddressElement = document.getElementById('emailAddress');
-    const phoneNumberElement = document.getElementById('phoneNumber');
-    const languageDisplayElement = document.getElementById('languageDisplay');
-
-    // Modal elements
-    const editProfileModalElement = document.getElementById('editProfileModal');
-    const editProfileForm = document.getElementById('editProfileForm');
-    const modalFirstNameElement = document.getElementById('modalFirstName');
-    const modalLastNameElement = document.getElementById('modalLastName');
-    const modalEmailAddressElement = document.getElementById('modalEmailAddress');
-    const modalPhoneNumberElement = document.getElementById('modalPhoneNumber');
-    const modalLanguageSelectorElement = document.getElementById('modalLanguageSelector');
-    const saveProfileChangesButton = document.getElementById('saveProfileChanges');
-    const editProfileButton = document.getElementById('editProfileButton');
-    const editProfileMessageElement = document.getElementById('editProfileMessage');
-
     if (!fullNameElement || !emailAddressElement || !phoneNumberElement || !languageDisplayElement ||
         !editProfileModalElement || !editProfileForm || !modalFirstNameElement || !modalLastNameElement ||
         !modalEmailAddressElement || !modalPhoneNumberElement || !modalLanguageSelectorElement ||
