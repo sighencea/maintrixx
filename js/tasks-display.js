@@ -38,30 +38,52 @@ async function getCurrentUserProfile() {
 // Function to populate dropdowns in the Create Task Modal
 async function populateCreateTaskModalDropdowns() {
   const supabase = window._supabase;
+  const saveNewTaskButton = document.getElementById('saveNewTaskBtn'); // Get save button reference
+
+  // Helper to update dropdown and disable save button on error
+  const setDropdownError = (selectElement, message) => {
+    selectElement.innerHTML = `<option value="" selected disabled>${message}</option>`;
+    selectElement.disabled = true;
+    if (saveNewTaskButton) saveNewTaskButton.disabled = true;
+  };
+
+  // Helper to reset/enable save button
+  const enableSaveButton = () => {
+    if (saveNewTaskButton) saveNewTaskButton.disabled = false;
+  };
+
+  // Disable save button initially
+  if (saveNewTaskButton) saveNewTaskButton.disabled = true;
+
   if (!supabase) {
-    console.error('Supabase client is not available for populating dropdowns.');
-    // Optionally, update modal to show a general error
-    const propertySelect = document.getElementById('taskPropertySelect');
-    const staffSelect = document.getElementById('taskStaffSelect');
-    if (propertySelect) propertySelect.innerHTML = '<option value="" selected disabled>Error: DB Connection</option>';
-    if (staffSelect) staffSelect.innerHTML = '<option value="" selected disabled>Error: DB Connection</option>';
-    document.getElementById('saveNewTaskBtn').disabled = true;
+    console.error('Supabase client is not available.');
+    // Potentially update UI to inform user
     return;
   }
 
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
-    console.error('Error fetching user or no user logged in for dropdowns:', userError);
-    const propertySelect = document.getElementById('taskPropertySelect');
-    const staffSelect = document.getElementById('taskStaffSelect');
-    if (propertySelect) propertySelect.innerHTML = '<option value="" selected disabled>Error: User Auth</option>';
-    if (staffSelect) staffSelect.innerHTML = '<option value="" selected disabled>Error: User Auth</option>';
-    document.getElementById('saveNewTaskBtn').disabled = true;
+    console.error('Error fetching user or no user logged in:', userError);
+    // Potentially update UI
     return;
   }
 
-  let companyId;
+  const propertySelect = document.getElementById('taskPropertySelect');
+  const staffSelect = document.getElementById('taskStaffSelect');
+
+  if (!propertySelect || !staffSelect) {
+    console.error('Property or Staff select dropdown not found.');
+    return;
+  }
+
+  // Reset dropdowns to "Loading..."
+  propertySelect.innerHTML = '<option value="" selected disabled>Loading properties...</option>';
+  propertySelect.disabled = true;
+  staffSelect.innerHTML = '<option value="" selected disabled>Loading staff...</option>';
+  staffSelect.disabled = true;
+
   try {
+    // Get company_id for the admin user
     const { data: companyData, error: companyError } = await supabase
       .from('companies')
       .select('id')
@@ -69,103 +91,124 @@ async function populateCreateTaskModalDropdowns() {
       .single();
 
     if (companyError || !companyData) {
-      console.error('Error fetching company ID or no company found for user:', companyError);
-      const propertySelect = document.getElementById('taskPropertySelect');
-      const staffSelect = document.getElementById('taskStaffSelect');
-      if (propertySelect) propertySelect.innerHTML = '<option value="" selected disabled>Error: No Company</option>';
-      if (staffSelect) staffSelect.innerHTML = '<option value="" selected disabled>Error: No Company</option>';
-      document.getElementById('saveNewTaskBtn').disabled = true;
+      console.error('Error fetching company for admin or admin not linked to a company:', companyError);
+      setDropdownError(propertySelect, 'Error loading properties (admin company issue).');
+      setDropdownError(staffSelect, 'Error loading staff (admin company issue).');
       return;
     }
-    companyId = companyData.id;
-  } catch (e) {
-    console.error('Exception fetching company ID:', e);
-    const propertySelect = document.getElementById('taskPropertySelect');
-    const staffSelect = document.getElementById('taskStaffSelect');
-    if (propertySelect) propertySelect.innerHTML = '<option value="" selected disabled>Error: Company Exception</option>';
-    if (staffSelect) staffSelect.innerHTML = '<option value="" selected disabled>Error: Company Exception</option>';
-    document.getElementById('saveNewTaskBtn').disabled = true;
-    return;
-  }
+    const adminCompanyId = companyData.id;
 
-  const propertySelect = document.getElementById('taskPropertySelect');
-  const staffSelect = document.getElementById('taskStaffSelect');
-  const saveNewTaskBtn = document.getElementById('saveNewTaskBtn');
-
-  if (!propertySelect || !staffSelect || !saveNewTaskBtn) {
-    console.error('One or more modal elements (propertySelect, staffSelect, saveNewTaskBtn) not found.');
-    // No saveNewTaskBtn.disabled = true here as it might not exist.
-    return;
-  }
-
-  propertySelect.innerHTML = '<option value="" selected disabled>Loading properties...</option>';
-  staffSelect.innerHTML = '<option value="" selected disabled>Loading staff...</option>';
-  propertySelect.disabled = true;
-  staffSelect.disabled = true;
-  saveNewTaskBtn.disabled = true;
-
-  // Fetch properties
-  try {
+    // Fetch properties
     const { data: properties, error: propertiesError } = await supabase
       .from('properties')
       .select('id, property_name')
-      .eq('company_id', companyId);
+      .eq('company_id', adminCompanyId);
 
     if (propertiesError) {
       console.error('Error fetching properties:', propertiesError);
-      propertySelect.innerHTML = '<option value="" selected disabled>Error loading properties</option>';
-    } else {
+      setDropdownError(propertySelect, `Error: ${propertiesError.message}`);
+    } else if (properties && properties.length > 0) {
       propertySelect.innerHTML = '<option value="" selected disabled>Select a property</option>';
-      if (properties && properties.length > 0) {
-        properties.forEach(prop => {
-          const option = document.createElement('option');
-          option.value = prop.id;
-          option.textContent = prop.property_name;
-          propertySelect.appendChild(option);
-        });
-      } else {
-        propertySelect.innerHTML = '<option value="" selected disabled>No properties found</option>';
-      }
+      properties.forEach(prop => {
+        const option = document.createElement('option');
+        option.value = prop.id;
+        option.textContent = prop.property_name;
+        propertySelect.appendChild(option);
+      });
+      propertySelect.disabled = false;
+    } else {
+      setDropdownError(propertySelect, 'No properties found for your company.');
     }
-  } catch (e) {
-    console.error('Exception fetching properties:', e);
-    propertySelect.innerHTML = '<option value="" selected disabled>Exception loading properties</option>';
-  } finally {
-    propertySelect.disabled = false;
-  }
 
-  // Fetch staff members
-  try {
-    const { data: staffMembers, error: staffError } = await supabase
+    // Fetch staff members
+    let staffMembers = [];
+    const { data: companyStaff, error: staffError } = await supabase
       .from('profiles')
-      .select('id, first_name, last_name')
-      .eq('company_id', companyId);
+      .select('id, first_name, last_name, company_id') // Select company_id for verification
+      .eq('company_id', adminCompanyId);
 
     if (staffError) {
       console.error('Error fetching staff members:', staffError);
-      staffSelect.innerHTML = '<option value="" selected disabled>Error loading staff</option>';
+      setDropdownError(staffSelect, `Error: ${staffError.message}`);
+      // If properties loaded, save button might still be enabled by property logic.
+      // So, ensure it's disabled if staff loading fails critically.
+      if (saveNewTaskButton) saveNewTaskButton.disabled = true;
     } else {
-      staffSelect.innerHTML = '<option value="" selected disabled>Assign to staff</option>';
-      if (staffMembers && staffMembers.length > 0) {
-        staffMembers.forEach(staff => {
-          const option = document.createElement('option');
-          option.value = staff.id;
-          option.textContent = `${staff.first_name || ''} ${staff.last_name || ''}`.trim();
-          staffSelect.appendChild(option);
-        });
+      staffMembers = companyStaff || [];
+    }
+
+    // Fetch the admin's own profile to ensure they can be assigned
+    const { data: adminProfile, error: adminProfileError } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name, company_id')
+      .eq('id', user.id)
+      .single();
+
+    if (adminProfileError) {
+      console.error("Error fetching admin's profile:", adminProfileError);
+      // Non-critical for the overall staff list if other staff loaded, but log it.
+      // The admin might not appear if this fails.
+    } else if (adminProfile) {
+      // Ensure admin's company_id matches the one they are managing tasks for
+      // This is important if an admin could theoretically be part of multiple companies in their profile,
+      // but here we assume their primary company is the one linked via 'companies' table owner_id.
+      // So, we check if their profile's company_id is the one we are currently managing.
+      if (adminProfile.company_id === adminCompanyId) {
+        const isAdminAlreadyInList = staffMembers.some(staff => staff.id === adminProfile.id);
+        if (!isAdminAlreadyInList) {
+          staffMembers.push({ // Push a consistent object structure
+            id: adminProfile.id,
+            first_name: adminProfile.first_name,
+            last_name: adminProfile.last_name
+            // company_id is not strictly needed for dropdown text but good for consistency
+          });
+        }
       } else {
-        staffSelect.innerHTML = '<option value="" selected disabled>No staff found</option>';
+        // This case implies admin's profile.company_id is not set or doesn't match adminCompanyId.
+        // They might still want to assign to themselves if they are the owner.
+        // For now, we require adminProfile.company_id to match adminCompanyId to be listed as staff of *this* company.
+        // A more complex setup might allow an owner to self-assign even if their profile.company_id is different or null,
+        // but that requires careful consideration of how staff are defined.
+        // The current setup is: staff are profiles explicitly linked to the company via profiles.company_id.
+         console.warn(`Admin's profile company_id (${adminProfile.company_id}) does not match the managed company_id (${adminCompanyId}). Admin will not be added to staff list based on this check.`);
       }
     }
-  } catch (e) {
-    console.error('Exception fetching staff:', e);
-    staffSelect.innerHTML = '<option value="" selected disabled>Exception loading staff</option>';
-  } finally {
-    staffSelect.disabled = false;
-  }
 
-  if (companyId) {
-    saveNewTaskBtn.disabled = false;
+    // Remove duplicates just in case (e.g. if admin was already fetched in companyStaff and then again)
+    const uniqueStaffMap = new Map();
+    staffMembers.forEach(staff => uniqueStaffMap.set(staff.id, staff));
+    const uniqueStaffMembers = Array.from(uniqueStaffMap.values());
+
+
+    if (uniqueStaffMembers.length > 0) {
+      staffSelect.innerHTML = '<option value="" selected disabled>Assign to staff</option>';
+      uniqueStaffMembers.forEach(staff => {
+        const option = document.createElement('option');
+        option.value = staff.id;
+        option.textContent = `${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'Unnamed Staff';
+        staffSelect.appendChild(option);
+      });
+      staffSelect.disabled = false;
+    } else if (!staffError) { // Only show "No staff" if there wasn't a loading error
+      setDropdownError(staffSelect, 'No staff found for your company (or admin profile mismatch).');
+    }
+    // If staffError occurred, staffSelect is already in an error state from above.
+
+    // Enable save button only if both properties and staff were loaded (or handled, e.g., "No properties found" is a valid loaded state)
+    // Check if both selects are not in an error state (i.e. enabled)
+    if (!propertySelect.disabled && !staffSelect.disabled) {
+      enableSaveButton();
+    } else {
+      // If either is still disabled (e.g. due to an error or "No items found" which also disables them via setDropdownError), keep save disabled.
+      if (saveNewTaskButton) saveNewTaskButton.disabled = true;
+    }
+
+  } catch (error) {
+    console.error('General error in populateCreateTaskModalDropdowns:', error);
+    setDropdownError(propertySelect, 'Failed to load data.');
+    setDropdownError(staffSelect, 'Failed to load data.');
+    // Ensure save button is disabled on any general error
+    if (saveNewTaskButton) saveNewTaskButton.disabled = true;
   }
 }
 

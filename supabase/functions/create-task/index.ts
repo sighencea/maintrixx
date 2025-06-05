@@ -1,6 +1,11 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+
+// Define CORS headers directly in the function file
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*', // Adjust as necessary for production
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 interface TaskPayload {
   task_title: string;
