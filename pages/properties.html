@@ -46,10 +46,10 @@
         </div>
       </div>
     </div>
-    
-    <div class="container mt-4 p-4 properties-page-content">
-      <!-- Search and Action Buttons -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <div id="pageSpecificContent" style="display: none;">
+      <div class="container mt-4 p-4 properties-page-content">
+        <!-- Search and Action Buttons -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
         <input type="text" placeholder="Search properties..." class="form-control w-50" data-i18n="propertiesPage.searchPlaceholder">
         <div class="d-flex align-items-center">
           <button class="btn btn-outline-secondary me-2" data-i18n="propertiesPage.filterButton"><i class="bi bi-funnel-fill me-1"></i>Filter</button>
@@ -162,5 +162,25 @@
   <script src="../js/lazy-load-properties.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.js" defer></script>
   <script src="../js/addProperty.js" defer></script>
+  </div> <!-- Closing pageSpecificContent -->
+
+  <!-- Access Denied Modal -->
+  <div class="modal fade" id="accessDeniedModal" tabindex="-1" aria-labelledby="accessDeniedModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="accessDeniedModalLabel">Access Denied</h5>
+        </div>
+        <div class="modal-body">
+          <p>You do not have permission to view this page.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="redirectToTasksBtn">Go to My Tasks</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../js/admin-page-guard.js"></script>
 </body>
 </html>
