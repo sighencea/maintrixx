@@ -30,7 +30,9 @@
       const user = data.session.user; // Get the user object
       initializeSignOutButton(); 
       fetchAndDisplayUserProfile(user); // New function call
-      fetchAndDisplayPropertyCount(user.id); // *** NEW CALL ***
+      if (window.location.pathname.includes('/dashboard.html')) {
+        fetchAndDisplayPropertyCount(user.id);
+      }
     }
   }
 
