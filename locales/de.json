@@ -357,5 +357,8 @@
     "optionGerman": "Deutsch",
     "selectLabel": "Sprache",
     "continueButton": "Weiter"
+  },
+  "loadingText": {
+    "profile": "Lade Profilinformationen..."
   }
 }
