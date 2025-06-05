@@ -666,5 +666,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
-
-[end of js/account-details.js]
