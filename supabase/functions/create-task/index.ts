@@ -157,20 +157,25 @@ serve(async (req: Request) => {
     const { data: newTask, error: insertError } = await supabaseClient
       .from('tasks')
       .insert(taskToInsert)
-      .select()
-      .single()
+      .select('task_id') // Explicitly select the task_id (PK of tasks table)
+      .single();
 
-    if (insertError) {
-        console.error('Error inserting task:', insertError);
-        return new Response(JSON.stringify({ error: 'Could not create task', details: insertError.message }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 500,
-        });
+    if (insertError || !newTask || !newTask.task_id) {
+      console.error('Error inserting task or task_id not returned from insert:', insertError, newTask);
+      // Note: `newTask` might be null if RLS prevents reading the row after insert,
+      // or if .single() found no rows (shouldn't happen for a successful insert unless RLS issue).
+      return new Response(JSON.stringify({
+        error: 'Could not create task or retrieve its ID after creation.',
+        details: insertError ? insertError.message : 'Newly created task data (task_id) was not returned after insert. Check RLS SELECT policies on tasks table.',
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500, // Internal Server Error, as the function cannot proceed
+      });
     }
 
     // Now, insert into task_assignments
     const assignmentPayload = {
-      task_id: newTask.id, // ID from the just created task
+      task_id: newTask.task_id, // Ensure this uses .task_id
       user_id: payload.staff_id, // staff_id from the original payload is the user_id to be assigned
       assigned_at: new Date().toISOString(),
     };
@@ -189,7 +194,7 @@ serve(async (req: Request) => {
       return new Response(JSON.stringify({
         error: 'Task created, but failed to assign staff. Please check task assignments.',
         details: assignmentError.message,
-        task_id: newTask.id // Return task_id so client knows main task was made
+        task_id: newTask.task_id // Return task_id so client knows main task was made
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500, // Or a custom status code indicating partial success like 207 Multi-Status if client can handle
