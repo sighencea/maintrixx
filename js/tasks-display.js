@@ -1,6 +1,40 @@
 // Global modal instances
 let viewTaskModalInstance = null;
 let editTaskModalInstance = null;
+let addNewTaskModalInstance = null;
+
+// Asynchronous function to fetch current user's profile (especially admin status)
+async function getCurrentUserProfile() {
+  if (!window._supabase) {
+    console.error('Supabase client is not available.');
+    return null;
+  }
+  const { data: { user }, error: userError } = await window._supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error('Error fetching user or no user logged in:', userError);
+    return null;
+  }
+
+  // Now fetch the profile for this user
+  try {
+    const { data: profile, error: profileError } = await window._supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      return null;
+    }
+    return profile; // Expected to be an object like { is_admin: true/false } or null
+  } catch (e) {
+    console.error('Exception while fetching user profile:', e);
+    return null;
+  }
+}
+
 
 // Asynchronous function to fetch tasks and related data from Supabase
 async function fetchTasksAndRelatedData() {
@@ -157,12 +191,40 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (document.getElementById('editTaskModal')) {
     editTaskModalInstance = new bootstrap.Modal(document.getElementById('editTaskModal'));
   }
+  const addNewTaskModalEl = document.getElementById('addNewTaskModal');
+  if (addNewTaskModalEl) {
+    addNewTaskModalInstance = new bootstrap.Modal(addNewTaskModalEl);
+  }
 
   try {
+    const userProfile = await getCurrentUserProfile();
+    const isAdmin = userProfile ? userProfile.is_admin : false;
+    console.log('User isAdmin status:', isAdmin); // For verification, can be removed later
+
+    // Get DOM elements for staff filter container and add new task button container
+    const staffFilterContainer = document.getElementById('staffFilterContainer');
+    const addNewTaskBtnContainer = document.getElementById('addNewTaskBtnContainer');
+    const addNewTaskBtn = document.getElementById('addNewTaskBtn'); // Still need the button itself for listener
+
+    if (isAdmin) {
+      if (staffFilterContainer) {
+        staffFilterContainer.classList.remove('d-none');
+      }
+      if (addNewTaskBtnContainer) {
+        addNewTaskBtnContainer.classList.remove('d-none');
+      }
+      // Add event listener for the "Add New Task" button if admin and button exists
+      if (addNewTaskBtn && addNewTaskModalInstance) {
+        addNewTaskBtn.addEventListener('click', function() {
+          addNewTaskModalInstance.show();
+        });
+      }
+    }
+
     const tasks = await fetchTasksAndRelatedData();
     renderTasks(tasks);
   } catch (error) {
-    console.error('Error during page initialization or task fetching:', error);
+    console.error('Error during page initialization, user profile fetching, or task fetching:', error);
     const tasksTableBody = document.getElementById('tasksTableBody');
     if (tasksTableBody) {
       tasksTableBody.innerHTML = `<tr><td colspan="6">Failed to load tasks. Error: ${error.message}</td></tr>`;
@@ -171,7 +233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Setup event delegation for task actions
+  // Setup event delegation for task actions (view/edit)
   const tasksTableBody = document.getElementById('tasksTableBody');
   if (tasksTableBody) {
     tasksTableBody.addEventListener('click', function(event) {
