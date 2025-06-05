@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Example: if (responseData && responseData.status === 'error') { throw new Error(responseData.message); }
 
 
-        alert('Task created successfully!'); // Replace with a nicer notification if available
+        // alert('Task created successfully!'); // Removed as per request
 
         const createTaskForm = document.getElementById('createTaskForm');
         if (createTaskForm) {
