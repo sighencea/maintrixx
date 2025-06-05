@@ -161,17 +161,46 @@ serve(async (req: Request) => {
       .single()
 
     if (insertError) {
-      console.error('Error inserting task:', insertError)
-      return new Response(JSON.stringify({ error: 'Could not create task', details: insertError.message }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
-      })
+        console.error('Error inserting task:', insertError);
+        return new Response(JSON.stringify({ error: 'Could not create task', details: insertError.message }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500,
+        });
     }
 
-    return new Response(JSON.stringify({ success: true, data: newTask }), {
+    // Now, insert into task_assignments
+    const assignmentPayload = {
+      task_id: newTask.id, // ID from the just created task
+      user_id: payload.staff_id, // staff_id from the original payload is the user_id to be assigned
+      assigned_at: new Date().toISOString(),
+    };
+
+    const { error: assignmentError } = await supabaseClient
+      .from('task_assignments')
+      .insert(assignmentPayload);
+
+    if (assignmentError) {
+      console.error('Error inserting into task_assignments:', assignmentError);
+      // If task assignment fails, we should ideally either roll back the task creation
+      // or at least inform the client that the main task was created but assignment failed.
+      // For now, return an error indicating partial failure.
+      // A more robust solution might involve transactions if your database supports them easily via Supabase,
+      // or a compensation mechanism.
+      return new Response(JSON.stringify({
+        error: 'Task created, but failed to assign staff. Please check task assignments.',
+        details: assignmentError.message,
+        task_id: newTask.id // Return task_id so client knows main task was made
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500, // Or a custom status code indicating partial success like 207 Multi-Status if client can handle
+      });
+    }
+
+    // If both task and assignment insertions are successful
+    return new Response(JSON.stringify({ success: true, data: newTask, assignment_message: 'Task and initial assignment created successfully.' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 201, // 201 Created
-    })
+      status: 201,
+    });
 
   } catch (error) {
     console.error('General error in create-task function:', error)
