@@ -1,4 +1,36 @@
+// Function to update sidebar based on admin status
+function updateSidebarForPermissions() {
+  const isAdminString = localStorage.getItem('userIsAdmin');
+  // Only hide links if userIsAdmin is explicitly 'false'.
+  // If null/undefined (not logged in, or status not set), links remain visible.
+  // Access control to pages themselves should be handled by dashboard_check.js or similar.
+  if (isAdminString === 'false') {
+    const navLinksToHide = [
+      'dashboard.html',
+      'properties.html',
+      'staff.html'
+      // 'tasks.html' should remain visible for non-admins
+      // 'notifications.html' can remain visible for all
+    ];
+
+    navLinksToHide.forEach(href => {
+      // Query for the <a> tag first
+      const linkElement = document.querySelector(`.nav-menu li a[href="${href}"]`);
+      if (linkElement && linkElement.parentElement) {
+        // Then hide its parent <li> element
+        linkElement.parentElement.style.display = 'none';
+      }
+    });
+  }
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
+  // Call updateSidebarForPermissions early to adjust UI based on stored admin status
+  // This is especially relevant for pages loaded after login, like dashboard, tasks, etc.
+  // On index.html, userIsAdmin might not be set yet, so it won't hide anything.
+  updateSidebarForPermissions();
+
   // Form and Section Elements
   const signInForm = document.getElementById('signInForm');
   const signUpForm = document.getElementById('signUpForm');
@@ -250,8 +282,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (profileError) {
               console.error('Error saving verification code to profile during sign-up:', profileError);
-              // Log this error, but proceed with user sign-up success message as auth.user was created.
-              // The user will still get a verification email. The 6-digit code is an additional factor.
             } else {
               console.log('Successfully inserted verification code for user:', userId);
             }
@@ -275,7 +305,6 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         } else {
           let firstNameDebugMessage = " (Debug: first_name NOT seen in user_metadata)";
-          // It's unlikely user_metadata would be available here if data.user is not, but for consistency:
           if (data && data.user && data.user.user_metadata && data.user.user_metadata.first_name) {
              firstNameDebugMessage = " (Debug: first_name '" + data.user.user_metadata.first_name + "' seen in user_metadata)";
           }
@@ -295,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Sign-In Logic (formerly loginForm, ID of form is 'signInForm')
+  // Sign-In Logic
   if (signInForm) {
     console.log('Sign-in form listener attached.');
     signInForm.addEventListener('submit', async function (event) {
@@ -303,12 +332,12 @@ document.addEventListener('DOMContentLoaded', function () {
       if (resendModal) resendModal.hide();
       if (signInMessage) { signInMessage.textContent = ''; signInMessage.className = '';}
 
-      const email = document.getElementById('signInEmail').value; // Use specific ID
-      const password = document.getElementById('signInPassword').value; // Use specific ID
+      const email = document.getElementById('signInEmail').value;
+      const password = document.getElementById('signInPassword').value;
 
       if (!email || !password) { 
         if (signInMessage) {
-            signInMessage.textContent = i18next.t('mainJs.signIn.fillFields'); // Assumes mainJs.signIn keys
+            signInMessage.textContent = i18next.t('mainJs.signIn.fillFields');
             signInMessage.className = 'alert alert-warning';
         }
         return; 
@@ -316,15 +345,15 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         if (!window._supabase) { 
           if (signInMessage) {
-            signInMessage.textContent = i18next.t('mainJs.signIn.supabaseInitError'); // Assumes mainJs.signIn keys
+            signInMessage.textContent = i18next.t('mainJs.signIn.supabaseInitError');
             signInMessage.className = 'alert alert-danger';
           }
           console.error('Supabase client not available for sign-in.'); return;
         }
-        const { data, error } = await window._supabase.auth.signInWithPassword({ email: email, password: password });
+        const { data: authData, error: authError } = await window._supabase.auth.signInWithPassword({ email: email, password: password });
         
-        if (error) {
-          if (error.message && (error.message.includes('Email not confirmed') || error.message.includes('Please confirm your email'))) {
+        if (authError) {
+          if (authError.message && (authError.message.includes('Email not confirmed') || authError.message.includes('Please confirm your email'))) {
             if (signInMessage) {
                 signInMessage.textContent = i18next.t('resendVerification.alertEmailNotVerifiedResend');
                 signInMessage.className = 'alert alert-info';
@@ -334,185 +363,145 @@ document.addEventListener('DOMContentLoaded', function () {
             if (resendModal) resendModal.show();
           } else {
             if (signInMessage) {
-                signInMessage.textContent = i18next.t('mainJs.signIn.signInFailed', { message: error.message }); // Assumes mainJs.signIn keys
+                signInMessage.textContent = i18next.t('mainJs.signIn.signInFailed', { message: authError.message });
                 signInMessage.className = 'alert alert-danger';
             }
           }
-        } else if (data.user) {
+        } else if (authData.user) {
           if (resendModal) resendModal.hide();
-          // signInMessage.textContent = i18next.t('mainJs.signIn.success'); // Clear previous success message
-          // signInMessage.className = 'alert alert-success'; // Don't show success yet
+          const userId = authData.user.id;
 
-          const userId = data.user.id;
-          try {
-            const { data: profile, error: profileError } = await window._supabase
-              .from('profiles')
-              .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin') // Fetched more fields
-              .eq('id', userId)
-              .single();
+          // Fetch profile immediately after successful auth
+          const { data: initialProfile, error: initialProfileError } = await window._supabase
+            .from('profiles')
+            .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin')
+            .eq('id', userId)
+            .single();
 
-            if (profileError) {
-              console.error('Error fetching profile from Supabase:', profileError);
-              if (signInMessage) {
-                signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
-                signInMessage.className = 'alert alert-danger';
-              }
-              return;
-            } else if (!profile) {
-              console.warn('User profile not found for user_id:', userId);
-              if (signInMessage) {
-                signInMessage.textContent = i18next.t('mainJs.signIn.profileNotFound');
-                signInMessage.className = 'alert alert-danger';
-              }
-              return;
+          if (initialProfileError || !initialProfile) {
+            console.error('Error fetching initial profile or profile not found:', initialProfileError);
+            if (signInMessage) {
+              signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
+              signInMessage.className = 'alert alert-danger';
+            }
+            return;
+          }
+
+          // Store isAdmin status early
+          const isAdmin = initialProfile ? initialProfile.is_admin : false;
+          localStorage.setItem('userIsAdmin', isAdmin.toString());
+          updateSidebarForPermissions(); // Update sidebar immediately after setting admin status
+
+          if (initialProfile.is_verified_by_code) {
+            if (signInMessage) {
+              signInMessage.textContent = i18next.t('mainJs.signIn.successVerificationDone');
+              signInMessage.className = 'alert alert-success';
+            }
+            if (!isAdmin) {
+                localStorage.setItem('onboardingComplete', 'true'); // Non-admins might not have company setup
+                window.location.href = 'pages/tasks.html';
+            } else { // isAdmin is true
+                if (initialProfile.has_company_set_up === false) {
+                    currentUserIdForLanguagePref = userId;
+                    localStorage.removeItem('onboardingComplete');
+                    if (languageSelectionModalInstance) languageSelectionModalInstance.show();
+                } else {
+                    localStorage.setItem('onboardingComplete', 'true');
+                    window.location.href = 'pages/dashboard.html';
+                }
+            }
+          } else {
+            // Show 6-digit code modal
+            if (signInMessage) signInMessage.textContent = '';
+
+            if (!sixDigitCodeModalInstance && sixDigitCodeModalEl) {
+              sixDigitCodeModalInstance = new bootstrap.Modal(sixDigitCodeModalEl);
             }
 
-            if (profile.is_verified_by_code) {
-              if (signInMessage) {
-                signInMessage.textContent = i18next.t('mainJs.signIn.successVerificationDone'); // e.g. "Sign in successful. Checking account status..."
-                signInMessage.className = 'alert alert-success';
+            if (sixDigitCodeModalInstance) {
+              if (sixDigitCodeInput) sixDigitCodeInput.value = '';
+              if (sixDigitCodeMessage) {
+                sixDigitCodeMessage.textContent = '';
+                sixDigitCodeMessage.className = '';
               }
-              // Check if company is set up
-              if (profile.has_company_set_up === false) {
-                // User is verified but company not set up
-                currentUserIdForLanguagePref = userId;
-                localStorage.removeItem('onboardingComplete'); // Ensure it's not set
-                if (languageSelectionModalInstance) languageSelectionModalInstance.show();
-                // window.location.href = 'pages/agency_setup_page.html'; // Old logic
-              } else {
-                // User is verified and company is set up
-                localStorage.setItem('onboardingComplete', 'true');
-                window.location.href = 'pages/dashboard.html';
-              }
-            } else {
-              // Show 6-digit code modal
-              if (signInMessage) signInMessage.textContent = ''; // Clear any previous sign-in messages
+              sixDigitCodeModalInstance.show();
 
-              if (!sixDigitCodeModalInstance && sixDigitCodeModalEl) {
-                sixDigitCodeModalInstance = new bootstrap.Modal(sixDigitCodeModalEl);
-              }
-
-              if (sixDigitCodeModalInstance) {
-                if (sixDigitCodeInput) sixDigitCodeInput.value = '';
-                if (sixDigitCodeMessage) {
-                  sixDigitCodeMessage.textContent = '';
-                  sixDigitCodeMessage.className = '';
-                }
-                
-                // Update modal title/description if needed, using data-i18n attributes is preferred
-                // document.getElementById('sixDigitCodeModalLabel').textContent = i18next.t('sixDigitCodeModal.title');
-                // sixDigitCodeModalEl.querySelector('.modal-body p').textContent = i18next.t('sixDigitCodeModal.description');
-
-                sixDigitCodeModalInstance.show();
-
-                // Ensure event listener is not duplicated if this path can be hit multiple times
-                // For simplicity, remove and re-add, or use a flag.
-                // A better approach for complex scenarios: define handler outside and manage it.
-                const handleSubmitCode = async () => {
-                  const enteredCode = sixDigitCodeInput ? sixDigitCodeInput.value : '';
-                  if (!enteredCode || !/^\d{8}$/.test(enteredCode)) {
-                    if (sixDigitCodeMessage) {
-                      sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.invalidInput'); // Create i18n key
-                      sixDigitCodeMessage.className = 'alert alert-warning';
-                    }
-                    return;
+              const handleSubmitCode = async () => {
+                const enteredCode = sixDigitCodeInput ? sixDigitCodeInput.value : '';
+                if (!enteredCode || !/^\d{8}$/.test(enteredCode)) {
+                  if (sixDigitCodeMessage) {
+                    sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.invalidInput');
+                    sixDigitCodeMessage.className = 'alert alert-warning';
                   }
+                  return;
+                }
 
-                  if (enteredCode.trim() === String(profile.verification_code).trim()) {
-                    const { error: updateError } = await window._supabase
-                      .from('profiles')
-                      .update({ is_verified_by_code: true })
-                      .eq('id', userId);
+                if (enteredCode.trim() === String(initialProfile.verification_code).trim()) {
+                  const { error: updateError } = await window._supabase
+                    .from('profiles')
+                    .update({ is_verified_by_code: true })
+                    .eq('id', userId);
 
-                    if (updateError) {
-                      console.error('Error updating profile verification status:', updateError.message);
-                      if (sixDigitCodeMessage) {
-                        sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.updateError'); // Create i18n key
-                        sixDigitCodeMessage.className = 'alert alert-danger';
-                      }
-                    } else {
-                      if (sixDigitCodeMessage) {
-                        sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.success'); // Create i18n key
-                        sixDigitCodeMessage.className = 'alert alert-success';
-                      }
-                      if (sixDigitCodeModalInstance) sixDigitCodeModalInstance.hide();
-                      
-                      // Fetch updated profile to check has_company_set_up
-                      const { data: updatedProfile, error: fetchError } = await window._supabase
-                        .from('profiles')
-                        .select('id, has_company_set_up, is_admin')
-                        .eq('id', userId)
-                        .single();
-
-                      if (fetchError || !updatedProfile) {
-                        console.error('Error fetching updated profile after 6-digit code verification:', fetchError);
-                        if (signInMessage) {
-                            signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailedAfterVerification');
-                            signInMessage.className = 'alert alert-warning';
-                        }
-                        // Fallback to dashboard to prevent user being stuck
-                        localStorage.setItem('onboardingComplete', 'true');
-                        window.location.href = 'pages/dashboard.html';
-                      } else {
-                        if (signInMessage) {
-                           signInMessage.textContent = i18next.t('mainJs.signIn.verificationSuccessCheckStatus');
-                           signInMessage.className = 'alert alert-success';
-                        }
-                        if (updatedProfile.has_company_set_up === false) {
-                          currentUserIdForLanguagePref = userId;
-                          localStorage.removeItem('onboardingComplete'); // Ensure it's not set
-                          if (languageSelectionModalInstance) languageSelectionModalInstance.show();
-                          // window.location.href = 'pages/agency_setup_page.html'; // Old logic
-                        } else {
-                          localStorage.setItem('onboardingComplete', 'true');
-                          window.location.href = 'pages/dashboard.html';
-                        }
-                      }
+                  if (updateError) {
+                    console.error('Error updating profile verification status:', updateError.message);
+                    if (sixDigitCodeMessage) {
+                      sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.updateError');
+                      sixDigitCodeMessage.className = 'alert alert-danger';
                     }
                   } else {
                     if (sixDigitCodeMessage) {
-                      sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.incorrectCode'); // Create i18n key
-                      sixDigitCodeMessage.className = 'alert alert-danger';
+                      sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.success');
+                      sixDigitCodeMessage.className = 'alert alert-success';
+                    }
+                    if (sixDigitCodeModalInstance) sixDigitCodeModalInstance.hide();
+
+                    // isAdmin status is already in localStorage from initialProfile fetch.
+                    // Re-apply redirection logic based on isAdmin and has_company_set_up.
+                    if (!isAdmin) { // isAdmin was determined from initialProfile
+                        localStorage.setItem('onboardingComplete', 'true');
+                        window.location.href = 'pages/tasks.html';
+                    } else { // isAdmin is true
+                        if (initialProfile.has_company_set_up === false) {
+                            currentUserIdForLanguagePref = userId;
+                            localStorage.removeItem('onboardingComplete');
+                            if (languageSelectionModalInstance) languageSelectionModalInstance.show();
+                        } else {
+                            localStorage.setItem('onboardingComplete', 'true');
+                            window.location.href = 'pages/dashboard.html';
+                        }
                     }
                   }
-                };
-                
-                // Manage event listener for submitSixDigitCodeButton
-                // To prevent multiple listeners, clone and replace the button, or use a flag/remove first.
-                // Simple approach: remove if exists, then add.
-                if (submitSixDigitCodeButton) {
-                    const newButton = submitSixDigitCodeButton.cloneNode(true);
-                    submitSixDigitCodeButton.parentNode.replaceChild(newButton, submitSixDigitCodeButton);
-                    newButton.addEventListener('click', handleSubmitCode);
-                    // Update reference to the button if needed elsewhere, though here it's local to this scope.
-                    // submitSixDigitCodeButton = newButton; // If it were a global/module-scoped variable
+                } else {
+                  if (sixDigitCodeMessage) {
+                    sixDigitCodeMessage.textContent = i18next.t('sixDigitCodeModal.incorrectCode');
+                    sixDigitCodeMessage.className = 'alert alert-danger';
+                  }
                 }
+              };
 
-              } else {
-                console.error('Six digit code modal element not found or failed to initialize.');
-                if (signInMessage) {
-                    signInMessage.textContent = i18next.t('mainJs.signIn.modalError'); // Create i18n key
-                    signInMessage.className = 'alert alert-danger';
-                }
+              if (submitSixDigitCodeButton) {
+                  const newButton = submitSixDigitCodeButton.cloneNode(true);
+                  submitSixDigitCodeButton.parentNode.replaceChild(newButton, submitSixDigitCodeButton);
+                  newButton.addEventListener('click', handleSubmitCode);
               }
-            }
-          } catch (fetchProfileError) {
-            console.error('Catch block: Error fetching profile or during 6-digit code flow:', fetchProfileError.message);
-            if (signInMessage) {
-              signInMessage.textContent = i18next.t('mainJs.signIn.unexpectedProfileError'); // Create i18n key
-              signInMessage.className = 'alert alert-danger';
+            } else {
+              console.error('Six digit code modal element not found or failed to initialize.');
+              if (signInMessage) {
+                  signInMessage.textContent = i18next.t('mainJs.signIn.modalError');
+                  signInMessage.className = 'alert alert-danger';
+              }
             }
           }
         } else { 
           if (signInMessage) {
-            signInMessage.textContent = i18next.t('mainJs.signIn.signInFailedCheckCredentials'); // Assumes mainJs.signIn keys
+            signInMessage.textContent = i18next.t('mainJs.signIn.signInFailedCheckCredentials');
             signInMessage.className = 'alert alert-danger';
           }
         }
       } catch (e) { 
         console.error('Sign-in catch:', e);
         if (signInMessage) {
-            signInMessage.textContent = i18next.t('mainJs.signIn.unexpectedError'); // Assumes mainJs.signIn keys
+            signInMessage.textContent = i18next.t('mainJs.signIn.unexpectedError');
             signInMessage.className = 'alert alert-danger';
         }
       }
@@ -546,10 +535,8 @@ document.addEventListener('DOMContentLoaded', function () {
           localStorage.setItem('preferredLang', selectedLang);
           if (window.i18next) {
             await window.i18next.changeLanguage(selectedLang);
-            // Potentially re-translate static elements if any are visible behind modal, though usually not necessary
           }
           if (languageSelectionModalInstance) languageSelectionModalInstance.hide();
-          // Now redirect to agency setup page
           window.location.href = 'pages/agency_setup_page.html';
         }
       } catch (e) {
@@ -557,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function () {
         alert(i18next.t('mainJs.languageModal.unexpectedError', { message: e.message }) || `An unexpected error occurred: ${e.message}`);
       } finally {
         this.disabled = false;
-        currentUserIdForLanguagePref = null; // Clear the user ID after attempt
+        currentUserIdForLanguagePref = null;
       }
     });
   }
@@ -586,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         if (!window._supabase) {
           if (resendFeedbackMessageModal) {
-            resendFeedbackMessageModal.textContent = i18next.t('mainJs.signup.supabaseInitError'); // Generic enough
+            resendFeedbackMessageModal.textContent = i18next.t('mainJs.signup.supabaseInitError');
             resendFeedbackMessageModal.className = 'alert alert-danger d-block';
           }
           return;
@@ -612,8 +599,6 @@ document.addEventListener('DOMContentLoaded', function () {
             resendFeedbackMessageModal.textContent = i18next.t('resendVerification.feedbackSuccess', { email: emailToResend });
             resendFeedbackMessageModal.className = 'alert alert-success d-block';
           }
-          // Optionally hide modal after a delay, or let user close it.
-          // setTimeout(() => { if (resendModal) resendModal.hide(); }, 3000);
         }
       } catch (e) {
         console.error('Resend email modal catch:', e);
@@ -637,13 +622,12 @@ document.addEventListener('DOMContentLoaded', function () {
           const { error } = await window._supabase.auth.signOut();
           if (error) {
             console.error('Error signing out:', error.message);
-            alert('Error signing out: ' + error.message); // Or handle more gracefully
+            alert('Error signing out: ' + error.message);
           } else {
             console.log('User signed out successfully.');
-            // Clear any session-related local storage if necessary (onboardingComplete is one example)
             localStorage.removeItem('onboardingComplete');
-            // Redirect to login page (index.html)
-            window.location.href = '../index.html'; // Assuming js/main.js is in js/ folder, so ../index.html
+            localStorage.removeItem('userIsAdmin'); // Clear admin status on sign out
+            window.location.href = '../index.html';
           }
         } catch (e) {
           console.error('Exception during sign out:', e);
@@ -654,26 +638,23 @@ document.addEventListener('DOMContentLoaded', function () {
         alert('Supabase client not available. Cannot sign out.');
       }
     });
-  } else {
-    // This else block can be removed if pages without the button are expected.
-    // For debugging during development, it can be useful.
-    // console.log('Global sign out button not found on this page.');
   }
 });
 
-// Sidebar Toggler Logic (This remains unchanged and in its own DOMContentLoaded listener)
+// Sidebar Toggler Logic
 document.addEventListener('DOMContentLoaded', function() {
+  updateSidebarForPermissions(); // Also call here for pages that might not have the main auth logic DOM
+
   const sidebar = document.getElementById('sidebar');
   const sidebarToggler = document.getElementById('sidebarToggler');
-  const sidebarOverlay = document.querySelector('.sidebar-overlay'); // Get the overlay
+  const sidebarOverlay = document.querySelector('.sidebar-overlay');
 
-  if (sidebar && sidebarToggler && sidebarOverlay) { // Check for overlay too
+  if (sidebar && sidebarToggler && sidebarOverlay) {
     sidebarToggler.addEventListener('click', function() {
       sidebar.classList.toggle('active');
-      sidebarOverlay.classList.toggle('active'); // Toggle overlay's active class
+      sidebarOverlay.classList.toggle('active');
     });
 
-    // Optional: Close sidebar if overlay is clicked
     sidebarOverlay.addEventListener('click', function() {
       sidebar.classList.remove('active');
       sidebarOverlay.classList.remove('active');
