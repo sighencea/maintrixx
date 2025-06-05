@@ -1,11 +1,21 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // Hide Company Settings for non-admins
+    console.log('[ACCDETAILS_DEBUG] DOMContentLoaded triggered.');
     const isAdminString = localStorage.getItem('userIsAdmin');
+    console.log('[ACCDETAILS_DEBUG] userIsAdmin from localStorage:', isAdminString);
+
     if (isAdminString === 'false') {
+      console.log('[ACCDETAILS_DEBUG] User is not admin, attempting to hide Company Settings.');
       const companySettingsSection = document.getElementById('companySettingsSection');
       if (companySettingsSection) {
+        console.log('[ACCDETAILS_DEBUG] Found companySettingsSection element:', companySettingsSection);
         companySettingsSection.style.display = 'none';
+        console.log('[ACCDETAILS_DEBUG] companySettingsSection style.display set to none.');
+      } else {
+        console.error('[ACCDETAILS_DEBUG] companySettingsSection element NOT found!');
       }
+    } else {
+      console.log('[ACCDETAILS_DEBUG] User is admin or status unclear, Company Settings should remain visible. isAdminString:', isAdminString);
     }
 
     // Main page elements
@@ -144,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function loadCompanySettings() {
         // If user is not admin and section is already hidden by initial check, skip loading
         if (isAdminString === 'false' && document.getElementById('companySettingsSection')?.style.display === 'none') {
-            console.log('Company settings section hidden for non-admin. Skipping loadCompanySettings.');
+            console.log('[ACCDETAILS_DEBUG] Company settings section hidden for non-admin. Skipping loadCompanySettings.');
             return;
         }
 
