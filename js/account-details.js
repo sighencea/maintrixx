@@ -1,10 +1,34 @@
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('[ACCDETAILS_DEBUG] DOMContentLoaded triggered.');
 
-    // Loading state elements
-    const profileDataContainer = document.getElementById('profileDataContainer');
-    const profileLoadingIndicator = document.getElementById('profileLoadingIndicator');
-    const companySettingsSection = document.getElementById('companySettingsSection');
+    // Declare variables at a higher scope
+    let profileDataContainer;
+    let profileLoadingIndicator;
+    let companySettingsSection;
+    let fullNameElement;
+    let emailAddressElement;
+    let phoneNumberElement;
+    let languageDisplayElement;
+    let editProfileModalElement;
+    let editProfileForm;
+    let modalFirstNameElement;
+    let modalLastNameElement;
+    let modalEmailAddressElement;
+    let modalPhoneNumberElement;
+    let modalLanguageSelectorElement;
+    let saveProfileChangesButton;
+    let editProfileButton;
+    let editProfileMessageElement;
+    let companySettingsForm;
+    let saveCompanySettingsButton;
+    let companyLogoInput;
+    let logoPreview;
+    let companySettingsMessage;
+
+    // Assign loading state elements early
+    profileDataContainer = document.getElementById('profileDataContainer');
+    profileLoadingIndicator = document.getElementById('profileLoadingIndicator');
+    companySettingsSection = document.getElementById('companySettingsSection');
 
     async function checkAdminStatusAndApplyUI() {
         try {
@@ -52,6 +76,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
+        // Assign elements within the try block or before first use
+        profileDataContainer = document.getElementById('profileDataContainer');
+        profileLoadingIndicator = document.getElementById('profileLoadingIndicator');
+        companySettingsSection = document.getElementById('companySettingsSection');
+
         if (profileDataContainer && profileLoadingIndicator) {
             profileDataContainer.style.display = 'none';
             profileLoadingIndicator.classList.add('visible');
@@ -62,43 +91,54 @@ document.addEventListener('DOMContentLoaded', async () => {
         await checkAdminStatusAndApplyUI();
 
         // Main page elements
-    const fullNameElement = document.getElementById('fullName');
-    const emailAddressElement = document.getElementById('emailAddress');
-    const phoneNumberElement = document.getElementById('phoneNumber');
-    const languageDisplayElement = document.getElementById('languageDisplay');
+        fullNameElement = document.getElementById('fullName');
+        emailAddressElement = document.getElementById('emailAddress');
+        phoneNumberElement = document.getElementById('phoneNumber');
+        languageDisplayElement = document.getElementById('languageDisplay');
 
-    // Modal elements
-    const editProfileModalElement = document.getElementById('editProfileModal');
-    const editProfileForm = document.getElementById('editProfileForm');
-    const modalFirstNameElement = document.getElementById('modalFirstName');
-    const modalLastNameElement = document.getElementById('modalLastName');
-    const modalEmailAddressElement = document.getElementById('modalEmailAddress');
-    const modalPhoneNumberElement = document.getElementById('modalPhoneNumber');
-    const modalLanguageSelectorElement = document.getElementById('modalLanguageSelector');
-    const saveProfileChangesButton = document.getElementById('saveProfileChanges');
-    const editProfileButton = document.getElementById('editProfileButton');
-    const editProfileMessageElement = document.getElementById('editProfileMessage');
+        // Modal elements
+        editProfileModalElement = document.getElementById('editProfileModal');
+        editProfileForm = document.getElementById('editProfileForm');
+        modalFirstNameElement = document.getElementById('modalFirstName');
+        modalLastNameElement = document.getElementById('modalLastName');
+        modalEmailAddressElement = document.getElementById('modalEmailAddress');
+        modalPhoneNumberElement = document.getElementById('modalPhoneNumber');
+        modalLanguageSelectorElement = document.getElementById('modalLanguageSelector');
+        saveProfileChangesButton = document.getElementById('saveProfileChanges');
+        editProfileButton = document.getElementById('editProfileButton');
+        editProfileMessageElement = document.getElementById('editProfileMessage');
+
+        // Company Settings Form Elements
+        companySettingsForm = document.getElementById('companySettingsForm');
+        saveCompanySettingsButton = document.getElementById('saveCompanySettingsButton');
+        companyLogoInput = document.getElementById('companyLogo');
+        logoPreview = document.getElementById('logoPreview');
+        companySettingsMessage = document.getElementById('companySettingsMessage');
+
 
     if (!fullNameElement || !emailAddressElement || !phoneNumberElement || !languageDisplayElement ||
         !editProfileModalElement || !editProfileForm || !modalFirstNameElement || !modalLastNameElement ||
         !modalEmailAddressElement || !modalPhoneNumberElement || !modalLanguageSelectorElement ||
-        !saveProfileChangesButton || !editProfileButton || !editProfileMessageElement) {
-        console.error('One or more profile or modal elements not found in account.html');
+        !saveProfileChangesButton || !editProfileButton || !editProfileMessageElement ||
+        !companySettingsForm || !saveCompanySettingsButton || !companyLogoInput || !logoPreview || !companySettingsMessage) {
+        console.error('One or more critical elements not found in account.html. Page functionality will be limited.');
         // Hide loading indicator and show data container (even if empty/error)
         if (profileDataContainer && profileLoadingIndicator) {
             profileLoadingIndicator.classList.remove('visible');
             profileDataContainer.style.display = 'block';
         }
-        return;
+        // Depending on which elements are missing, you might not want to return immediately,
+        // as some parts of the page (like profile display) might still work.
+        // For now, we log the error and continue, as event listeners below have their own null checks.
     }
 
     window.loadAndDisplayAccountDetails = async function() {
         if (!window._supabase) {
             console.error('Supabase client is not available.');
-            fullNameElement.value = 'Error: Supabase client not found';
-            emailAddressElement.value = 'Error: Supabase client not found';
-            phoneNumberElement.value = 'Error: Supabase client not found';
-            languageDisplayElement.value = 'Error: Supabase client not found';
+            if(fullNameElement) fullNameElement.value = 'Error: Supabase client not found';
+            if(emailAddressElement) emailAddressElement.value = 'Error: Supabase client not found';
+            if(phoneNumberElement) phoneNumberElement.value = 'Error: Supabase client not found';
+            if(languageDisplayElement) languageDisplayElement.value = 'Error: Supabase client not found';
             return;
         }
 
@@ -107,19 +147,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (userError) {
                 console.error('Error fetching user:', userError);
-                fullNameElement.value = 'Error fetching user';
-                emailAddressElement.value = 'Error fetching user';
-                phoneNumberElement.value = 'Error fetching user';
-                languageDisplayElement.value = 'Error fetching user';
+                if(fullNameElement) fullNameElement.value = 'Error fetching user';
+                if(emailAddressElement) emailAddressElement.value = 'Error fetching user';
+                if(phoneNumberElement) phoneNumberElement.value = 'Error fetching user';
+                if(languageDisplayElement) languageDisplayElement.value = 'Error fetching user';
                 return;
             }
 
             if (!user) {
                 console.log('No user logged in.');
-                fullNameElement.value = 'N/A';
-                emailAddressElement.value = 'N/A';
-                phoneNumberElement.value = 'N/A';
-                languageDisplayElement.value = 'N/A';
+                if(fullNameElement) fullNameElement.value = 'N/A';
+                if(emailAddressElement) emailAddressElement.value = 'N/A';
+                if(phoneNumberElement) phoneNumberElement.value = 'N/A';
+                if(languageDisplayElement) languageDisplayElement.value = 'N/A';
                 return;
             }
 
@@ -131,24 +171,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (profileError) {
                 console.error('Error fetching profile:', profileError);
-                fullNameElement.value = 'Error loading profile data';
-                emailAddressElement.value = 'Error loading profile data';
-                phoneNumberElement.value = 'Error loading profile data';
-                languageDisplayElement.value = 'Error loading profile data';
+                if(fullNameElement) fullNameElement.value = 'Error loading profile data';
+                if(emailAddressElement) emailAddressElement.value = 'Error loading profile data';
+                if(phoneNumberElement) phoneNumberElement.value = 'Error loading profile data';
+                if(languageDisplayElement) languageDisplayElement.value = 'Error loading profile data';
                 return;
             }
 
             if (profile) {
                 const firstName = profile.first_name || '';
                 const lastName = profile.last_name || '';
-                fullNameElement.value = `${firstName} ${lastName}`.trim() || 'Name not set';
-                emailAddressElement.value = profile.email || 'Email not set';
+                if(fullNameElement) fullNameElement.value = `${firstName} ${lastName}`.trim() || 'Name not set';
+                if(emailAddressElement) emailAddressElement.value = profile.email || 'Email not set';
 
-                if (profile.phone_number && profile.phone_number.trim() !== '') {
-                    phoneNumberElement.value = profile.phone_number;
-                } else {
-                    phoneNumberElement.value = 'Not provided';
+                if (phoneNumberElement) {
+                    if (profile.phone_number && profile.phone_number.trim() !== '') {
+                        phoneNumberElement.value = profile.phone_number;
+                    } else {
+                        phoneNumberElement.value = 'Not provided';
+                    }
                 }
+
 
                 if (languageDisplayElement) {
                     if (profile.preferred_ui_language) {
@@ -167,17 +210,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } else {
                 console.log('No profile found for the user.');
-                fullNameElement.value = 'Profile not found';
-                emailAddressElement.value = 'Profile not found';
-                phoneNumberElement.value = 'Profile not found';
-                languageDisplayElement.value = 'Profile not found';
+                if(fullNameElement) fullNameElement.value = 'Profile not found';
+                if(emailAddressElement) emailAddressElement.value = 'Profile not found';
+                if(phoneNumberElement) phoneNumberElement.value = 'Profile not found';
+                if(languageDisplayElement) languageDisplayElement.value = 'Profile not found';
             }
         } catch (error) {
             console.error('An unexpected error occurred in loadAndDisplayAccountDetails:', error);
-            fullNameElement.value = 'Failed to load profile';
-            emailAddressElement.value = 'Failed to load profile';
-            phoneNumberElement.value = 'Failed to load profile';
-            languageDisplayElement.value = 'Failed to load profile';
+            if(fullNameElement) fullNameElement.value = 'Failed to load profile';
+            if(emailAddressElement) emailAddressElement.value = 'Failed to load profile';
+            if(phoneNumberElement) phoneNumberElement.value = 'Failed to load profile';
+            if(languageDisplayElement) languageDisplayElement.value = 'Failed to load profile';
         } finally {
             if (profileDataContainer && profileLoadingIndicator) {
                 profileLoadingIndicator.classList.remove('visible');
@@ -197,7 +240,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!window._supabase) {
             console.error('Supabase client is not available for company settings.');
-            const companySettingsMessage = document.getElementById('companySettingsMessage');
             if (companySettingsMessage) {
                 companySettingsMessage.textContent = 'Error: Supabase client not found.';
                 companySettingsMessage.className = 'alert alert-danger';
@@ -210,7 +252,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (userError) {
                 console.error('Error fetching user for company settings:', userError);
-                const companySettingsMessage = document.getElementById('companySettingsMessage');
                 if (companySettingsMessage) {
                     companySettingsMessage.textContent = 'Error fetching user information.';
                     companySettingsMessage.className = 'alert alert-danger';
@@ -220,7 +261,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (!user) {
                 console.log('No user logged in, cannot load company settings.');
-                const companySettingsMessage = document.getElementById('companySettingsMessage');
                 if (companySettingsMessage) {
                     companySettingsMessage.textContent = 'Please log in to view company settings.';
                     companySettingsMessage.className = 'alert alert-info';
@@ -243,8 +283,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
 
-            const companySettingsMessage = document.getElementById('companySettingsMessage'); // Get message element
-
             if (companyError && companyError.code !== 'PGRST116') { // PGRST116 means no rows found, which is not an error for us here
                 console.error('[CompanySettings] Error fetching company settings (reported to user):', companyError); // Log specifically for user-reported error
                 if (companySettingsMessage) {
@@ -255,8 +293,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (company) {
-                // Get references to form elements
-                const companyNameInput = document.getElementById('companyName');
+                // Get references to form elements - these are now top-level variables
+                const companyNameInput = document.getElementById('companyName'); // Keep local getElementById for population, or use top-level
                 const companyAddressStreetInput = document.getElementById('companyAddressStreet');
                 const companyCityInput = document.getElementById('companyCity');
                 const companyStateInput = document.getElementById('companyState');
@@ -265,58 +303,58 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const companyPhoneInput = document.getElementById('companyPhone');
                 const companyWebsiteInput = document.getElementById('companyWebsite');
                 const companyTaxIdInput = document.getElementById('companyTaxId');
-                const logoPreview = document.getElementById('logoPreview');
+                // logoPreview is already a top-level variable
 
                 // Populate form fields
                 if (companyNameInput) {
-                    const companyNameValue = company.company_name; // Corrected: company_name
+                    const companyNameValue = company.company_name;
                     console.log(`[CompanySettings] Attempting to set companyName with: '${companyNameValue}'`);
                     companyNameInput.value = companyNameValue || '';
                 }
                 if (companyAddressStreetInput) {
-                    const companyAddressStreetValue = company.company_address_street; // Corrected: company_address_street
+                    const companyAddressStreetValue = company.company_address_street;
                     console.log(`[CompanySettings] Attempting to set companyAddressStreet with: '${companyAddressStreetValue}'`);
                     companyAddressStreetInput.value = companyAddressStreetValue || '';
                 }
                 if (companyCityInput) {
-                    const companyCityValue = company.company_address_city; // Corrected: company_address_city
+                    const companyCityValue = company.company_address_city;
                     console.log(`[CompanySettings] Attempting to set companyCity with: '${companyCityValue}'`);
                     companyCityInput.value = companyCityValue || '';
                 }
                 if (companyStateInput) {
-                    const companyStateValue = company.company_address_state; // Corrected: company_address_state
+                    const companyStateValue = company.company_address_state;
                     console.log(`[CompanySettings] Attempting to set companyState with: '${companyStateValue}'`);
                     companyStateInput.value = companyStateValue || '';
                 }
                 if (companyPostCodeInput) {
-                    const companyPostCodeValue = company.company_address_zip; // Corrected: company_address_zip
+                    const companyPostCodeValue = company.company_address_zip;
                     console.log(`[CompanySettings] Attempting to set companyPostCode with: '${companyPostCodeValue}'`);
                     companyPostCodeInput.value = companyPostCodeValue || '';
                 }
                 if (companyEmailInput) {
-                    const companyEmailValue = company.company_email; // Corrected: company_email
+                    const companyEmailValue = company.company_email;
                     console.log(`[CompanySettings] Attempting to set companyEmail with: '${companyEmailValue}'`);
                     companyEmailInput.value = companyEmailValue || '';
                 }
                 if (companyPhoneInput) {
-                    const companyPhoneValue = company.company_phone; // Corrected: company_phone
+                    const companyPhoneValue = company.company_phone;
                     console.log(`[CompanySettings] Attempting to set companyPhone with: '${companyPhoneValue}'`);
                     companyPhoneInput.value = companyPhoneValue || '';
                 }
                 if (companyWebsiteInput) {
-                    const companyWebsiteValue = company.company_website; // Corrected: company_website
+                    const companyWebsiteValue = company.company_website;
                     console.log(`[CompanySettings] Attempting to set companyWebsite with: '${companyWebsiteValue}'`);
                     companyWebsiteInput.value = companyWebsiteValue || '';
                 }
                 if (companyTaxIdInput) {
-                    const companyTaxIdValue = company.company_tax_id; // Corrected: company_tax_id
+                    const companyTaxIdValue = company.company_tax_id;
                     console.log(`[CompanySettings] Attempting to set companyTaxId with: '${companyTaxIdValue}'`);
                     companyTaxIdInput.value = companyTaxIdValue || '';
                 }
 
-                // Handle logo preview
+                // Handle logo preview (logoPreview is top-level)
                 if (logoPreview) {
-                    const logoUrl = company.company_logo_url; // This was already correct
+                    const logoUrl = company.company_logo_url;
                     console.log(`[CompanySettings] Attempting to set logoPreview with src: '${logoUrl}'`);
                     if (logoUrl) {
                         logoPreview.src = logoUrl;
@@ -330,7 +368,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                      console.log('[CompanySettings] Company information loaded successfully.');
                      companySettingsMessage.textContent = 'Company information loaded.'; // Optional success message
                      companySettingsMessage.className = 'alert alert-success';
-                     setTimeout(() => { companySettingsMessage.textContent = ''; companySettingsMessage.className='';}, 3000);
+                     setTimeout(() => { if(companySettingsMessage) {companySettingsMessage.textContent = ''; companySettingsMessage.className='';}}, 3000);
                 }
 
             } else {
@@ -339,10 +377,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     companySettingsMessage.textContent = 'No company information has been set up yet.';
                     companySettingsMessage.className = 'alert alert-info';
                 }
-                // Clear form fields if no company data is found (optional, depending on desired behavior)
-                console.log('[CompanySettings] Resetting companySettingsForm.');
-                document.getElementById('companySettingsForm').reset(); // Resets all fields in the form
-                const logoPreview = document.getElementById('logoPreview');
+                // Clear form fields if no company data is found
+                if(companySettingsForm) {
+                    console.log('[CompanySettings] Resetting companySettingsForm.');
+                    companySettingsForm.reset();
+                }
                 if (logoPreview) {
                     console.log('[CompanySettings] Hiding logoPreview as no company data/logo found.');
                     logoPreview.style.display = 'none';
@@ -351,7 +390,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (error) {
             console.error('[CompanySettings] An unexpected error occurred in loadCompanySettings:', error);
-            const companySettingsMessage = document.getElementById('companySettingsMessage');
             if (companySettingsMessage) {
                 companySettingsMessage.textContent = 'Failed to load company settings due to an unexpected error.';
                 companySettingsMessage.className = 'alert alert-danger';
@@ -376,12 +414,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             generalErrorElement.style.display = 'block';
         }
     }
-    // Company Settings Form Elements & Logic
-    const companySettingsForm = document.getElementById('companySettingsForm');
-    const saveCompanySettingsButton = document.getElementById('saveCompanySettingsButton');
-    const companyLogoInput = document.getElementById('companyLogo');
-    const logoPreview = document.getElementById('logoPreview'); // Ensure this ID matches your HTML for the preview img tag
-    const companySettingsMessage = document.getElementById('companySettingsMessage');
+    // Event listeners are now set up outside the main try...catch,
+    // using the hoisted variables. Null checks are important here.
 
     if (companyLogoInput && logoPreview) {
         companyLogoInput.addEventListener('change', function(event) {
