@@ -1,24 +1,67 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // Hide Company Settings for non-admins
     console.log('[ACCDETAILS_DEBUG] DOMContentLoaded triggered.');
-    const isAdminString = localStorage.getItem('userIsAdmin');
-    console.log('[ACCDETAILS_DEBUG] userIsAdmin from localStorage:', isAdminString);
 
-    if (isAdminString === 'false') {
-      console.log('[ACCDETAILS_DEBUG] User is not admin, attempting to hide Company Settings.');
-      const companySettingsSection = document.getElementById('companySettingsSection');
-      if (companySettingsSection) {
-        console.log('[ACCDETAILS_DEBUG] Found companySettingsSection element:', companySettingsSection);
-        companySettingsSection.style.display = 'none';
-        console.log('[ACCDETAILS_DEBUG] companySettingsSection style.display set to none.');
-      } else {
-        console.error('[ACCDETAILS_DEBUG] companySettingsSection element NOT found!');
-      }
-    } else {
-      console.log('[ACCDETAILS_DEBUG] User is admin or status unclear, Company Settings should remain visible. isAdminString:', isAdminString);
+    // Loading state elements
+    const profileDataContainer = document.getElementById('profileDataContainer');
+    const profileLoadingIndicator = document.getElementById('profileLoadingIndicator');
+    const companySettingsSection = document.getElementById('companySettingsSection');
+
+    async function checkAdminStatusAndApplyUI() {
+        try {
+            if (!window._supabase) {
+                console.error('[ACCDETAILS_DEBUG] Supabase client not available. Hiding company settings.');
+                if (companySettingsSection) companySettingsSection.style.display = 'none';
+                return;
+            }
+
+            const { data: { user }, error: userError } = await window._supabase.auth.getUser();
+
+            if (userError || !user) {
+                console.error('[ACCDETAILS_DEBUG] Error fetching user or no user logged in. Hiding company settings.', userError);
+                if (companySettingsSection) companySettingsSection.style.display = 'none';
+                return;
+            }
+
+            console.log('[ACCDETAILS_DEBUG] User found:', user.id);
+            const { data: profile, error: profileError } = await window._supabase
+                .from('profiles')
+                .select('is_admin')
+                .eq('id', user.id)
+                .single();
+
+            if (profileError) {
+                console.error('[ACCDETAILS_DEBUG] Error fetching profile. Hiding company settings.', profileError);
+                if (companySettingsSection) companySettingsSection.style.display = 'none';
+                return;
+            }
+
+            if (profile && profile.is_admin === true) {
+                console.log('[ACCDETAILS_DEBUG] User is admin. Company settings visible.');
+                if (companySettingsSection) companySettingsSection.style.display = 'block'; // Or remove 'none'
+            } else if (profile && profile.is_admin === false) {
+                console.log('[ACCDETAILS_DEBUG] User is not admin. Hiding company settings.');
+                if (companySettingsSection) companySettingsSection.style.display = 'none';
+            } else {
+                console.log('[ACCDETAILS_DEBUG] Admin status unclear (profile missing or is_admin not set). Hiding company settings.');
+                if (companySettingsSection) companySettingsSection.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('[ACCDETAILS_DEBUG] Exception in checkAdminStatusAndApplyUI. Hiding company settings.', error);
+            if (companySettingsSection) companySettingsSection.style.display = 'none';
+        }
     }
 
-    // Main page elements
+    try {
+        if (profileDataContainer && profileLoadingIndicator) {
+            profileDataContainer.style.display = 'none';
+            profileLoadingIndicator.classList.add('visible');
+        } else {
+            console.error('Profile data container or loading indicator not found.');
+        }
+
+        await checkAdminStatusAndApplyUI();
+
+        // Main page elements
     const fullNameElement = document.getElementById('fullName');
     const emailAddressElement = document.getElementById('emailAddress');
     const phoneNumberElement = document.getElementById('phoneNumber');
@@ -37,22 +80,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editProfileMessageElement = document.getElementById('editProfileMessage');
 
     // Loading state elements
-    const profileDataContainer = document.getElementById('profileDataContainer');
-    const profileLoadingIndicator = document.getElementById('profileLoadingIndicator');
+    const fullNameElement = document.getElementById('fullName');
+    const emailAddressElement = document.getElementById('emailAddress');
+    const phoneNumberElement = document.getElementById('phoneNumber');
+    const languageDisplayElement = document.getElementById('languageDisplay');
 
-    if (profileDataContainer && profileLoadingIndicator) {
-        profileDataContainer.style.display = 'none';
-        profileLoadingIndicator.classList.add('visible');
-        // Debug styling removed
-    } else {
-        console.error('Profile data container or loading indicator not found.');
-    }
+    // Modal elements
+    const editProfileModalElement = document.getElementById('editProfileModal');
+    const editProfileForm = document.getElementById('editProfileForm');
+    const modalFirstNameElement = document.getElementById('modalFirstName');
+    const modalLastNameElement = document.getElementById('modalLastName');
+    const modalEmailAddressElement = document.getElementById('modalEmailAddress');
+    const modalPhoneNumberElement = document.getElementById('modalPhoneNumber');
+    const modalLanguageSelectorElement = document.getElementById('modalLanguageSelector');
+    const saveProfileChangesButton = document.getElementById('saveProfileChanges');
+    const editProfileButton = document.getElementById('editProfileButton');
+    const editProfileMessageElement = document.getElementById('editProfileMessage');
 
     if (!fullNameElement || !emailAddressElement || !phoneNumberElement || !languageDisplayElement ||
         !editProfileModalElement || !editProfileForm || !modalFirstNameElement || !modalLastNameElement ||
         !modalEmailAddressElement || !modalPhoneNumberElement || !modalLanguageSelectorElement ||
         !saveProfileChangesButton || !editProfileButton || !editProfileMessageElement) {
         console.error('One or more profile or modal elements not found in account.html');
+        // Hide loading indicator and show data container (even if empty/error)
+        if (profileDataContainer && profileLoadingIndicator) {
+            profileLoadingIndicator.classList.remove('visible');
+            profileDataContainer.style.display = 'block';
+        }
         return;
     }
 
@@ -152,9 +206,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Function to load and display company settings
     async function loadCompanySettings() {
-        // If user is not admin and section is already hidden by initial check, skip loading
-        if (isAdminString === 'false' && document.getElementById('companySettingsSection')?.style.display === 'none') {
-            console.log('[ACCDETAILS_DEBUG] Company settings section hidden for non-admin. Skipping loadCompanySettings.');
+        // Admin check is now handled by checkAdminStatusAndApplyUI,
+        // so this function should only proceed if the section is visible.
+        if (companySettingsSection && companySettingsSection.style.display === 'none') {
+            console.log('[ACCDETAILS_DEBUG] Company settings section is hidden. Skipping loadCompanySettings.');
             return;
         }
 
@@ -322,9 +377,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    await window.loadAndDisplayAccountDetails(); // Initial load
-    await loadCompanySettings(); // Load company settings after profile details
+    // Initial data loading calls
+    await window.loadAndDisplayAccountDetails();
+    await loadCompanySettings();
 
+    } catch (error) {
+        console.error('[ACCDETAILS_DEBUG] Critical error during initial page setup:', error);
+        if (profileDataContainer && profileLoadingIndicator) {
+            profileLoadingIndicator.classList.remove('visible');
+            profileDataContainer.style.display = 'block'; // Show container, error messages might be inside
+        }
+        // Display a user-friendly message on the page if appropriate elements exist
+        const generalErrorElement = document.getElementById('generalPageError'); // Assuming such an element exists
+        if (generalErrorElement) {
+            generalErrorElement.textContent = 'An error occurred while loading the page. Please try again later.';
+            generalErrorElement.style.display = 'block';
+        }
+    }
     // Company Settings Form Elements & Logic
     const companySettingsForm = document.getElementById('companySettingsForm');
     const saveCompanySettingsButton = document.getElementById('saveCompanySettingsButton');
