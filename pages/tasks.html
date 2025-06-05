@@ -48,6 +48,40 @@
     </div>
     
     <div class="container mt-4 p-4">
+      <!-- Search, Filters, and Add New Task Button -->
+      <div class="row mb-3 align-items-center">
+        <div class="col-md-4">
+          <input type="search" class="form-control" id="tasksSearchInput" placeholder="Search Tasks...">
+        </div>
+        <div class="col-md-2">
+          <select class="form-select" id="statusFilter">
+            <option selected value="">All Statuses</option>
+            <option value="New">New</option>
+            <option value="Not started">Not started</option>
+            <option value="In progress">In progress</option>
+            <option value="Done">Done</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select class="form-select" id="propertyFilter">
+            <option selected value="">All Properties</option>
+            <option value="p1">Placeholder Property 1</option>
+            <option value="p2">Placeholder Property 2</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-none" id="staffFilterContainer">
+          <select class="form-select" id="staffFilter">
+            <option selected value="">All Staff</option>
+            <option value="s1">Placeholder Staff 1</option>
+            <option value="s2">Placeholder Staff 2</option>
+          </select>
+        </div>
+        <div class="col-md-2 text-end d-none" id="addNewTaskBtnContainer">
+          <button class="btn btn-primary" id="addNewTaskBtn" type="button">Add New Task</button>
+        </div>
+      </div>
+
       <table class="table">
         <thead>
           <tr>
@@ -103,6 +137,27 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary" id="saveTaskChanges">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add New Task Modal -->
+  <div class="modal fade" id="addNewTaskModal" tabindex="-1" aria-labelledby="addNewTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addNewTaskModalLabel">Add New Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="addNewTaskModalBody">
+            <p>New task form will go here...</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="saveNewTaskBtn">Save Task</button>
         </div>
       </div>
     </div>
