@@ -274,18 +274,13 @@ document.addEventListener('DOMContentLoaded', function () {
           console.error('Supabase client not available for sign-up.'); 
           return; 
         }
-        const currentAccountType = accountTypeSelect.value; // Get selected account type
         const { data, error } = await window._supabase.auth.signUp({
           email: email,
           password: password,
           options: {
-            data: { // This data is stored in auth.users.raw_user_meta_data
-              first_name: firstName,
-              account_type: currentAccountType
-            }
+            data: { first_name: firstName }
           }
         });
-
         if (error) {
           if (error.message && (error.message.includes('User already registered') || error.message.includes('already registered'))) {
             if (signUpUserMessage) {
@@ -302,14 +297,28 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
         } else if (data.user) {
-          // Successfully signed up the user with auth.
-          // Profile creation will now happen on first login after email verification.
-          console.log('User signed up successfully. User metadata should include first_name and account_type.');
-          console.log('User metadata at signup:', data.user.user_metadata); // Log metadata
+          let firstNameDebugMessage = " (Debug: first_name NOT seen in user_metadata)";
+          if (data.user.user_metadata && data.user.user_metadata.first_name) {
+            firstNameDebugMessage = " (Debug: first_name '" + data.user.user_metadata.first_name + "' seen in user_metadata)";
+          }
 
-          let firstNameDebugMessage = " (Debug: user_metadata.first_name: " + (data.user.user_metadata?.first_name || 'N/A') +
-                                      ", user_metadata.account_type: " + (data.user.user_metadata?.account_type || 'N/A') + ")";
+          // Generate 8-digit code and update profile
+          const generatedCode = Math.floor(10000000 + Math.random() * 90000000).toString();
+          const userId = data.user.id;
 
+          try {
+            const { error: profileError } = await window._supabase
+              .from('profiles')
+              .insert({ id: userId, verification_code: generatedCode }); // is_verified_by_code defaults to false in DB
+
+            if (profileError) {
+              console.error('Error saving verification code to profile during sign-up:', profileError);
+            } else {
+              console.log('Successfully inserted verification code for user:', userId);
+            }
+          } catch (profileInsertException) {
+            console.error('Exception during profile insert for verification code during sign-up:', profileInsertException);
+          }
 
           if (data.user.identities && data.user.identities.length === 0) {
             if (signUpUserMessage) {
@@ -392,111 +401,38 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (authData.user) {
           if (resendModal) resendModal.hide();
           const userId = authData.user.id;
-          console.log('[signInUser] Attempting to fetch profile for user ID:', userId);
 
-          // Attempt to fetch profile
-          let profile;
-          let profileError;
-
-          const profileQuery = await window._supabase
+          // Fetch profile immediately after successful auth
+          const { data: initialProfile, error: initialProfileError } = await window._supabase
             .from('profiles')
-            .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin, preferred_ui_language') // Ensure all needed fields
+            .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin')
             .eq('id', userId)
             .single();
 
-          profile = profileQuery.data;
-          profileError = profileQuery.error;
-
-          if (profileError) {
-            console.log('[signInUser] Error received from initial profile fetch:', JSON.stringify(profileError, null, 2));
-          } else if (profile) {
-            console.log('[signInUser] Profile found successfully on initial fetch:', JSON.stringify(profile, null, 2));
-          } else {
-            console.log('[signInUser] Initial profile fetch returned no data and no specific error object. Profile is null/undefined.');
-          }
-
-          if (profileError && profileError.code === 'PGRST116') { // Profile not found
-            console.log('[signInUser] Condition met: Profile not found (PGRST116). Attempting to create via Edge Function...');
-            const { data: functionResponse, error: functionError } = await window._supabase.functions.invoke(
-              'create-initial-profile',
-              {
-                body: {
-                  preferredUiLanguage: (typeof i18next !== 'undefined' ? i18next.language : 'en')
-                }
-              }
-            );
-
-            if (functionError) {
-              console.error('Error calling create-initial-profile function during sign-in:', functionError);
-              let displayErrorMessage = 'Failed to set up your profile. ';
-              if (functionError.context && functionError.context.json && functionError.context.json.error) {
-                displayErrorMessage += functionError.context.json.error;
-              } else {
-                displayErrorMessage += functionError.message;
-              }
-              displayErrorMessage += ' Please try logging in again or contact support.';
-              if (signInMessage) {
-                signInMessage.textContent = displayErrorMessage;
-                signInMessage.className = 'alert alert-danger';
-              }
-              await window._supabase.auth.signOut();
-              return;
-            }
-
-            console.log('Initial profile created/ensured by Edge Function, re-fetching profile...', functionResponse?.profile);
-            const { data: newProfile, error: newProfileError } = await window._supabase
-              .from('profiles')
-              .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin, preferred_ui_language')
-              .eq('id', userId)
-              .single();
-
-            if (newProfileError || !newProfile) {
-              console.error('CRITICAL: Profile still not found after Edge Function call:', newProfileError);
-              if (signInMessage) {
-                signInMessage.textContent = 'There was a critical error setting up your account. Please contact support.';
-                signInMessage.className = 'alert alert-danger';
-              }
-              await window._supabase.auth.signOut();
-              return;
-            }
-            profile = newProfile;
-            profileError = null;
-            console.log('Successfully re-fetched profile:', profile);
-          } else if (profileError) {
-            console.log('[signInUser] Condition NOT met for Edge Function call: Profile fetch failed with a different error (not PGRST116).');
-            console.error('Error fetching initial profile (not PGRST116):', profileError);
-             if (signInMessage) {
-                signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
-                signInMessage.className = 'alert alert-danger';
+          if (initialProfileError || !initialProfile) {
+            console.error('Error fetching initial profile or profile not found:', initialProfileError);
+            if (signInMessage) {
+              signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
+              signInMessage.className = 'alert alert-danger';
             }
             return;
-          } else if (!profile) {
-             console.log('[signInUser] Condition NOT met for Edge Function call: Profile was null but no specific error provided for initial fetch.');
-             console.error('Profile is null even after potential creation and refetch without specific error.');
-             if (signInMessage) {
-                signInMessage.textContent = 'Could not retrieve your profile. Please contact support.';
-                signInMessage.className = 'alert alert-danger';
-            }
-            await window._supabase.auth.signOut();
-            return;
-          } else {
-            console.log('[signInUser] Condition NOT met for Edge Function call: Profile was found initially.');
           }
 
-          const isAdmin = profile.is_admin;
+          // Store isAdmin status early
+          const isAdmin = initialProfile ? initialProfile.is_admin : false;
           localStorage.setItem('userIsAdmin', isAdmin.toString());
-          updateSidebarForPermissions();
+          updateSidebarForPermissions(); // Update sidebar immediately after setting admin status
 
-          if (profile.is_verified_by_code) {
+          if (initialProfile.is_verified_by_code) {
             if (signInMessage) {
               signInMessage.textContent = i18next.t('mainJs.signIn.successVerificationDone');
               signInMessage.className = 'alert alert-success';
             }
             if (!isAdmin) {
-                localStorage.setItem('onboardingComplete', 'true');
+                localStorage.setItem('onboardingComplete', 'true'); // Non-admins might not have company setup
                 window.location.href = 'pages/tasks.html';
-            } else {
-                if (profile.has_company_set_up === false) {
+            } else { // isAdmin is true
+                if (initialProfile.has_company_set_up === false) {
                     currentUserIdForLanguagePref = userId;
                     localStorage.removeItem('onboardingComplete');
                     if (languageSelectionModalInstance) languageSelectionModalInstance.show();
@@ -506,6 +442,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
           } else {
+            // Show 6-digit code modal
             if (signInMessage) signInMessage.textContent = '';
 
             if (!sixDigitCodeModalInstance && sixDigitCodeModalEl) {
@@ -530,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   return;
                 }
 
-                if (enteredCode.trim() === String(profile.verification_code).trim()) {
+                if (enteredCode.trim() === String(initialProfile.verification_code).trim()) {
                   const { error: updateError } = await window._supabase
                     .from('profiles')
                     .update({ is_verified_by_code: true })
@@ -549,11 +486,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     if (sixDigitCodeModalInstance) sixDigitCodeModalInstance.hide();
 
-                    if (!isAdmin) {
+                    // isAdmin status is already in localStorage from initialProfile fetch.
+                    // Re-apply redirection logic based on isAdmin and has_company_set_up.
+                    if (!isAdmin) { // isAdmin was determined from initialProfile
                         localStorage.setItem('onboardingComplete', 'true');
                         window.location.href = 'pages/tasks.html';
-                    } else {
-                        if (profile.has_company_set_up === false) {
+                    } else { // isAdmin is true
+                        if (initialProfile.has_company_set_up === false) {
                             currentUserIdForLanguagePref = userId;
                             localStorage.removeItem('onboardingComplete');
                             if (languageSelectionModalInstance) languageSelectionModalInstance.show();
@@ -946,5 +885,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
-
-[end of js/main.js]
