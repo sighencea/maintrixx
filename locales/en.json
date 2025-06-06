@@ -49,7 +49,10 @@
     "accountTypeLabel": "Account Type",
     "continueButton": "Continue",
     "userAccountInfoTitle": "User Account Information",
-    "userAccountInfoText": "How to set up a new account: As a User, you require to have an account set up by the Agency that is managing your property. Please get in touch with them and ask them to set you up with a new account. Once done, you can sign into your account on the Sign In page."
+    "userAccountInfoText": "How to set up a new account: As a User, you require to have an account set up by the Agency that is managing your property. Please get in touch with them and ask them to set you up with a new account. Once done, you can sign into your account on the Sign In page.",
+    "user": {
+      "haveCodeButton": "I have a Company Code"
+    }
   },
   "dashboardPage": {
     "title": "Dashboard - Property Hub",
@@ -405,5 +408,29 @@
   },
   "loadingText": {
     "profile": "Loading profile information..."
+  },
+  "companyCodeModal": {
+    "titleInitial": "Join Your Company",
+    "descriptionCode": "Please enter the 8-digit code provided by your agency.",
+    "inputLabelCode": "Company Code",
+    "buttonVerifyCode": "Verify Code",
+    "descriptionEmail": "Code verified! Please enter your email address registered with the agency.",
+    "inputLabelEmail": "Your Email Address",
+    "buttonVerifyEmail": "Verify Email",
+    "descriptionPassword": "Email verified! Please set your password to activate your account.",
+    "inputLabelPassword": "New Password",
+    "inputLabelConfirmPassword": "Confirm New Password",
+    "buttonSetPassword": "Set Password & Join",
+    "buttonClose": "Close",
+    "message": {
+      "rpcError": "Error validating code. Please try again.",
+      "invalidCode": "Invalid company code. Please check the code and try again.",
+      "unexpectedError": "An unexpected error occurred. Please try again.",
+      "emailNotFoundOrNotNew": "Email not found for this company, or account is already active/not awaiting activation.",
+      "passwordMismatch": "Passwords do not match. Please try again.",
+      "passwordTooShort": "Password must be at least 6 characters long.",
+      "activationError": "Error activating account: ",
+      "activationSuccess": "Account activated! You can now sign in."
+    }
   }
 }

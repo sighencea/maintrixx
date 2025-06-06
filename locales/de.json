@@ -49,7 +49,10 @@
     "accountTypeLabel": "Kontotyp",
     "continueButton": "Weiter",
     "userAccountInfoTitle": "Informationen zum Benutzerkonto",
-    "userAccountInfoText": "So richten Sie ein neues Konto ein: Als Benutzer benötigen Sie ein Konto, das von der Agentur eingerichtet wurde, die Ihre Immobilie verwaltet. Bitte setzen Sie sich mit dieser in Verbindung und bitten Sie sie, Ihnen ein neues Konto einzurichten. Sobald dies geschehen ist, können Sie sich auf der Anmeldeseite in Ihr Konto einloggen."
+    "userAccountInfoText": "So richten Sie ein neues Konto ein: Als Benutzer benötigen Sie ein Konto, das von der Agentur eingerichtet wurde, die Ihre Immobilie verwaltet. Bitte setzen Sie sich mit dieser in Verbindung und bitten Sie sie, Ihnen ein neues Konto einzurichten. Sobald dies geschehen ist, können Sie sich auf der Anmeldeseite in Ihr Konto einloggen.",
+    "user": {
+      "haveCodeButton": "Ich habe einen Firmencode"
+    }
   },
   "dashboardPage": {
     "title": "Dashboard - Immobilien Hub",
@@ -405,5 +408,29 @@
   },
   "loadingText": {
     "profile": "Lade Profilinformationen..."
+  },
+  "companyCodeModal": {
+    "titleInitial": "Treten Sie Ihrer Firma bei",
+    "descriptionCode": "Bitte geben Sie den 8-stelligen Code ein, den Sie von Ihrer Agentur erhalten haben.",
+    "inputLabelCode": "Firmencode",
+    "buttonVerifyCode": "Code überprüfen",
+    "descriptionEmail": "Code überprüft! Bitte geben Sie Ihre bei der Agentur registrierte E-Mail-Adresse ein.",
+    "inputLabelEmail": "Ihre E-Mail-Adresse",
+    "buttonVerifyEmail": "E-Mail überprüfen",
+    "descriptionPassword": "E-Mail überprüft! Bitte legen Sie Ihr Passwort fest, um Ihr Konto zu aktivieren.",
+    "inputLabelPassword": "Neues Passwort",
+    "inputLabelConfirmPassword": "Neues Passwort bestätigen",
+    "buttonSetPassword": "Passwort festlegen & beitreten",
+    "buttonClose": "Schließen",
+    "message": {
+      "rpcError": "Fehler bei der Codeüberprüfung. Bitte versuchen Sie es erneut.",
+      "invalidCode": "Ungültiger Firmencode. Bitte überprüfen Sie den Code und versuchen Sie es erneut.",
+      "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+      "emailNotFoundOrNotNew": "E-Mail für diese Firma nicht gefunden oder Konto bereits aktiv/wartet nicht auf Aktivierung.",
+      "passwordMismatch": "Passwörter stimmen nicht überein. Bitte versuchen Sie es erneut.",
+      "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "activationError": "Fehler beim Aktivieren des Kontos: ",
+      "activationSuccess": "Konto aktiviert! Sie können sich jetzt anmelden."
+    }
   }
 }

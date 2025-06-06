@@ -705,26 +705,32 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       verifyCompanyCodeButton.disabled = true;
       try {
-        const { data, error } = await window._supabase
-          .from('companies')
-          .select('id, company_name') // Only select what's needed
-          .eq('company_secret_code', code)
-          .single();
+        const { data, error } = await window._supabase.rpc('validate_company_code', { p_code: code });
 
-        if (error || !data) {
-          console.error('Error verifying company code:', error);
-          companyCodeMessage.innerHTML = '<div class="alert alert-danger">Invalid company code or company not found. Please try again.</div>'; // i18n
+        if (error) {
+          console.error('Error validating company code via RPC:', error);
+          companyCodeMessage.innerHTML = '<div class="alert alert-danger" data-i18n="companyCodeModal.message.rpcError">Error validating code. Please try again.</div>';
           validatedCompanyData = null;
-        } else {
-          validatedCompanyData = data;
-          console.log('Company code verified:', validatedCompanyData);
+          // Consider re-applying i18n if you have a function for it: applyi18n(companyCodeModalEl);
+        } else if (data && data.length > 0) {
+          const companyDetails = data[0]; // RPC returns an array of rows
+          validatedCompanyData = { id: companyDetails.company_id, company_name: companyDetails.company_name };
+          console.log('Company code verified via RPC:', validatedCompanyData);
+
           if (companyCodeStep1) companyCodeStep1.style.display = 'none';
           if (companyCodeStep2) companyCodeStep2.style.display = 'block';
-          if (companyCodeMessage) companyCodeMessage.innerHTML = ''; // Clear previous error
+          if (companyCodeMessage) companyCodeMessage.innerHTML = '';
+          // Optionally, confirm company name to user:
+          // companyCodeMessage.innerHTML = `<div class="alert alert-success">Company Found: ${validatedCompanyData.company_name}</div>`;
+        } else {
+          // No error, but data is null or empty array - code is invalid
+          validatedCompanyData = null;
+          companyCodeMessage.innerHTML = '<div class="alert alert-danger" data-i18n="companyCodeModal.message.invalidCode">Invalid company code. Please check the code and try again.</div>';
+          // Consider re-applying i18n: applyi18n(companyCodeModalEl);
         }
       } catch (e) {
-        console.error('Exception verifying company code:', e);
-        companyCodeMessage.innerHTML = '<div class="alert alert-danger">An unexpected error occurred. Please try again.</div>'; // i18n
+        console.error('Exception verifying company code via RPC:', e);
+        companyCodeMessage.innerHTML = '<div class="alert alert-danger" data-i18n="companyCodeModal.message.unexpectedError">An unexpected error occurred. Please try again.</div>'; // i18n later
         validatedCompanyData = null;
       } finally {
         verifyCompanyCodeButton.disabled = false;
