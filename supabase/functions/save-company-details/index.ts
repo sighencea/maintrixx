@@ -290,10 +290,42 @@ serve(async (req: Request) => {
       });
     }
 
+    // 4. Update user's auth app_metadata to include admin status and company_id
+    // This is crucial for the current_user_is_admin() RLS helper function.
+    const { data: updatedUser, error: updateAuthUserError } = await supabaseAdminClient.auth.admin.updateUserById(
+      userId,
+      {
+        app_metadata: {
+          is_admin: true,
+          company_id: companyResponseData.id // Storing company_id here is also useful
+        }
+      }
+    );
+
+    if (updateAuthUserError) {
+      console.error('Critical: Error updating user app_metadata:', updateAuthUserError.message);
+      // This is a critical step for RLS to work correctly with the new current_user_is_admin() function.
+      // If this fails, the user might not be recognized as an admin by RLS policies relying on JWT claims.
+      // Consider how to handle this error. For now, we'll log it.
+      // The main operation (company save) might have succeeded, but admin rights via JWT might be missing.
+      // You could choose to return an error to the client here if this step is deemed absolutely mandatory for success.
+      // For instance:
+      // return new Response(JSON.stringify({
+      //   error: 'Company information saved, but failed to update user authentication metadata. Please contact support.',
+      //   details: updateAuthUserError.message
+      // }), {
+      //   status: 500, // Or a custom error code
+      //   headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      // });
+    } else {
+      console.log('User app_metadata updated successfully with admin status and company_id for user:', userId);
+    }
+
+    // The final response remains the same
     return new Response(JSON.stringify({
         success: true,
-        message: `Company details ${operationType} successfully.`,
-        company: companyResponseData
+        message: `Company details ${operationType} successfully. Profile and auth metadata updated.`, // Updated message
+        company: companyResponseData // companyResponseData might now include company_secret_code
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,

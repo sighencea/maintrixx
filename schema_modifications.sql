@@ -325,3 +325,20 @@ WITH CHECK (
 
 -- Add any other necessary RLS policies for 'profiles' or ensure existing ones are compatible.
 -- Remember to enable RLS on the 'profiles' table in Supabase settings if it's not already.
+
+-- Drop the old current_user_is_admin function that causes recursion
+DROP FUNCTION IF EXISTS public.current_user_is_admin();
+
+-- Create a new current_user_is_admin function that reads from JWT app_metadata
+-- IMPORTANT: For this to work, the admin user's JWT must contain 'is_admin: true'
+-- in their app_metadata. This needs to be set when the user is made an admin.
+CREATE OR REPLACE FUNCTION public.current_user_is_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT COALESCE((auth.jwt() -> 'app_metadata' ->> 'is_admin')::boolean, FALSE);
+$$;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION public.current_user_is_admin() TO authenticated;
