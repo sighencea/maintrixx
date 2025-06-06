@@ -326,6 +326,8 @@ document.addEventListener('DOMContentLoaded', function () {
               profileDataToInsert.has_company_set_up = false; // Or rely on DB default
             }
 
+            profileDataToInsert.user_status = 'New'; // Set user_status for all new sign-ups
+
             const { error: profileError } = await window._supabase
               .from('profiles')
               .insert([profileDataToInsert])
