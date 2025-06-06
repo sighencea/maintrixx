@@ -396,23 +396,26 @@ document.addEventListener('DOMContentLoaded', function () {
           if (resendModal) resendModal.hide();
           const userId = authData.user.id;
 
-          // Fetch profile immediately after successful auth
-          let profile, profileError;
+          // Attempt to fetch profile
+          let profile;
+          let profileError;
+
           const profileQuery = await window._supabase
             .from('profiles')
-            .select('id, has_company_set_up, is_admin, preferred_ui_language, is_verified_by_code, verification_code') // Ensure all needed fields are selected
+            .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin, preferred_ui_language') // Ensure all needed fields
             .eq('id', userId)
             .single();
 
           profile = profileQuery.data;
           profileError = profileQuery.error;
 
-          if (profileError && profileError.code === 'PGRST116') { // PGRST116: "single row not found"
+          if (profileError && profileError.code === 'PGRST116') { // Profile not found
             console.log('Profile not found for user, attempting to create initial profile via Edge Function...');
             const { data: functionResponse, error: functionError } = await window._supabase.functions.invoke(
               'create-initial-profile',
               {
                 body: {
+                  // Send preferredUiLanguage from client, or function will default
                   preferredUiLanguage: (typeof i18next !== 'undefined' ? i18next.language : 'en')
                 }
               }
@@ -436,9 +439,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             console.log('Initial profile created/ensured by Edge Function, re-fetching profile...', functionResponse?.profile);
+            // Re-fetch the profile
             const { data: newProfile, error: newProfileError } = await window._supabase
               .from('profiles')
-              .select('id, has_company_set_up, is_admin, preferred_ui_language, is_verified_by_code, verification_code')
+              .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin, preferred_ui_language')
               .eq('id', userId)
               .single();
 
@@ -451,10 +455,10 @@ document.addEventListener('DOMContentLoaded', function () {
               await window._supabase.auth.signOut();
               return;
             }
-            profile = newProfile;
-            profileError = null;
+            profile = newProfile; // Use the newly created profile
+            profileError = null; // Clear the 'not found' error
             console.log('Successfully re-fetched profile:', profile);
-          } else if (profileError) {
+          } else if (profileError) { // Other errors during initial profile fetch (not PGRST116)
             console.error('Error fetching initial profile (not PGRST116):', profileError);
              if (signInMessage) {
                 signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
@@ -463,7 +467,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
           }
 
-          if (!profile) { // Should be caught by PGRST116 or other errors, but as a safeguard
+          // Safeguard if profile is still somehow null without a specific error handled above
+          if (!profile) {
              console.error('Profile is null even after potential creation and refetch without specific error.');
              if (signInMessage) {
                 signInMessage.textContent = 'Could not retrieve your profile. Please contact support.';
@@ -473,21 +478,21 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
           }
 
-          // Store isAdmin status early
-          const isAdmin = profile ? profile.is_admin : false; // Use the potentially re-fetched profile
+          // Store isAdmin status early using the definitive 'profile' object
+          const isAdmin = profile.is_admin;
           localStorage.setItem('userIsAdmin', isAdmin.toString());
-          updateSidebarForPermissions(); // Update sidebar immediately after setting admin status
+          updateSidebarForPermissions();
 
-          if (profile.is_verified_by_code) {
+          if (profile.is_verified_by_code) { // Use 'profile'
             if (signInMessage) {
               signInMessage.textContent = i18next.t('mainJs.signIn.successVerificationDone');
               signInMessage.className = 'alert alert-success';
             }
             if (!isAdmin) {
-                localStorage.setItem('onboardingComplete', 'true'); // Non-admins might not have company setup
+                localStorage.setItem('onboardingComplete', 'true');
                 window.location.href = 'pages/tasks.html';
-            } else { // isAdmin is true
-                if (initialProfile.has_company_set_up === false) {
+            } else {
+                if (profile.has_company_set_up === false) { // Use 'profile'
                     currentUserIdForLanguagePref = userId;
                     localStorage.removeItem('onboardingComplete');
                     if (languageSelectionModalInstance) languageSelectionModalInstance.show();
@@ -522,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   return;
                 }
 
-                if (enteredCode.trim() === String(initialProfile.verification_code).trim()) {
+                if (enteredCode.trim() === String(profile.verification_code).trim()) { // Use 'profile'
                   const { error: updateError } = await window._supabase
                     .from('profiles')
                     .update({ is_verified_by_code: true })
@@ -541,13 +546,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     if (sixDigitCodeModalInstance) sixDigitCodeModalInstance.hide();
 
-                    // isAdmin status is already in localStorage from initialProfile fetch.
-                    // Re-apply redirection logic based on isAdmin and has_company_set_up.
-                    if (!isAdmin) { // isAdmin was determined from initialProfile
+                    // Re-apply redirection logic based on isAdmin and profile.has_company_set_up
+                    if (!isAdmin) {
                         localStorage.setItem('onboardingComplete', 'true');
                         window.location.href = 'pages/tasks.html';
-                    } else { // isAdmin is true
-                        if (initialProfile.has_company_set_up === false) {
+                    } else {
+                        if (profile.has_company_set_up === false) { // Use 'profile'
                             currentUserIdForLanguagePref = userId;
                             localStorage.removeItem('onboardingComplete');
                             if (languageSelectionModalInstance) languageSelectionModalInstance.show();
@@ -940,3 +944,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+[end of js/main.js]
