@@ -21,3 +21,15 @@ CREATE TABLE IF NOT EXISTS companies (
     company_tax_id TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
+
+-- Add new columns to profiles table
+ALTER TABLE profiles
+ADD COLUMN IF NOT EXISTS first_name TEXT,
+ADD COLUMN IF NOT EXISTS last_name TEXT,
+ADD COLUMN IF NOT EXISTS company_id UUID REFERENCES companies(id),
+ADD COLUMN IF NOT EXISTS user_role TEXT,
+ADD COLUMN IF NOT EXISTS user_status TEXT;
+
+-- Add new columns to companies table
+ALTER TABLE companies
+ADD COLUMN IF NOT EXISTS company_secret_code TEXT UNIQUE;

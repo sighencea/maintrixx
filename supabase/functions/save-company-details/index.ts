@@ -21,6 +21,39 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+// Helper function to generate a unique 8-digit company code
+async function generateUniqueCompanyCode(supabaseAdminClient: any): Promise<string> {
+  let uniqueCode = '';
+  let codeExists = true;
+  const MAX_ATTEMPTS = 10; // Prevent infinite loops in unforeseen circumstances
+  let attempts = 0;
+
+  while (codeExists && attempts < MAX_ATTEMPTS) {
+    // Generate an 8-digit numeric string
+    uniqueCode = Math.floor(10000000 + Math.random() * 90000000).toString();
+    attempts++;
+
+    const { data, error } = await supabaseAdminClient
+      .from('companies')
+      .select('company_secret_code')
+      .eq('company_secret_code', uniqueCode)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking for existing company code:', error.message);
+      throw new Error('Failed to verify company code uniqueness.'); // Propagate error
+    }
+
+    if (!data) {
+      codeExists = false; // Code is unique
+    }
+  }
+  if (codeExists) { // Loop exited due to max attempts
+    throw new Error('Failed to generate a unique company code after several attempts.');
+  }
+  return uniqueCode;
+}
+
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -177,12 +210,72 @@ serve(async (req: Request) => {
         });
       }
       companyResponseData = companyInsertData;
+
+      // ---- START: Add company_secret_code ----
+      if (companyResponseData && companyResponseData.id) {
+        try {
+          const secretCode = await generateUniqueCompanyCode(supabaseAdminClient);
+          const { error: updateCodeError } = await supabaseAdminClient
+            .from('companies')
+            .update({ company_secret_code: secretCode })
+            .eq('id', companyResponseData.id);
+
+          if (updateCodeError) {
+            console.error('Error updating company with secret code:', updateCodeError.message);
+            // This is a critical error because the company was created, but the secret code wasn't set.
+            // Depending on policy, you might want to return an error or proceed with a warning.
+            // For now, let's return an error.
+            return new Response(JSON.stringify({
+              error: 'Failed to set company secret code.',
+              details: updateCodeError.message
+            }), {
+              status: 500,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          // Add the secret code to the response data
+          companyResponseData.company_secret_code = secretCode;
+        } catch (e) {
+          console.error('Error generating or saving company secret code:', e.message);
+          return new Response(JSON.stringify({
+            error: 'Failed to generate or save company secret code.',
+            details: e.message
+          }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      } else {
+        // This case should ideally not be reached if companyInsertData was successful.
+        console.error('Critical: companyResponseData.id is missing after insert for secret code generation.');
+        return new Response(JSON.stringify({
+          error: 'Failed to process company creation due to missing ID before secret code generation.',
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      // ---- END: Add company_secret_code ----
     }
 
     // 3. Update profiles table (common for both insert and update)
+    if (!companyResponseData || !companyResponseData.id) {
+      console.error('Critical: companyResponseData or companyResponseData.id is missing before profile update.');
+      return new Response(JSON.stringify({
+        error: `Company information ${operationType}, but critical data missing for profile update. Please contact support.`,
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { error: profileUpdateError } = await supabaseAdminClient
       .from('profiles')
-      .update({ is_admin: true, has_company_set_up: true }) // User setting up company is admin of that company context
+      .update({
+        is_admin: true,
+        has_company_set_up: true,
+        company_id: companyResponseData.id // Add company_id to profile
+      })
       .eq('id', userId);
 
     if (profileUpdateError) {

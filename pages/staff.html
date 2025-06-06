@@ -54,33 +54,8 @@
         <div class="me-3 mb-2 flex-grow-1" style="max-width: 400px;">
           <input type="text" class="form-control" data-i18n="staffPage.filters.searchPlaceholder" placeholder="Search staff...">
         </div>
-        <div class="d-flex flex-wrap">
-          <div class="me-2 mb-2">
-            <select class="form-select" id="filterRole">
-              <option value="" data-i18n="staffPage.filters.roleDefault">Filter by User Role</option>
-              <option value="manager" data-i18n="staffPage.filters.roleManager">Property Manager</option>
-              <option value="maintenance" data-i18n="staffPage.filters.roleMaintenance">Maintenance Supervisor</option>
-              <option value="leasing" data-i18n="staffPage.filters.roleLeasing">Leasing Agent</option>
-              <option value="accountant" data-i18n="staffPage.filters.roleAccountant">Accountant</option>
-              <option value="electrician" data-i18n="staffPage.filters.roleElectrician">Electrician</option>
-              <option value="plumber" data-i18n="staffPage.filters.rolePlumber">Plumber</option>
-              <option value="cleaner" data-i18n="staffPage.filters.roleCleaner">Cleaner</option>
-              <option value="groundskeeper" data-i18n="staffPage.filters.roleGroundskeeper">Groundskeeper</option>
-              <option value="security" data-i18n="staffPage.filters.roleSecurity">Security</option>
-            </select>
-          </div>
-          <div class="me-2 mb-2">
-            <select class="form-select" id="sortTaskLoad">
-              <option value="desc" data-i18n="staffPage.filters.taskLoadDesc">Sort by Task Load: Descending</option>
-              <option value="asc" data-i18n="staffPage.filters.taskLoadAsc">Sort by Task Load: Ascending</option>
-            </select>
-          </div>
-          <div class="me-2 mb-2">
-            <select class="form-select" id="filterStatus">
-              <option value="active" data-i18n="staffPage.filters.statusActive">Status: Active</option>
-              <option value="inactive" data-i18n="staffPage.filters.statusInactive">Status: Inactive</option>
-            </select>
-          </div>
+        <div class="ms-auto mb-2">
+          <button class="btn btn-primary" id="addNewStaffMemberBtn" type="button" data-i18n="staffPage.buttons.addNewStaff">Add New Staff Member</button>
         </div>
       </div>
       <!-- End Filter Bar -->
@@ -99,611 +74,90 @@
             </tr>
           </thead>
           <tbody id="staffTableBody">
-            <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Alice Wonderland</td>
-      <td>Property Manager</td>
-      <td class="staff-col-assigned-tasks">5</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Bob Builder</td>
-      <td>Maintenance Supervisor</td>
-      <td class="staff-col-assigned-tasks">12</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Charlie Brown</td>
-      <td>Leasing Agent</td>
-      <td class="staff-col-assigned-tasks">0</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Diana Prince</td>
-      <td>Accountant</td>
-      <td class="staff-col-assigned-tasks">3</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Edward Scissorhands</td>
-      <td>Electrician</td>
-      <td class="staff-col-assigned-tasks">8</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Fiona Apple</td>
-      <td>Plumber</td>
-      <td class="staff-col-assigned-tasks">1</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>George Jetson</td>
-      <td>Cleaner</td>
-      <td class="staff-col-assigned-tasks">15</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Hannah Montana</td>
-      <td>Groundskeeper</td>
-      <td class="staff-col-assigned-tasks">7</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Ivan Drago</td>
-      <td>Security Officer</td>
-      <td class="staff-col-assigned-tasks">2</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Julia Child</td>
-      <td>Concierge</td>
-      <td class="staff-col-assigned-tasks">9</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Kevin McCallister</td>
-      <td>IT Support</td>
-      <td class="staff-col-assigned-tasks">4</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Laura Palmer</td>
-      <td>Property Manager</td>
-      <td class="staff-col-assigned-tasks">11</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Michael Knight</td>
-      <td>Maintenance Supervisor</td>
-      <td class="staff-col-assigned-tasks">6</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Nina Simone</td>
-      <td>Leasing Agent</td>
-      <td class="staff-col-assigned-tasks">0</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Oscar Wilde</td>
-      <td>Accountant</td>
-      <td class="staff-col-assigned-tasks">14</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Patricia Parker</td>
-      <td>Electrician</td>
-      <td class="staff-col-assigned-tasks">10</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Quincy Jones</td>
-      <td>Plumber</td>
-      <td class="staff-col-assigned-tasks">3</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Rachel Green</td>
-      <td>Cleaner</td>
-      <td class="staff-col-assigned-tasks">7</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Samuel Jackson</td>
-      <td>Groundskeeper</td>
-      <td class="staff-col-assigned-tasks">1</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Tina Turner</td>
-      <td>Security Officer</td>
-      <td class="staff-col-assigned-tasks">13</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Ulysses Moore</td>
-      <td>Concierge</td>
-      <td class="staff-col-assigned-tasks">8</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Victoria Beckham</td>
-      <td>IT Support</td>
-      <td class="staff-col-assigned-tasks">2</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Walter White</td>
-      <td>Property Manager</td>
-      <td class="staff-col-assigned-tasks">5</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Xena Warrior</td>
-      <td>Maintenance Supervisor</td>
-      <td class="staff-col-assigned-tasks">11</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Yoda Master</td>
-      <td>Leasing Agent</td>
-      <td class="staff-col-assigned-tasks">1</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Zachary Taylor</td>
-      <td>Accountant</td>
-      <td class="staff-col-assigned-tasks">8</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Amy Pond</td>
-      <td>Electrician</td>
-      <td class="staff-col-assigned-tasks">3</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Bruce Wayne</td>
-      <td>Plumber</td>
-      <td class="staff-col-assigned-tasks">14</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Clara Oswald</td>
-      <td>Cleaner</td>
-      <td class="staff-col-assigned-tasks">9</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>David Tennant</td>
-      <td>Groundskeeper</td>
-      <td class="staff-col-assigned-tasks">0</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Elle Woods</td>
-      <td>Security Officer</td>
-      <td class="staff-col-assigned-tasks">6</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Forrest Gump</td>
-      <td>Concierge</td>
-      <td class="staff-col-assigned-tasks">12</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Grace Hopper</td>
-      <td>IT Support</td>
-      <td class="staff-col-assigned-tasks">2</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Harry Potter</td>
-      <td>Property Manager</td>
-      <td class="staff-col-assigned-tasks">9</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Indiana Jones</td>
-      <td>Maintenance Supervisor</td>
-      <td class="staff-col-assigned-tasks">4</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Jack Sparrow</td>
-      <td>Leasing Agent</td>
-      <td class="staff-col-assigned-tasks">11</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Katniss Everdeen</td>
-      <td>Accountant</td>
-      <td class="staff-col-assigned-tasks">7</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Luke Skywalker</td>
-      <td>Electrician</td>
-      <td class="staff-col-assigned-tasks">0</td>
-      <td class="staff-col-status"><span class="badge-custom-base" style="background-color: #F1F3F4; color: #666666;" data-i18n="staffPage.status.inactive">Inactive</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Mary Poppins</td>
-      <td>Plumber</td>
-      <td class="staff-col-assigned-tasks">13</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
-      <td>Neo Anderson</td>
-      <td>Cleaner</td>
-      <td class="staff-col-assigned-tasks">8</td>
-      <td class="staff-col-status"><span class="badge-custom-base badge-custom-green" data-i18n="staffPage.status.active">Active</span></td>
-      <td>
-        <a href="#" class="text-primary me-2" aria-label="View Details" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip">
-          <i class="bi bi-eye-fill"></i>
-        </a>
-        <a href="#" class="text-warning" aria-label="Edit Profile" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </td>
-    </tr>
+          <!-- Staff rows will be dynamically inserted here by JavaScript -->
           </tbody>
         </table>
       </div>
       <!-- End Staff Table -->
     
+        <!-- Add Staff Modal -->
+        <div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addStaffModalLabel" data-i18n="staffPage.modals.add.title">Add New Staff Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form id="addStaffForm">
+                  <div class="mb-3">
+                    <label for="addStaffFirstName" class="form-label" data-i18n="staffPage.modals.add.form.firstNameLabel">First Name</label>
+                    <input type="text" class="form-control" id="addStaffFirstName" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="addStaffLastName" class="form-label" data-i18n="staffPage.modals.add.form.lastNameLabel">Last Name</label>
+                    <input type="text" class="form-control" id="addStaffLastName" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="addStaffEmail" class="form-label" data-i18n="staffPage.modals.add.form.emailLabel">Email</label>
+                    <input type="email" class="form-control" id="addStaffEmail" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="addStaffRole" class="form-label" data-i18n="staffPage.modals.add.form.roleLabel">Role</label>
+                    <select class="form-select" id="addStaffRole" required>
+                      <option value="" selected disabled data-i18n="staffPage.modals.add.form.role.selectPlaceholder">Select a role...</option>
+                      <option value="Electrician" data-i18n="staffPage.modals.add.form.role.electrician">Electrician</option>
+                      <option value="Plumber" data-i18n="staffPage.modals.add.form.role.plumber">Plumber</option>
+                      <option value="Cleaner" data-i18n="staffPage.modals.add.form.role.cleaner">Cleaner</option>
+                    </select>
+                  </div>
+                  <div id="addStaffMessage" class="mt-3"></div> <!-- For displaying success/error messages -->
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="staffPage.modals.buttons.cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveNewStaffBtn" data-i18n="staffPage.modals.buttons.save">Save Staff Member</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View Staff Modal -->
+        <div class="modal fade" id="viewStaffModal" tabindex="-1" aria-labelledby="viewStaffModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="viewStaffModalLabel" data-i18n="staffPage.modals.view.title">View Staff Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p data-i18n="staffPage.modals.view.bodyPlaceholder">Staff details will be displayed here.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="staffPage.modals.buttons.close">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Staff Modal -->
+        <div class="modal fade" id="editStaffModal" tabindex="-1" aria-labelledby="editStaffModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editStaffModalLabel" data-i18n="staffPage.modals.edit.title">Edit Staff Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p data-i18n="staffPage.modals.edit.bodyPlaceholder">Form for editing staff member will be here.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="staffPage.modals.buttons.cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveStaffChangesBtn" data-i18n="staffPage.modals.buttons.saveChanges">Save Changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
 
   </div>
@@ -714,7 +168,7 @@
   <script type="module" src="../js/dashboard_check.js"></script> 
   <script src="../js/main.js"></script>
   <script type="module" src="../js/i18n.js"></script>
-  <script src="../js/lazy-load-staff.js"></script>
+  <script type="module" src="../js/staff-management.js"></script>
   </div> <!-- Closing pageSpecificContent -->
 
   <!-- Access Denied Modal -->
