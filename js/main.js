@@ -302,8 +302,8 @@ document.addEventListener('DOMContentLoaded', function () {
             firstNameDebugMessage = " (Debug: first_name '" + data.user.user_metadata.first_name + "' seen in user_metadata)";
           }
 
-          // Generate 8-digit code and update profile
-          const generatedCode = Math.floor(10000000 + Math.random() * 90000000).toString();
+          // Generate 8-digit code and update profile // Commenting out generatedCode as it's no longer inserted
+          // const generatedCode = Math.floor(10000000 + Math.random() * 90000000).toString();
           const userId = data.user.id;
 
           try {
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function () {
               id: userId,
               email: userEmail, // Make sure to use the email from auth response
               first_name: firstName, // This is from the form input
-              verification_code: generatedCode, // is_verified_by_code defaults to false in DB
+              // verification_code: generatedCode, // REMOVED: is_verified_by_code defaults to false in DB
               preferred_ui_language: typeof i18next !== 'undefined' ? i18next.language : 'en' // Default to 'en'
             };
 
