@@ -307,17 +307,39 @@ document.addEventListener('DOMContentLoaded', function () {
           const userId = data.user.id;
 
           try {
+            const userEmail = data.user.email; // Get email from the auth user object
+            const currentAccountType = accountTypeSelect.value; // Get selected account type
+
+            let profileDataToInsert = {
+              id: userId,
+              email: userEmail, // Make sure to use the email from auth response
+              first_name: firstName, // This is from the form input
+              verification_code: generatedCode, // is_verified_by_code defaults to false in DB
+              preferred_ui_language: typeof i18next !== 'undefined' ? i18next.language : 'en' // Default to 'en'
+            };
+
+            if (currentAccountType === 'agency') {
+              profileDataToInsert.is_admin = true;
+              profileDataToInsert.has_company_set_up = false;
+            } else { // For 'user' account type
+              profileDataToInsert.is_admin = false;
+              profileDataToInsert.has_company_set_up = false; // Or rely on DB default
+            }
+
             const { error: profileError } = await window._supabase
               .from('profiles')
-              .insert({ id: userId, verification_code: generatedCode }); // is_verified_by_code defaults to false in DB
+              .insert([profileDataToInsert])
+              .select();
 
             if (profileError) {
-              console.error('Error saving verification code to profile during sign-up:', profileError);
+              console.error('Error creating profile during sign-up:', profileError);
+              // This error might need to be shown to the user, as signup was successful but profile creation failed.
+              // For now, the existing logic will show a generic success/check email message.
             } else {
-              console.log('Successfully inserted verification code for user:', userId);
+              console.log('Successfully created profile for user:', userId, 'with account type:', currentAccountType, profileDataToInsert);
             }
           } catch (profileInsertException) {
-            console.error('Exception during profile insert for verification code during sign-up:', profileInsertException);
+            console.error('Exception during profile insert for verification code and type during sign-up:', profileInsertException);
           }
 
           if (data.user.identities && data.user.identities.length === 0) {
