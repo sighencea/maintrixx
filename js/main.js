@@ -31,6 +31,37 @@ document.addEventListener('DOMContentLoaded', function () {
   // On index.html, userIsAdmin might not be set yet, so it won't hide anything.
   updateSidebarForPermissions();
 
+  // Company Code Modal Elements
+  const companyCodeModalEl = document.getElementById('companyCodeModal');
+  const companyCodeModalInstance = companyCodeModalEl ? new bootstrap.Modal(companyCodeModalEl) : null;
+  const haveCompanyCodeButton = document.getElementById('haveCompanyCodeButton');
+
+  const companyCodeStep1 = document.getElementById('companyCodeStep1');
+  const companyCodeStep2 = document.getElementById('companyCodeStep2');
+  const companyCodeStep3 = document.getElementById('companyCodeStep3');
+
+  const companyCodeInput = document.getElementById('companyCodeInput');
+  const companyCodeEmailInput = document.getElementById('companyCodeEmailInput');
+  const companyCodePasswordInput = document.getElementById('companyCodePasswordInput');
+  const companyCodeConfirmPasswordInput = document.getElementById('companyCodeConfirmPasswordInput');
+
+  const verifyCompanyCodeButton = document.getElementById('verifyCompanyCodeButton');
+  const verifyCompanyEmailButton = document.getElementById('verifyCompanyEmailButton');
+  // const setCompanyPasswordButton = document.getElementById('setCompanyPasswordButton'); // This is the submit button of the form
+
+  const companyCodeForm = document.getElementById('companyCodeForm');
+  const companyCodeMessage = document.getElementById('companyCodeMessage');
+
+  let validatedCompanyData = null;
+  let validatedProfileData = null;
+
+  if (companyCodeModalEl && !companyCodeModalInstance) { // Check if element exists but instance failed
+    console.error('Company Code Modal element found, but failed to initialize Bootstrap instance.');
+  } else if (!companyCodeModalEl) {
+    // console.warn('Company Code Modal element (companyCodeModal) not found on this page.'); // It's fine if not on all pages
+  }
+
+
   // Form and Section Elements
   const signInForm = document.getElementById('signInForm');
   const signUpForm = document.getElementById('signUpForm');
@@ -639,6 +670,193 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+
+  // --- Company Code Modal Logic ---
+  function resetCompanyCodeModal() {
+    if (companyCodeForm) companyCodeForm.reset();
+    if (companyCodeMessage) companyCodeMessage.innerHTML = '';
+    if (companyCodeStep1) companyCodeStep1.style.display = 'block';
+    if (companyCodeStep2) companyCodeStep2.style.display = 'none';
+    if (companyCodeStep3) companyCodeStep3.style.display = 'none';
+    validatedCompanyData = null;
+    validatedProfileData = null;
+    // Re-enable buttons
+    if (verifyCompanyCodeButton) verifyCompanyCodeButton.disabled = false;
+    if (verifyCompanyEmailButton) verifyCompanyEmailButton.disabled = false;
+    const setPwdBtn = document.getElementById('setCompanyPasswordButton');
+    if (setPwdBtn) setPwdBtn.disabled = false;
+  }
+
+  if (haveCompanyCodeButton && companyCodeModalInstance) {
+    haveCompanyCodeButton.addEventListener('click', () => {
+      resetCompanyCodeModal();
+      companyCodeModalInstance.show();
+    });
+  }
+
+  if (verifyCompanyCodeButton) {
+    verifyCompanyCodeButton.addEventListener('click', async () => {
+      const code = companyCodeInput.value.trim();
+      if (companyCodeMessage) companyCodeMessage.innerHTML = '';
+
+      if (!/^\d{8}$/.test(code)) {
+        companyCodeMessage.innerHTML = '<div class="alert alert-warning">Please enter a valid 8-digit company code.</div>'; // i18n later
+        return;
+      }
+      verifyCompanyCodeButton.disabled = true;
+      try {
+        const { data, error } = await window._supabase
+          .from('companies')
+          .select('id, company_name') // Only select what's needed
+          .eq('company_secret_code', code)
+          .single();
+
+        if (error || !data) {
+          console.error('Error verifying company code:', error);
+          companyCodeMessage.innerHTML = '<div class="alert alert-danger">Invalid company code or company not found. Please try again.</div>'; // i18n
+          validatedCompanyData = null;
+        } else {
+          validatedCompanyData = data;
+          console.log('Company code verified:', validatedCompanyData);
+          if (companyCodeStep1) companyCodeStep1.style.display = 'none';
+          if (companyCodeStep2) companyCodeStep2.style.display = 'block';
+          if (companyCodeMessage) companyCodeMessage.innerHTML = ''; // Clear previous error
+        }
+      } catch (e) {
+        console.error('Exception verifying company code:', e);
+        companyCodeMessage.innerHTML = '<div class="alert alert-danger">An unexpected error occurred. Please try again.</div>'; // i18n
+        validatedCompanyData = null;
+      } finally {
+        verifyCompanyCodeButton.disabled = false;
+      }
+    });
+  }
+
+  if (verifyCompanyEmailButton) {
+    verifyCompanyEmailButton.addEventListener('click', async () => {
+      const email = companyCodeEmailInput.value.trim();
+      if (companyCodeMessage) companyCodeMessage.innerHTML = '';
+
+      if (!email || !/\S+@\S+\.\S+/.test(email)) { // Basic email format validation
+        companyCodeMessage.innerHTML = '<div class="alert alert-warning">Please enter a valid email address.</div>'; // i18n
+        return;
+      }
+      if (!validatedCompanyData || !validatedCompanyData.id) {
+        companyCodeMessage.innerHTML = '<div class="alert alert-danger">Company data not validated. Please verify company code first.</div>'; // i18n
+        return;
+      }
+      verifyCompanyEmailButton.disabled = true;
+      try {
+        const { data, error } = await window._supabase
+          .from('profiles')
+          .select('id, email, user_status, auth_user_id') // Assuming auth_user_id might be the key for auth.users
+          .eq('email', email)
+          .eq('company_id', validatedCompanyData.id)
+          .single();
+
+        if (error || !data) {
+          console.error('Error verifying company email:', error);
+          companyCodeMessage.innerHTML = '<div class="alert alert-danger">Email not registered with this company, or an error occurred.</div>'; // i18n
+          validatedProfileData = null;
+        } else if (data.user_status !== 'New' && data.user_status !== 'Invited') { // Adjust status as per your setup
+          companyCodeMessage.innerHTML = `<div class="alert alert-warning">This account (${email}) is already active or its status does not allow this action. Please contact your administrator.</div>`; // i18n
+          validatedProfileData = null;
+        } else {
+          validatedProfileData = data;
+          console.log('Company email verified:', validatedProfileData);
+          if (companyCodeStep2) companyCodeStep2.style.display = 'none';
+          if (companyCodeStep3) companyCodeStep3.style.display = 'block';
+          if (companyCodeMessage) companyCodeMessage.innerHTML = '';
+        }
+      } catch (e) {
+        console.error('Exception verifying company email:', e);
+        companyCodeMessage.innerHTML = '<div class="alert alert-danger">An unexpected error occurred. Please try again.</div>'; // i18n
+        validatedProfileData = null;
+      } finally {
+        verifyCompanyEmailButton.disabled = false;
+      }
+    });
+  }
+
+  if (companyCodeForm) {
+    companyCodeForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const newPassword = companyCodePasswordInput.value;
+      const confirmPassword = companyCodeConfirmPasswordInput.value;
+      const setPasswordButton = document.getElementById('setCompanyPasswordButton');
+
+      if (companyCodeMessage) companyCodeMessage.innerHTML = '';
+
+      if (!newPassword || newPassword.length < 6) {
+        companyCodeMessage.innerHTML = '<div class="alert alert-warning">Password must be at least 6 characters long.</div>'; // i18n
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        companyCodeMessage.innerHTML = '<div class="alert alert-warning">Passwords do not match.</div>'; // i18n
+        return;
+      }
+      if (!validatedProfileData || !validatedProfileData.id) {
+        companyCodeMessage.innerHTML = '<div class="alert alert-danger">User profile not validated. Please start over.</div>'; // i18n
+        return;
+      }
+
+      // Determine the user ID for Supabase Auth. Prefer auth_user_id if available, else profile.id.
+      const userIdForAuth = validatedProfileData.auth_user_id || validatedProfileData.id;
+
+      if (setPasswordButton) setPasswordButton.disabled = true;
+
+      try {
+        // CRITICAL: This updateUser call will only work if the user has an active session.
+        // For a new user activating via code, this is unlikely.
+        // This will likely need an Edge Function that uses the service_role key.
+        // For now, proceeding with client-side call, acknowledging this limitation.
+        // One scenario where this *might* work is if the 'New'/'Invited' user already exists in auth.users
+        // and Supabase allows them to set their password if they verify their email through a separate link first,
+        // and then come back to use this company code flow. But that's not the implied flow.
+
+        // If this is a user who has *never* logged in, supabase.auth.updateUser() will fail.
+        // The correct flow for an admin-created user setting their password for the first time
+        // without prior login usually involves a secure link (password reset flow) or an admin function.
+        // Let's assume for now this is part of a flow where `updateUser` is viable.
+        const { data: updateUserData, error: updateUserError } = await window._supabase.auth.updateUser({ password: newPassword });
+
+        if (updateUserError) {
+          // If error is "User not found", it means the user doesn't exist in auth.users or is not matched by current session.
+          // If error is "requires a valid JWT", user is not logged in.
+          console.error('Error updating user password:', updateUserError);
+          throw new Error(`Password setup failed: ${updateUserError.message}. This may require administrator assistance if the account was pre-created.`);
+        }
+
+        console.log('Password updated successfully for user ID (auth):', userIdForAuth, updateUserData);
+
+        // Now update the profile status to Active
+        const { error: profileUpdateError } = await window._supabase
+          .from('profiles')
+          .update({ user_status: 'Active' })
+          .eq('id', validatedProfileData.id); // Update based on profile's own ID
+
+        if (profileUpdateError) {
+          console.error('Error updating profile status:', profileUpdateError);
+          // Password was updated, but profile status failed. This is a partial success state.
+          // Inform user, but guide them to login as password might be set.
+          companyCodeMessage.innerHTML = `<div class="alert alert-warning">Password set, but failed to update profile status: ${profileUpdateError.message}. Please try logging in.</div>`; // i18n
+        } else {
+          companyCodeMessage.innerHTML = '<div class="alert alert-success">Account activated successfully! You can now sign in.</div>'; // i18n
+          setTimeout(() => {
+            if (companyCodeModalInstance) companyCodeModalInstance.hide();
+            resetCompanyCodeModal();
+          }, 3000);
+        }
+      } catch (e) {
+        console.error('Exception setting password or updating profile:', e);
+        companyCodeMessage.innerHTML = `<div class="alert alert-danger">Error activating account: ${e.message}</div>`; // i18n
+      } finally {
+        if (setPasswordButton) setPasswordButton.disabled = false;
+      }
+    });
+  }
+  // --- End Company Code Modal Logic ---
+
 });
 
 // Sidebar Toggler Logic

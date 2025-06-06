@@ -84,6 +84,9 @@
             <div id="userAccountInfoView" style="display: none;">
               <h2 class="h3 mb-1 fw-semibold" data-i18n="signUpPage.userAccountInfoTitle">User Account Information</h2>
               <p class="text-muted mb-4" data-i18n="signUpPage.userAccountInfoText">How to set up a new account: As a User, you require to have an account set up by the Agency that is managing your property. Please get in touch with them and ask them to set you up with a new account. Once done, you can sign into your account on the Sign In page.</p>
+              <div class="mt-4">
+                <button type="button" class="btn btn-secondary w-100 py-2" id="haveCompanyCodeButton" data-i18n="signUpPage.user.haveCodeButton">I have a Company Code</button>
+              </div>
               <!-- Optional: Add a button to go back to account type selection or to Sign In page -->
             </div>
 
@@ -190,6 +193,60 @@
     </div>
   </div>
   <!-- End Language Selection Modal -->
+
+  <!-- Company Code Modal -->
+  <div class="modal fade" id="companyCodeModal" tabindex="-1" aria-labelledby="companyCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="companyCodeModalLabel" data-i18n="companyCodeModal.titleInitial">Join Your Company</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="companyCodeForm">
+            <!-- Step 1: Enter Company Code -->
+            <div id="companyCodeStep1">
+              <p data-i18n="companyCodeModal.descriptionCode">Please enter the 8-digit code provided by your agency.</p>
+              <div class="form-floating mb-3">
+                <input type="tel" class="form-control" id="companyCodeInput" placeholder="12345678" maxlength="8" pattern="[0-9]{8}" required>
+                <label for="companyCodeInput" data-i18n="companyCodeModal.inputLabelCode">Company Code</label>
+              </div>
+              <button type="button" class="btn btn-primary w-100" id="verifyCompanyCodeButton" data-i18n="companyCodeModal.buttonVerifyCode">Verify Code</button>
+            </div>
+
+            <!-- Step 2: Enter Email (Hidden initially) -->
+            <div id="companyCodeStep2" style="display: none;">
+              <p data-i18n="companyCodeModal.descriptionEmail">Code verified! Please enter your email address registered with the agency.</p>
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="companyCodeEmailInput" placeholder="name@example.com" required>
+                <label for="companyCodeEmailInput" data-i18n="companyCodeModal.inputLabelEmail">Your Email Address</label>
+              </div>
+              <button type="button" class="btn btn-primary w-100" id="verifyCompanyEmailButton" data-i18n="companyCodeModal.buttonVerifyEmail">Verify Email</button>
+            </div>
+
+            <!-- Step 3: Set Password (Hidden initially) -->
+            <div id="companyCodeStep3" style="display: none;">
+              <p data-i18n="companyCodeModal.descriptionPassword">Email verified! Please set your password to activate your account.</p>
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="companyCodePasswordInput" placeholder="New Password" required minlength="6">
+                <label for="companyCodePasswordInput" data-i18n="companyCodeModal.inputLabelPassword">New Password</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="companyCodeConfirmPasswordInput" placeholder="Confirm New Password" required minlength="6">
+                <label for="companyCodeConfirmPasswordInput" data-i18n="companyCodeModal.inputLabelConfirmPassword">Confirm New Password</label>
+              </div>
+              <button type="submit" class="btn btn-success w-100" id="setCompanyPasswordButton" data-i18n="companyCodeModal.buttonSetPassword">Set Password & Join</button>
+            </div>
+          </form>
+          <div id="companyCodeMessage" class="mt-3"></div> <!-- For messages -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="companyCodeModal.buttonClose">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Company Code Modal -->
 
   <script src="js/supabase-config.js"></script>
   <script type="module" src="js/supabase-client.js"></script>

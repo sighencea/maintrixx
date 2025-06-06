@@ -18,13 +18,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Modals
     const addStaffModalEl = document.getElementById('addStaffModal');
     const addStaffModalInstance = addStaffModalEl ? new bootstrap.Modal(addStaffModalEl) : null;
-    // const viewStaffModalEl = document.getElementById('viewStaffModal');
-    // const viewStaffModalInstance = viewStaffModalEl ? new bootstrap.Modal(viewStaffModalEl) : null;
-    // const editStaffModalEl = document.getElementById('editStaffModal');
-    // const editStaffModalInstance = editStaffModalEl ? new bootstrap.Modal(editStaffModalEl) : null;
+    const viewStaffModalEl = document.getElementById('viewStaffModal');
+    const viewStaffModalInstance = viewStaffModalEl ? new bootstrap.Modal(viewStaffModalEl) : null;
+    const editStaffModalEl = document.getElementById('editStaffModal');
+    const editStaffModalInstance = editStaffModalEl ? new bootstrap.Modal(editStaffModalEl) : null;
 
     if (!addStaffModalInstance) {
         console.error('Add Staff Modal element not found or failed to initialize.');
+    }
+    if (!viewStaffModalInstance) {
+        console.error('View Staff Modal element not found or failed to initialize.');
+    }
+    if (!editStaffModalInstance) {
+        console.error('Edit Staff Modal element not found or failed to initialize.');
     }
 
     if (!staffTableBody) {
@@ -97,8 +103,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('Error fetching staff for company:', error);
             throw new Error(`Error fetching staff: ${error.message}`);
         }
-        console.log('Staff for company fetched:', data);
-        return data || [];
+        const staffProfiles = data || [];
+
+        // Fetch task counts for each staff member
+        const staffWithTaskCounts = await Promise.all(staffProfiles.map(async (staff) => {
+          try {
+            const { data: count, error: rpcError } = await supabase.rpc('get_assigned_tasks_count', {
+              staff_user_id: staff.id
+            });
+            if (rpcError) {
+              console.error(`Failed to get task count for staff ${staff.id}:`, rpcError);
+              return { ...staff, assigned_tasks_count: 0 }; // Default to 0 on error
+            }
+            return { ...staff, assigned_tasks_count: count };
+          } catch (e) {
+            console.error(`Exception while getting task count for staff ${staff.id}:`, e);
+            return { ...staff, assigned_tasks_count: 0 }; // Default to 0 on exception
+          }
+        }));
+
+        console.log('Staff with task counts fetched:', staffWithTaskCounts);
+        return staffWithTaskCounts;
     }
 
     // Function to render staff data to the table
@@ -134,7 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td class="staff-col-profile"><i class="bi bi-person-circle fa-2x text-secondary"></i></td>
                 <td>${staff.first_name || ''} ${staff.last_name || ''}</td>
                 <td>${staff.user_role || 'N/A'}</td>
-                <td class="staff-col-assigned-tasks">0</td> <!-- Placeholder -->
+                <td class="staff-col-assigned-tasks">${staff.assigned_tasks_count !== undefined ? staff.assigned_tasks_count : 'N/A'}</td>
                 <td class="staff-col-status"><span class="badge-custom-base ${statusBadgeClass}">${status}</span></td>
                 <td>
                     <button class="btn btn-link text-primary p-0 me-2 view-staff-btn" data-staff-id="${staff.id}" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip"><i class="bi bi-eye-fill"></i></button>
@@ -187,6 +212,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         addStaffForm.addEventListener('submit', handleAddStaffFormSubmit);
     }
 
+    const editStaffForm = document.getElementById('editStaffForm');
+    if (editStaffForm) {
+        editStaffForm.addEventListener('submit', handleEditStaffFormSubmit);
+    }
+
     if (searchInput) {
         searchInput.addEventListener('input', filterStaff);
     }
@@ -198,18 +228,49 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (viewButton) {
             const staffId = viewButton.dataset.staffId;
-            console.log('View staff:', staffId);
-            // const viewModalInstance = bootstrap.Modal.getInstance(document.getElementById('viewStaffModal')) || new bootstrap.Modal(document.getElementById('viewStaffModal'));
-            // Populate and show view modal (functionality pending)
-            // viewModalInstance.show();
-            alert(`View staff ID: ${staffId} (Functionality pending)`);
+            console.log('View staff button clicked for ID:', staffId);
+            const staffMember = allStaffData.find(s => s.id === staffId);
+
+            if (staffMember && viewStaffModalInstance) {
+                document.getElementById('viewStaffName').textContent = `${staffMember.first_name || ''} ${staffMember.last_name || ''}`;
+                document.getElementById('viewStaffEmail').textContent = staffMember.email || 'N/A';
+                document.getElementById('viewStaffRole').textContent = staffMember.user_role || 'N/A';
+
+                const statusEl = document.getElementById('viewStaffStatus');
+                const status = staffMember.user_status || 'N/A';
+                let badgeClass = 'badge-custom-gray'; // Default
+                if (status === 'Active') badgeClass = 'badge-custom-green';
+                else if (status === 'New') badgeClass = 'badge-custom-blue';
+                else if (status === 'Invited') badgeClass = 'badge-custom-yellow';
+                else if (status === 'Inactive') badgeClass = 'badge-custom-gray';
+                statusEl.innerHTML = `<span class="badge-custom-base ${badgeClass}">${status}</span>`;
+
+                document.getElementById('viewStaffAssignedTasks').textContent = staffMember.assigned_tasks_count !== undefined ? staffMember.assigned_tasks_count : 'N/A';
+
+                viewStaffModalInstance.show();
+            } else {
+                console.error('Staff member not found for ID:', staffId, 'or View Modal instance not available.');
+            }
         } else if (editButton) {
             const staffId = editButton.dataset.staffId;
-            console.log('Edit staff:', staffId);
-            // const editModalInstance = bootstrap.Modal.getInstance(document.getElementById('editStaffModal')) || new bootstrap.Modal(document.getElementById('editModalInstance'));
-            // Populate and show edit modal (functionality pending)
-            // editModalInstance.show();
-            alert(`Edit staff ID: ${staffId} (Functionality pending)`);
+            console.log('Edit staff button clicked for ID:', staffId);
+            const staffMember = allStaffData.find(s => s.id === staffId);
+
+            if (staffMember && editStaffModalInstance) {
+                document.getElementById('editStaffId').value = staffMember.id;
+                document.getElementById('editStaffFirstName').value = staffMember.first_name || '';
+                document.getElementById('editStaffLastName').value = staffMember.last_name || '';
+                document.getElementById('editStaffEmail').value = staffMember.email || '';
+                document.getElementById('editStaffRole').value = staffMember.user_role || '';
+                document.getElementById('editStaffStatus').value = staffMember.user_status || '';
+
+                const editStaffMessage = document.getElementById('editStaffMessage');
+                if (editStaffMessage) editStaffMessage.innerHTML = ''; // Clear previous messages
+
+                editStaffModalInstance.show();
+            } else {
+                console.error('Staff member not found for ID:', staffId, 'or Edit Modal instance not available.');
+            }
         }
     });
 
@@ -323,6 +384,85 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+
+    // --- Function to update a staff member ---
+    async function updateStaffMember(staffId, staffUpdateData) {
+        console.log('Updating staff member ID:', staffId, 'with data:', staffUpdateData);
+        const { data, error } = await supabase
+            .from('profiles')
+            .update(staffUpdateData)
+            .eq('id', staffId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error updating staff member:', error);
+            if (error.code === '23505') { // Postgres unique violation for email
+                throw new Error(`Error updating staff: An account with the email ${staffUpdateData.email} already exists.`);
+            }
+            throw new Error(`Error updating staff: ${error.message}`);
+        }
+        console.log('Staff member updated:', data);
+        return data;
+    }
+
+    // --- Function to handle Edit Staff form submission ---
+    async function handleEditStaffFormSubmit(event) {
+        event.preventDefault();
+        console.log('Edit Staff form submitted');
+
+        const staffId = document.getElementById('editStaffId').value;
+        const firstName = document.getElementById('editStaffFirstName').value.trim();
+        const lastName = document.getElementById('editStaffLastName').value.trim();
+        const email = document.getElementById('editStaffEmail').value.trim();
+        const role = document.getElementById('editStaffRole').value;
+        const status = document.getElementById('editStaffStatus').value;
+
+        const messageDiv = document.getElementById('editStaffMessage');
+        const saveBtn = document.getElementById('saveStaffChangesBtn');
+
+        if (messageDiv) messageDiv.innerHTML = '';
+
+        if (!staffId || !firstName || !lastName || !email || !role || !status) {
+            displayModalMessage(messageDiv, 'Please fill in all required fields.', true);
+            return;
+        }
+
+        if (saveBtn) saveBtn.disabled = true;
+
+        const updateData = {
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            user_role: role,
+            user_status: status,
+        };
+
+        try {
+            const updatedStaff = await updateStaffMember(staffId, updateData);
+
+            if (updatedStaff) {
+                // Update the local allStaffData array
+                const index = allStaffData.findIndex(s => s.id === staffId);
+                if (index !== -1) {
+                    allStaffData[index] = { ...allStaffData[index], ...updatedStaff }; // Merge updated fields
+                }
+                renderStaffTable(allStaffData); // Re-render the table with updated data
+
+                displayModalMessage(messageDiv, 'Staff member updated successfully!', false);
+                setTimeout(() => {
+                    if (editStaffModalInstance) editStaffModalInstance.hide();
+                }, 1500);
+            } else {
+                displayModalMessage(messageDiv, 'Failed to update staff member. Please try again.', true);
+            }
+        } catch (error) {
+            console.error('Error during staff update process:', error);
+            displayModalMessage(messageDiv, error.message || 'An unexpected error occurred while updating.', true);
+        } finally {
+            if (saveBtn) saveBtn.disabled = false;
+        }
+    }
 
     // --- Initial Load ---
     // Allow initializePage to optionally skip re-fetching admin profile if already available
