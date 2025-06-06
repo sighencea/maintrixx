@@ -307,9 +307,6 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log('User signed up successfully. User metadata should include first_name and account_type.');
           console.log('User metadata at signup:', data.user.user_metadata); // Log metadata
 
-          // The rest of the logic (displaying success message, guiding to check email) remains.
-          // No immediate profile insertion or Edge Function call here.
-
           let firstNameDebugMessage = " (Debug: user_metadata.first_name: " + (data.user.user_metadata?.first_name || 'N/A') +
                                       ", user_metadata.account_type: " + (data.user.user_metadata?.account_type || 'N/A') + ")";
 
@@ -395,6 +392,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (authData.user) {
           if (resendModal) resendModal.hide();
           const userId = authData.user.id;
+          console.log('[signInUser] Attempting to fetch profile for user ID:', userId);
 
           // Attempt to fetch profile
           let profile;
@@ -409,13 +407,20 @@ document.addEventListener('DOMContentLoaded', function () {
           profile = profileQuery.data;
           profileError = profileQuery.error;
 
+          if (profileError) {
+            console.log('[signInUser] Error received from initial profile fetch:', JSON.stringify(profileError, null, 2));
+          } else if (profile) {
+            console.log('[signInUser] Profile found successfully on initial fetch:', JSON.stringify(profile, null, 2));
+          } else {
+            console.log('[signInUser] Initial profile fetch returned no data and no specific error object. Profile is null/undefined.');
+          }
+
           if (profileError && profileError.code === 'PGRST116') { // Profile not found
-            console.log('Profile not found for user, attempting to create initial profile via Edge Function...');
+            console.log('[signInUser] Condition met: Profile not found (PGRST116). Attempting to create via Edge Function...');
             const { data: functionResponse, error: functionError } = await window._supabase.functions.invoke(
               'create-initial-profile',
               {
                 body: {
-                  // Send preferredUiLanguage from client, or function will default
                   preferredUiLanguage: (typeof i18next !== 'undefined' ? i18next.language : 'en')
                 }
               }
@@ -439,7 +444,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             console.log('Initial profile created/ensured by Edge Function, re-fetching profile...', functionResponse?.profile);
-            // Re-fetch the profile
             const { data: newProfile, error: newProfileError } = await window._supabase
               .from('profiles')
               .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin, preferred_ui_language')
@@ -455,20 +459,19 @@ document.addEventListener('DOMContentLoaded', function () {
               await window._supabase.auth.signOut();
               return;
             }
-            profile = newProfile; // Use the newly created profile
-            profileError = null; // Clear the 'not found' error
+            profile = newProfile;
+            profileError = null;
             console.log('Successfully re-fetched profile:', profile);
-          } else if (profileError) { // Other errors during initial profile fetch (not PGRST116)
+          } else if (profileError) {
+            console.log('[signInUser] Condition NOT met for Edge Function call: Profile fetch failed with a different error (not PGRST116).');
             console.error('Error fetching initial profile (not PGRST116):', profileError);
              if (signInMessage) {
                 signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
                 signInMessage.className = 'alert alert-danger';
             }
             return;
-          }
-
-          // Safeguard if profile is still somehow null without a specific error handled above
-          if (!profile) {
+          } else if (!profile) {
+             console.log('[signInUser] Condition NOT met for Edge Function call: Profile was null but no specific error provided for initial fetch.');
              console.error('Profile is null even after potential creation and refetch without specific error.');
              if (signInMessage) {
                 signInMessage.textContent = 'Could not retrieve your profile. Please contact support.';
@@ -476,14 +479,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             await window._supabase.auth.signOut();
             return;
+          } else {
+            console.log('[signInUser] Condition NOT met for Edge Function call: Profile was found initially.');
           }
 
-          // Store isAdmin status early using the definitive 'profile' object
           const isAdmin = profile.is_admin;
           localStorage.setItem('userIsAdmin', isAdmin.toString());
           updateSidebarForPermissions();
 
-          if (profile.is_verified_by_code) { // Use 'profile'
+          if (profile.is_verified_by_code) {
             if (signInMessage) {
               signInMessage.textContent = i18next.t('mainJs.signIn.successVerificationDone');
               signInMessage.className = 'alert alert-success';
@@ -492,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 localStorage.setItem('onboardingComplete', 'true');
                 window.location.href = 'pages/tasks.html';
             } else {
-                if (profile.has_company_set_up === false) { // Use 'profile'
+                if (profile.has_company_set_up === false) {
                     currentUserIdForLanguagePref = userId;
                     localStorage.removeItem('onboardingComplete');
                     if (languageSelectionModalInstance) languageSelectionModalInstance.show();
@@ -502,7 +506,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
           } else {
-            // Show 6-digit code modal
             if (signInMessage) signInMessage.textContent = '';
 
             if (!sixDigitCodeModalInstance && sixDigitCodeModalEl) {
@@ -527,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   return;
                 }
 
-                if (enteredCode.trim() === String(profile.verification_code).trim()) { // Use 'profile'
+                if (enteredCode.trim() === String(profile.verification_code).trim()) {
                   const { error: updateError } = await window._supabase
                     .from('profiles')
                     .update({ is_verified_by_code: true })
@@ -546,12 +549,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     if (sixDigitCodeModalInstance) sixDigitCodeModalInstance.hide();
 
-                    // Re-apply redirection logic based on isAdmin and profile.has_company_set_up
                     if (!isAdmin) {
                         localStorage.setItem('onboardingComplete', 'true');
                         window.location.href = 'pages/tasks.html';
                     } else {
-                        if (profile.has_company_set_up === false) { // Use 'profile'
+                        if (profile.has_company_set_up === false) {
                             currentUserIdForLanguagePref = userId;
                             localStorage.removeItem('onboardingComplete');
                             if (languageSelectionModalInstance) languageSelectionModalInstance.show();
