@@ -274,15 +274,19 @@ document.addEventListener('DOMContentLoaded', function () {
           console.error('Supabase client not available for sign-up.'); 
           return; 
         }
-        const currentAccountType = accountTypeSelect.value; // Get selected account type
+        const currentAccountType = accountTypeSelect.value;
+
+        const optionsData = {
+          first_name: firstName,
+          account_type: currentAccountType
+        };
+        console.log('[signUp] options.data being sent to auth.signUp:', JSON.stringify(optionsData, null, 2));
+
         const { data, error } = await window._supabase.auth.signUp({
           email: email,
           password: password,
           options: {
-            data: { // This data is stored in auth.users.raw_user_meta_data
-              first_name: firstName,
-              account_type: currentAccountType
-            }
+            data: optionsData
           }
         });
 
@@ -305,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
           // Successfully signed up the user with auth.
           // Profile creation will now happen on first login after email verification.
           console.log('User signed up successfully. User metadata should include first_name and account_type.');
-          console.log('User metadata at signup:', data.user.user_metadata); // Log metadata
+          console.log('User metadata at signup:', data.user.user_metadata);
 
           let firstNameDebugMessage = " (Debug: user_metadata.first_name: " + (data.user.user_metadata?.first_name || 'N/A') +
                                       ", user_metadata.account_type: " + (data.user.user_metadata?.account_type || 'N/A') + ")";
