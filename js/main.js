@@ -944,5 +944,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
-
-[end of js/main.js]
