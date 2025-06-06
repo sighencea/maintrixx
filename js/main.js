@@ -328,6 +328,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             profileDataToInsert.user_status = 'New'; // Set user_status for all new sign-ups
 
+            console.log('Attempting to insert profile:', JSON.stringify(profileDataToInsert, null, 2));
+
             const { error: profileError } = await window._supabase
               .from('profiles')
               .insert([profileDataToInsert])
