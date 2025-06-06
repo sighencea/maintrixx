@@ -327,23 +327,58 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             profileDataToInsert.user_status = 'New'; // Set user_status for all new sign-ups
+            // Note: profileDataToInsert is no longer directly used for DB insert from client.
+            // The necessary values (firstName, currentAccountType, preferred_ui_language)
+            // will be passed in the body of the functions.invoke call.
+            // The console.log before this was for the direct insert object.
+            // We can log what we are sending to the function if needed.
 
-            console.log('Attempting to insert profile:', JSON.stringify(profileDataToInsert, null, 2));
+            console.log('Attempting to invoke create-initial-profile function with body:', JSON.stringify({
+              firstName: firstName,
+              accountType: currentAccountType,
+              preferredUiLanguage: (typeof i18next !== 'undefined' ? i18next.language : 'en')
+            }, null, 2));
 
-            const { error: profileError } = await window._supabase
-              .from('profiles')
-              .insert([profileDataToInsert])
-              .select();
+            const { data: functionResponseData, error: functionError } = await window._supabase.functions.invoke(
+              'create-initial-profile',
+              {
+                body: {
+                  firstName: firstName,
+                  accountType: currentAccountType,
+                  preferredUiLanguage: (typeof i18next !== 'undefined' ? i18next.language : 'en')
+                }
+              }
+            );
 
-            if (profileError) {
-              console.error('Error creating profile during sign-up:', profileError);
-              // This error might need to be shown to the user, as signup was successful but profile creation failed.
-              // For now, the existing logic will show a generic success/check email message.
-            } else {
-              console.log('Successfully created profile for user:', userId, 'with account type:', currentAccountType, profileDataToInsert);
+            if (functionError) {
+              console.error('Error calling create-initial-profile function:', functionError);
+              let displayErrorMessage = functionError.message;
+              if (functionError.context && functionError.context.json && functionError.context.json.error) {
+                displayErrorMessage = functionError.context.json.error;
+              } else if (functionError.message.includes("Function not found")) {
+                displayErrorMessage = "Profile creation service is unavailable. Please try again later.";
+              }
+              // Display this error in the signUpUserMessage
+              if (signUpUserMessage) {
+                  signUpUserMessage.textContent = i18next.t('mainJs.signup.errorMessage', { message: displayErrorMessage });
+                  signUpUserMessage.className = 'alert alert-danger';
+              }
+              // Consider if user auth record should be deleted here if profile creation is critical
+              return; // Stop further processing in the success path of signUp
             }
-          } catch (profileInsertException) {
-            console.error('Exception during profile insert for verification code and type during sign-up:', profileInsertException);
+
+            // If successful, functionResponseData contains { success: true, profile: { ... } }
+            console.log('Profile created via Edge Function:', functionResponseData);
+            // The existing success messages for auth.signUp will still be shown, which is fine.
+            // No specific message needed here unless the function call itself fails critically.
+
+          } catch (profileInsertException) { // This catch block might now be less relevant for profile insert itself
+            console.error('Exception during profile creation step (now function invocation):', profileInsertException);
+             if (signUpUserMessage) {
+                signUpUserMessage.textContent = i18next.t('mainJs.signup.errorMessage', { message: profileInsertException.message });
+                signUpUserMessage.className = 'alert alert-danger';
+            }
+            return; // Stop further processing
           }
 
           if (data.user.identities && data.user.identities.length === 0) {
