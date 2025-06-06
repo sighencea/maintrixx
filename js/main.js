@@ -274,13 +274,18 @@ document.addEventListener('DOMContentLoaded', function () {
           console.error('Supabase client not available for sign-up.'); 
           return; 
         }
+        const currentAccountType = accountTypeSelect.value; // Get selected account type
         const { data, error } = await window._supabase.auth.signUp({
           email: email,
           password: password,
           options: {
-            data: { first_name: firstName }
+            data: { // This data is stored in auth.users.raw_user_meta_data
+              first_name: firstName,
+              account_type: currentAccountType
+            }
           }
         });
+
         if (error) {
           if (error.message && (error.message.includes('User already registered') || error.message.includes('already registered'))) {
             if (signUpUserMessage) {
@@ -297,89 +302,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
         } else if (data.user) {
-          let firstNameDebugMessage = " (Debug: first_name NOT seen in user_metadata)";
-          if (data.user.user_metadata && data.user.user_metadata.first_name) {
-            firstNameDebugMessage = " (Debug: first_name '" + data.user.user_metadata.first_name + "' seen in user_metadata)";
-          }
+          // Successfully signed up the user with auth.
+          // Profile creation will now happen on first login after email verification.
+          console.log('User signed up successfully. User metadata should include first_name and account_type.');
+          console.log('User metadata at signup:', data.user.user_metadata); // Log metadata
 
-          // Generate 8-digit code and update profile // Commenting out generatedCode as it's no longer inserted
-          // const generatedCode = Math.floor(10000000 + Math.random() * 90000000).toString();
-          const userId = data.user.id;
+          // The rest of the logic (displaying success message, guiding to check email) remains.
+          // No immediate profile insertion or Edge Function call here.
 
-          try {
-            const userEmail = data.user.email; // Get email from the auth user object
-            const currentAccountType = accountTypeSelect.value; // Get selected account type
+          let firstNameDebugMessage = " (Debug: user_metadata.first_name: " + (data.user.user_metadata?.first_name || 'N/A') +
+                                      ", user_metadata.account_type: " + (data.user.user_metadata?.account_type || 'N/A') + ")";
 
-            let profileDataToInsert = {
-              id: userId,
-              email: userEmail, // Make sure to use the email from auth response
-              first_name: firstName, // This is from the form input
-              // verification_code: generatedCode, // REMOVED: is_verified_by_code defaults to false in DB
-              preferred_ui_language: typeof i18next !== 'undefined' ? i18next.language : 'en' // Default to 'en'
-            };
-
-            if (currentAccountType === 'agency') {
-              profileDataToInsert.is_admin = true;
-              profileDataToInsert.has_company_set_up = false;
-            } else { // For 'user' account type
-              profileDataToInsert.is_admin = false;
-              profileDataToInsert.has_company_set_up = false; // Or rely on DB default
-            }
-
-            profileDataToInsert.user_status = 'New'; // Set user_status for all new sign-ups
-            // Note: profileDataToInsert is no longer directly used for DB insert from client.
-            // The necessary values (firstName, currentAccountType, preferred_ui_language)
-            // will be passed in the body of the functions.invoke call.
-            // The console.log before this was for the direct insert object.
-            // We can log what we are sending to the function if needed.
-
-            console.log('Attempting to invoke create-initial-profile function with body:', JSON.stringify({
-              firstName: firstName,
-              accountType: currentAccountType,
-              preferredUiLanguage: (typeof i18next !== 'undefined' ? i18next.language : 'en')
-            }, null, 2));
-
-            const { data: functionResponseData, error: functionError } = await window._supabase.functions.invoke(
-              'create-initial-profile',
-              {
-                body: {
-                  firstName: firstName,
-                  accountType: currentAccountType,
-                  preferredUiLanguage: (typeof i18next !== 'undefined' ? i18next.language : 'en')
-                }
-              }
-            );
-
-            if (functionError) {
-              console.error('Error calling create-initial-profile function:', functionError);
-              let displayErrorMessage = functionError.message;
-              if (functionError.context && functionError.context.json && functionError.context.json.error) {
-                displayErrorMessage = functionError.context.json.error;
-              } else if (functionError.message.includes("Function not found")) {
-                displayErrorMessage = "Profile creation service is unavailable. Please try again later.";
-              }
-              // Display this error in the signUpUserMessage
-              if (signUpUserMessage) {
-                  signUpUserMessage.textContent = i18next.t('mainJs.signup.errorMessage', { message: displayErrorMessage });
-                  signUpUserMessage.className = 'alert alert-danger';
-              }
-              // Consider if user auth record should be deleted here if profile creation is critical
-              return; // Stop further processing in the success path of signUp
-            }
-
-            // If successful, functionResponseData contains { success: true, profile: { ... } }
-            console.log('Profile created via Edge Function:', functionResponseData);
-            // The existing success messages for auth.signUp will still be shown, which is fine.
-            // No specific message needed here unless the function call itself fails critically.
-
-          } catch (profileInsertException) { // This catch block might now be less relevant for profile insert itself
-            console.error('Exception during profile creation step (now function invocation):', profileInsertException);
-             if (signUpUserMessage) {
-                signUpUserMessage.textContent = i18next.t('mainJs.signup.errorMessage', { message: profileInsertException.message });
-                signUpUserMessage.className = 'alert alert-danger';
-            }
-            return; // Stop further processing
-          }
 
           if (data.user.identities && data.user.identities.length === 0) {
             if (signUpUserMessage) {
@@ -464,27 +397,88 @@ document.addEventListener('DOMContentLoaded', function () {
           const userId = authData.user.id;
 
           // Fetch profile immediately after successful auth
-          const { data: initialProfile, error: initialProfileError } = await window._supabase
+          let profile, profileError;
+          const profileQuery = await window._supabase
             .from('profiles')
-            .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin')
+            .select('id, has_company_set_up, is_admin, preferred_ui_language, is_verified_by_code, verification_code') // Ensure all needed fields are selected
             .eq('id', userId)
             .single();
 
-          if (initialProfileError || !initialProfile) {
-            console.error('Error fetching initial profile or profile not found:', initialProfileError);
-            if (signInMessage) {
-              signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
-              signInMessage.className = 'alert alert-danger';
+          profile = profileQuery.data;
+          profileError = profileQuery.error;
+
+          if (profileError && profileError.code === 'PGRST116') { // PGRST116: "single row not found"
+            console.log('Profile not found for user, attempting to create initial profile via Edge Function...');
+            const { data: functionResponse, error: functionError } = await window._supabase.functions.invoke(
+              'create-initial-profile',
+              {
+                body: {
+                  preferredUiLanguage: (typeof i18next !== 'undefined' ? i18next.language : 'en')
+                }
+              }
+            );
+
+            if (functionError) {
+              console.error('Error calling create-initial-profile function during sign-in:', functionError);
+              let displayErrorMessage = 'Failed to set up your profile. ';
+              if (functionError.context && functionError.context.json && functionError.context.json.error) {
+                displayErrorMessage += functionError.context.json.error;
+              } else {
+                displayErrorMessage += functionError.message;
+              }
+              displayErrorMessage += ' Please try logging in again or contact support.';
+              if (signInMessage) {
+                signInMessage.textContent = displayErrorMessage;
+                signInMessage.className = 'alert alert-danger';
+              }
+              await window._supabase.auth.signOut();
+              return;
+            }
+
+            console.log('Initial profile created/ensured by Edge Function, re-fetching profile...', functionResponse?.profile);
+            const { data: newProfile, error: newProfileError } = await window._supabase
+              .from('profiles')
+              .select('id, has_company_set_up, is_admin, preferred_ui_language, is_verified_by_code, verification_code')
+              .eq('id', userId)
+              .single();
+
+            if (newProfileError || !newProfile) {
+              console.error('CRITICAL: Profile still not found after Edge Function call:', newProfileError);
+              if (signInMessage) {
+                signInMessage.textContent = 'There was a critical error setting up your account. Please contact support.';
+                signInMessage.className = 'alert alert-danger';
+              }
+              await window._supabase.auth.signOut();
+              return;
+            }
+            profile = newProfile;
+            profileError = null;
+            console.log('Successfully re-fetched profile:', profile);
+          } else if (profileError) {
+            console.error('Error fetching initial profile (not PGRST116):', profileError);
+             if (signInMessage) {
+                signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
+                signInMessage.className = 'alert alert-danger';
             }
             return;
           }
 
+          if (!profile) { // Should be caught by PGRST116 or other errors, but as a safeguard
+             console.error('Profile is null even after potential creation and refetch without specific error.');
+             if (signInMessage) {
+                signInMessage.textContent = 'Could not retrieve your profile. Please contact support.';
+                signInMessage.className = 'alert alert-danger';
+            }
+            await window._supabase.auth.signOut();
+            return;
+          }
+
           // Store isAdmin status early
-          const isAdmin = initialProfile ? initialProfile.is_admin : false;
+          const isAdmin = profile ? profile.is_admin : false; // Use the potentially re-fetched profile
           localStorage.setItem('userIsAdmin', isAdmin.toString());
           updateSidebarForPermissions(); // Update sidebar immediately after setting admin status
 
-          if (initialProfile.is_verified_by_code) {
+          if (profile.is_verified_by_code) {
             if (signInMessage) {
               signInMessage.textContent = i18next.t('mainJs.signIn.successVerificationDone');
               signInMessage.className = 'alert alert-success';

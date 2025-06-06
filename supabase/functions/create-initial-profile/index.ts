@@ -11,9 +11,7 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-interface RequestBody {
-  firstName?: string;
-  accountType?: 'agency' | 'user'; // Define expected account types
+interface RequestBody { // Only preferredUiLanguage is now expected from the body
   preferredUiLanguage?: string;
 }
 
@@ -80,49 +78,49 @@ serve(async (req: Request) => {
     }
     console.log('User retrieved successfully from JWT:', user.id, user.email);
 
-    if (!req.body) {
-        console.warn('Request body is missing.');
-        return new Response(JSON.stringify({ error: 'Request body is missing.' }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+    // Attempt to parse preferredUiLanguage from body, can be null or undefined if body is empty or not JSON
+    let preferredUiLanguageFromBody: string | undefined = undefined;
+    if (req.body) {
+        try {
+            const requestBody: RequestBody = await req.json();
+            console.log('Request body parsed:', requestBody);
+            if (requestBody && typeof requestBody.preferredUiLanguage === 'string') {
+                preferredUiLanguageFromBody = requestBody.preferredUiLanguage;
+            }
+        } catch (e) {
+            // Log error but don't fail if body is not valid JSON, as it's optional
+            console.warn('Could not parse request body as JSON or preferredUiLanguage not found/valid:', e.message);
+        }
+    } else {
+        console.log('No request body present or body is null.')
     }
 
-    let requestBody: RequestBody;
-    try {
-        requestBody = await req.json();
-        console.log('Request body parsed:', requestBody);
-    } catch (e) {
-        console.error('Error parsing request body as JSON:', e.message);
-        return new Response(JSON.stringify({ error: 'Invalid JSON in request body.', details: e.message }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-    }
+    const userMetadata = user.user_metadata;
+    const firstName = userMetadata?.first_name as string | undefined; // Type assertion
+    const accountType = userMetadata?.account_type as 'agency' | 'user' | undefined; // Type assertion
 
+    console.log('Extracted from user_metadata: firstName =', firstName, ', accountType =', accountType);
 
-    if (!requestBody.firstName || typeof requestBody.firstName !== 'string' || requestBody.firstName.trim() === '') {
-      console.warn('Validation failed: firstName is required.');
-      return new Response(JSON.stringify({ error: 'Validation failed: firstName is required.' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    if (!firstName || firstName.trim() === '') {
+      console.warn('Validation failed: first_name not found or empty in user metadata.');
+      return new Response(JSON.stringify({ error: 'First name not found in user metadata. Please ensure it was set during sign-up.' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    if (!requestBody.accountType || (requestBody.accountType !== 'agency' && requestBody.accountType !== 'user')) {
-        console.warn('Validation failed: accountType must be "agency" or "user".');
-        return new Response(JSON.stringify({ error: 'Validation failed: accountType must be "agency" or "user".' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
+    if (!accountType || (accountType !== 'agency' && accountType !== 'user')) {
+      console.warn('Validation failed: account_type not found or invalid in user metadata.');
+      return new Response(JSON.stringify({ error: 'Valid account type (agency/user) not found in user metadata. Please ensure it was set during sign-up.' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const profileDataToInsert: ProfileData = {
       id: user.id,
       email: user.email,
-      first_name: requestBody.firstName.trim(),
-      preferred_ui_language: requestBody.preferredUiLanguage || 'en',
+      first_name: firstName.trim(),
+      preferred_ui_language: preferredUiLanguageFromBody || userMetadata?.preferred_ui_language as string || 'en', // Prioritize body, then metadata, then default
       user_status: 'New',
-      is_admin: requestBody.accountType === 'agency',
+      is_admin: accountType === 'agency',
       has_company_set_up: false,
       company_id: null,
     };
