@@ -76,7 +76,8 @@ serve(async (req: Request) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    console.log('User retrieved successfully from JWT:', user.id, user.email);
+    console.log('[create-initial-profile] User object retrieved:', JSON.stringify(user, null, 2));
+    // console.log('User retrieved successfully from JWT:', user.id, user.email); // Original log, can be kept or removed
 
     // Attempt to parse preferredUiLanguage from body, can be null or undefined if body is empty or not JSON
     let preferredUiLanguageFromBody: string | undefined = undefined;
@@ -96,10 +97,17 @@ serve(async (req: Request) => {
     }
 
     const userMetadata = user.user_metadata;
+    console.log('[create-initial-profile] User metadata received:', JSON.stringify(userMetadata, null, 2));
+
     const firstName = userMetadata?.first_name as string | undefined; // Type assertion
     const accountType = userMetadata?.account_type as 'agency' | 'user' | undefined; // Type assertion
 
-    console.log('Extracted from user_metadata: firstName =', firstName, ', accountType =', accountType);
+    // preferredUiLanguage determination is already here, just adding logs after it
+    const determinedPreferredUiLanguage = preferredUiLanguageFromBody || userMetadata?.preferred_ui_language as string || 'en';
+
+    console.log('[create-initial-profile] Extracted firstName:', firstName);
+    console.log('[create-initial-profile] Extracted accountType:', accountType);
+    console.log('[create-initial-profile] Determined preferredUiLanguage:', determinedPreferredUiLanguage);
 
     if (!firstName || firstName.trim() === '') {
       console.warn('Validation failed: first_name not found or empty in user metadata.');
@@ -124,7 +132,7 @@ serve(async (req: Request) => {
       has_company_set_up: false,
       company_id: null,
     };
-    console.log('Constructed profile data for insertion:', profileDataToInsert);
+    console.log('[create-initial-profile] Data to be inserted into profiles:', JSON.stringify(profileDataToInsert, null, 2));
 
     const { data: insertedProfile, error: insertError } = await supabaseAdminClient
       .from('profiles')
@@ -147,7 +155,8 @@ serve(async (req: Request) => {
       });
     }
 
-    console.log('Profile created successfully:', insertedProfile);
+    console.log('[create-initial-profile] Profile successfully inserted/selected:', JSON.stringify(insertedProfile, null, 2));
+    // console.log('Profile created successfully:', insertedProfile); // Original log
     return new Response(JSON.stringify({ success: true, profile: insertedProfile }), {
       status: 201, // Created
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
