@@ -342,3 +342,30 @@ $$;
 
 -- Grant execute permission to authenticated users
 GRANT EXECUTE ON FUNCTION public.current_user_is_admin() TO authenticated;
+
+-- RLS Policy for 'profiles' table to allow initial self-insertion
+
+-- Policy Name: "Profiles - Allow user to insert own initial profile"
+-- This policy allows a newly authenticated user to insert their own profile.
+-- It ensures the ID matches their auth.uid and sets appropriate initial flags
+-- based on how they might be signing up (e.g., as an agency admin or a regular user).
+CREATE POLICY "Profiles - Allow user to insert own initial profile" ON public.profiles
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  id = auth.uid() AND -- User can only insert a profile for themselves
+  (
+    -- Scenario 1: Signing up as an Agency Admin (JS will attempt to set is_admin=true, has_company_set_up=false)
+    (is_admin = TRUE AND has_company_set_up = FALSE AND user_status = 'New') OR
+    -- Scenario 2: Signing up as a regular User (JS will attempt to set is_admin=false, has_company_set_up=false)
+    -- This also covers staff members created by an admin if user_status is 'New' initially.
+    (is_admin = FALSE AND has_company_set_up = FALSE AND user_status = 'New')
+  )
+  -- At the point of self-signup, company_id is not yet known or assigned by an admin.
+  -- The js/main.js script does not set company_id during this initial profile insertion.
+  AND company_id IS NULL
+  -- It's also good practice to ensure the email matches, though auth.email() might be null if phone signup etc.
+  -- AND email = auth.email() -- Consider if this is always true for your signup methods
+);
+
+-- Reminder: Ensure RLS is enabled on the 'profiles' table in Supabase settings if it's not already.
