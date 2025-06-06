@@ -234,3 +234,94 @@ USING (
 
 -- Note: Storage RLS for 'agency-logo' bucket is separate and managed in Supabase Storage policies.
 -- The user's description of storage policies (owner CUD, public read) is standard.
+
+-- Revised RLS Policies for 'profiles' table to prevent recursion
+
+-- It's CRITICAL to DROP existing problematic policies on 'profiles' table before applying these.
+-- For example:
+-- DROP POLICY "Allow users to view colleagues in own company" ON profiles;
+-- DROP POLICY "Allow admin to insert staff in own company" ON profiles;
+-- DROP POLICY "Allow admin to update staff in own company" ON profiles;
+-- etc. for any other policies on 'profiles' that might use get_my_company_id() or cause recursion.
+-- The policy "Allow individual user read access to their own profile" (USING (auth.uid() = id))
+-- and "Allow user to update own profile (restricted)" (USING (auth.uid() = id) WITH CHECK (auth.uid() = id AND ...))
+-- are generally fine and might not need dropping if they don't use the recursive function.
+
+-- Policy Name: "Allow users to read their own profile data"
+-- Ensures users can always read their own complete profile row.
+-- This should take precedence for self-reads.
+CREATE POLICY "Profiles - Allow user to read own data" ON profiles
+FOR SELECT
+TO authenticated
+USING (auth.uid() = id);
+
+-- Policy Name: "Allow users to view colleagues within the same company"
+-- Allows users to see other profiles if they share the same non-null company_id.
+CREATE POLICY "Profiles - Allow user to view colleagues in same company" ON profiles
+FOR SELECT
+TO authenticated
+USING (
+  id != auth.uid() AND -- Don't rely on this policy for self-select, use the one above
+  company_id IS NOT NULL AND
+  EXISTS (
+    SELECT 1
+    FROM profiles p_self
+    WHERE p_self.id = auth.uid() AND p_self.company_id = profiles.company_id
+  )
+);
+
+-- Policy Name: "Allow agency admin to insert new staff into their company"
+CREATE POLICY "Profiles - Allow admin to insert staff in own company" ON profiles
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM profiles p_admin
+    WHERE p_admin.id = auth.uid() AND p_admin.is_admin = TRUE AND p_admin.company_id IS NOT NULL
+  ) AND
+  company_id = (SELECT p_admin.company_id FROM profiles p_admin WHERE p_admin.id = auth.uid() AND p_admin.is_admin = TRUE) AND
+  is_admin = FALSE AND
+  user_status = 'New'
+);
+
+-- Policy Name: "Allow users to update their own profile (restricted fields)"
+-- Prevents users from changing their own company_id or is_admin status.
+-- Column-level grants should further restrict which specific fields are modifiable.
+CREATE POLICY "Profiles - Allow user to update own profile (restricted)" ON profiles
+FOR UPDATE
+TO authenticated
+USING (auth.uid() = id)
+WITH CHECK (
+  auth.uid() = id AND
+  company_id = (SELECT p.company_id FROM profiles p WHERE p.id = auth.uid()) AND
+  is_admin = (SELECT p.is_admin FROM profiles p WHERE p.id = auth.uid())
+);
+
+-- Policy Name: "Allow agency admin to update staff profiles in their company"
+CREATE POLICY "Profiles - Allow admin to update staff in own company" ON profiles
+FOR UPDATE
+TO authenticated
+USING (
+  id != auth.uid() AND -- Admin uses the above policy to update their own record
+  EXISTS (
+    SELECT 1
+    FROM profiles p_admin
+    WHERE p_admin.id = auth.uid() AND p_admin.is_admin = TRUE AND p_admin.company_id IS NOT NULL
+    AND p_admin.company_id = profiles.company_id -- Ensures target is in same company
+  )
+)
+WITH CHECK (
+  id != auth.uid() AND
+  EXISTS (
+    SELECT 1
+    FROM profiles p_admin
+    WHERE p_admin.id = auth.uid() AND p_admin.is_admin = TRUE AND p_admin.company_id IS NOT NULL
+  ) AND
+  company_id = (SELECT p_admin.company_id FROM profiles p_admin WHERE p_admin.id = auth.uid() AND p_admin.is_admin = TRUE)
+  -- Admin can change is_admin and user_status of other users.
+  -- No check here on target.is_admin, as admin might need to make another user an admin or change their status.
+);
+
+-- Add any other necessary RLS policies for 'profiles' or ensure existing ones are compatible.
+-- Remember to enable RLS on the 'profiles' table in Supabase settings if it's not already.
