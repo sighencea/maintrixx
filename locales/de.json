@@ -268,6 +268,9 @@
       "statusActive": "Status: Aktiv",
       "statusInactive": "Status: Inaktiv"
     },
+    "buttons": {
+      "addNewStaff": "Neuen Mitarbeiter hinzufügen"
+    },
     "table": {
       "header": {
         "profile": "Profil",
@@ -280,11 +283,53 @@
       "actions": {
         "viewDetailsTooltip": "Details anzeigen",
         "editProfileTooltip": "Profil bearbeiten"
-      }
+      },
+      "noStaff": "Keine Mitarbeiter gefunden.",
+      "errorLoading": "Fehler beim Laden der Mitarbeiterdaten.",
+      "errorLoadingAdmin": "Fehler beim Laden der Admin-Daten."
     },
     "status": {
       "active": "Aktiv",
-      "inactive": "Inaktiv"
+      "inactive": "Inaktiv",
+      "new": "Neu"
+    },
+    "modals": {
+      "buttons": {
+        "cancel": "Abbrechen",
+        "save": "Mitarbeiter speichern",
+        "close": "Schließen",
+        "saveChanges": "Änderungen speichern"
+      },
+      "add": {
+        "title": "Neuen Mitarbeiter hinzufügen",
+        "form": {
+          "firstNameLabel": "Vorname",
+          "lastNameLabel": "Nachname",
+          "emailLabel": "E-Mail",
+          "roleLabel": "Rolle",
+          "role": {
+            "selectPlaceholder": "Rolle auswählen...",
+            "electrician": "Elektriker",
+            "plumber": "Klempner",
+            "cleaner": "Reinigungskraft"
+          }
+        },
+        "messages": {
+          "success": "Mitarbeiter erfolgreich hinzugefügt!",
+          "errorPrefix": "Fehler beim Erstellen des Mitarbeiters: ",
+          "errorUniqueEmail": "Fehler: E-Mail-Adresse wird bereits verwendet.",
+          "errorRequired": "Bitte füllen Sie alle Pflichtfelder aus.",
+          "errorAdminProfile": "Administratordaten konnten nicht abgerufen werden. Bitte versuchen Sie es erneut."
+        }
+      },
+      "view": {
+        "title": "Mitarbeiterdetails anzeigen",
+        "bodyPlaceholder": "Mitarbeiterdetails werden hier angezeigt."
+      },
+      "edit": {
+        "title": "Mitarbeiter bearbeiten",
+        "bodyPlaceholder": "Formular zur Bearbeitung des Mitarbeiters wird hier sein."
+      }
     }
   },
   "emailVerifiedSuccessPage": {
