@@ -299,7 +299,7 @@
     "modals": {
       "buttons": {
         "cancel": "Abbrechen",
-        "save": "Mitarbeiter speichern",
+        "save": "Einladung senden",
         "close": "Schließen",
         "saveChanges": "Änderungen speichern"
       },

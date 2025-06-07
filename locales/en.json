@@ -299,7 +299,7 @@
     "modals": {
       "buttons": {
         "cancel": "Cancel",
-        "save": "Save Staff Member",
+        "save": "Send Invite",
         "close": "Close",
         "saveChanges": "Save Changes"
       },
