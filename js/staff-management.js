@@ -338,6 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Function to handle Add Staff form submission ---
     async function handleAddStaffFormSubmit(event) {
+        console.log('[handleAddStaffFormSubmit] Function entered.'); // New log
         event.preventDefault();
         console.log('Add Staff form submitted');
 
