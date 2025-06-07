@@ -80,50 +80,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Function to fetch staff for a company
-    async function fetchStaffForCompany(companyId, adminUserId) {
-        console.log(`fetchStaffForCompany called for companyId: ${companyId}, adminUserId: ${adminUserId}`);
+    async function fetchStaffForCompany(companyId) { // adminUserId removed
         if (!companyId) {
-            console.error('companyId is required to fetch staff.');
-            throw new Error('Company ID is required.');
+            console.error('[fetchStaffForCompany] companyId is required.');
+            // throw new Error('Company ID is required.'); // Or return empty array, depends on desired error handling
+            return [];
         }
-        if (!adminUserId) {
-            console.error('adminUserId is required to exclude admin from staff list.');
-            // Depending on strictness, you might throw or just warn.
-            // For now, let's proceed but this might fetch the admin too if is_admin isn't false for them.
+        if (!window._supabase) {
+            console.error('[fetchStaffForCompany] Supabase client not found.');
+            return [];
         }
+        const supabase = window._supabase;
 
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('id, first_name, last_name, email, user_role, user_status')
-          .eq('company_id', companyId)
-          .eq('is_admin', false) // Ensure we only fetch non-admin staff members
-        // .neq('id', adminUserId); // Alternative or additional check to exclude the admin by their own ID
+        console.log(`[fetchStaffForCompany] Fetching staff with task counts for companyId: ${companyId} using new RPC call.`);
+        try {
+            const { data, error } = await supabase.rpc(
+                'get_staff_for_company_with_task_counts',
+                { p_company_id: companyId } // Ensure the parameter name 'p_company_id' matches SQL function
+            );
 
-        if (error) {
-            console.error('Error fetching staff for company:', error);
-            throw new Error(`Error fetching staff: ${error.message}`);
-        }
-        const staffProfiles = data || [];
-
-        // Fetch task counts for each staff member
-        const staffWithTaskCounts = await Promise.all(staffProfiles.map(async (staff) => {
-          try {
-            const { data: count, error: rpcError } = await supabase.rpc('get_assigned_tasks_count', {
-              staff_user_id: staff.id
-            });
-            if (rpcError) {
-              console.error(`Failed to get task count for staff ${staff.id}:`, rpcError);
-              return { ...staff, assigned_tasks_count: 0 }; // Default to 0 on error
+            if (error) {
+                console.error('[fetchStaffForCompany] Error fetching staff with task counts:', error);
+                throw error; // Re-throw to be caught by initializePage or other callers
             }
-            return { ...staff, assigned_tasks_count: count };
-          } catch (e) {
-            console.error(`Exception while getting task count for staff ${staff.id}:`, e);
-            return { ...staff, assigned_tasks_count: 0 }; // Default to 0 on exception
-          }
-        }));
 
-        console.log('Staff with task counts fetched:', staffWithTaskCounts);
-        return staffWithTaskCounts;
+            console.log('[fetchStaffForCompany] Successfully fetched staff with task counts:', data);
+            return data || []; // The RPC function should return an array of staff objects
+        } catch (e) {
+            console.error('[fetchStaffForCompany] Exception during RPC call:', e);
+            // Return empty array or re-throw, depending on how initializePage handles errors
+            // initializePage already has a try-catch that will display an error message.
+            throw e;
+        }
     }
 
     // Function to render staff data to the table
@@ -360,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // Refresh staff list
                 if (currentAdminProfile && currentAdminProfile.company_id) {
-                    allStaffData = await fetchStaffForCompany(currentAdminProfile.company_id, currentAdminProfile.id);
+                    allStaffData = await fetchStaffForCompany(currentAdminProfile.company_id); // adminUserId no longer passed
                     renderStaffTable(allStaffData);
                 } else {
                     // Fallback or error if admin profile is somehow lost
@@ -474,7 +462,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (currentAdminProfile && currentAdminProfile.company_id) {
-                allStaffData = await fetchStaffForCompany(currentAdminProfile.company_id, currentAdminProfile.id);
+                allStaffData = await fetchStaffForCompany(currentAdminProfile.company_id); // adminUserId no longer passed
                 renderStaffTable(allStaffData);
             } else {
                 console.error('Could not load admin profile or company ID.');

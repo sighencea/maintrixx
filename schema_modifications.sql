@@ -429,3 +429,49 @@ CREATE TRIGGER on_new_user_profile_created
 AFTER INSERT ON public.profiles
 FOR EACH ROW
 EXECUTE FUNCTION public.handle_new_user_profile_setup();
+
+-- Function to get staff for a company along with their assigned task counts
+CREATE OR REPLACE FUNCTION public.get_staff_for_company_with_task_counts(p_company_id UUID)
+RETURNS TABLE (
+    id UUID,
+    first_name TEXT,
+    last_name TEXT,
+    email TEXT,
+    user_role TEXT,
+    user_status TEXT,
+    assigned_tasks_count BIGINT -- Changed from INTEGER to BIGINT for potentially large counts
+)
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT
+    p.id,
+    p.first_name,
+    p.last_name,
+    p.email,
+    p.user_role,
+    p.user_status,
+    COALESCE(t_counts.task_count, 0) AS assigned_tasks_count
+  FROM
+    public.profiles p
+  LEFT JOIN (
+    SELECT
+      ta.user_id,
+      COUNT(ta.task_id) AS task_count -- Assuming task_id is the primary key or a relevant column in task_assignments
+    FROM
+      public.task_assignments ta
+    GROUP BY
+      ta.user_id
+  ) t_counts ON p.id = t_counts.user_id
+  WHERE
+    p.company_id = p_company_id AND
+    p.is_admin = FALSE; -- Assuming is_admin = FALSE identifies staff members
+$$;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION public.get_staff_for_company_with_task_counts(UUID) TO authenticated;
+
+-- It would also be beneficial to drop the older, less efficient function if it's no longer needed elsewhere:
+-- DROP FUNCTION IF EXISTS public.get_assigned_tasks_count(staff_user_id UUID);
+-- However, for this subtask, just add the new function and its grant.
+-- The user can decide later if they want to drop the old get_assigned_tasks_count function.
