@@ -398,13 +398,12 @@ document.addEventListener('DOMContentLoaded', function () {
           const userId = authData.user.id;
           console.log('[signInUser] Attempting to fetch profile for user ID:', userId);
 
-          // Attempt to fetch profile
           let profile;
           let profileError;
 
           const profileQuery = await window._supabase
             .from('profiles')
-            .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin, preferred_ui_language') // Ensure all needed fields
+            .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin, preferred_ui_language')
             .eq('id', userId)
             .single();
 
@@ -419,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('[signInUser] Initial profile fetch returned no data and no specific error object. Profile is null/undefined.');
           }
 
-          if (profileError && profileError.code === 'PGRST116') { // Profile not found
+          if (profileError && profileError.code === 'PGRST116') {
             console.log('[signInUser] Condition met: Profile not found (PGRST116). Attempting to create via Edge Function...');
             const { data: functionResponse, error: functionError } = await window._supabase.functions.invoke(
               'create-initial-profile',
@@ -447,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function () {
               return;
             }
 
-            console.log('Initial profile created/ensured by Edge Function, re-fetching profile...', functionResponse?.profile);
+            console.log('[signInUser] Initial profile created/ensured by Edge Function, re-fetching profile...', functionResponse?.profile);
             const { data: newProfile, error: newProfileError } = await window._supabase
               .from('profiles')
               .select('id, is_verified_by_code, verification_code, has_company_set_up, is_admin, preferred_ui_language')
@@ -465,10 +464,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             profile = newProfile;
             profileError = null;
-            console.log('Successfully re-fetched profile:', profile);
+            console.log('[signInUser] Successfully re-fetched profile after Edge Function call:', JSON.stringify(profile, null, 2));
           } else if (profileError) {
             console.log('[signInUser] Condition NOT met for Edge Function call: Profile fetch failed with a different error (not PGRST116).');
-            console.error('Error fetching initial profile (not PGRST116):', profileError);
+            console.error('Error fetching profile (not PGRST116):', profileError);
              if (signInMessage) {
                 signInMessage.textContent = i18next.t('mainJs.signIn.profileFetchFailed');
                 signInMessage.className = 'alert alert-danger';
@@ -484,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function () {
             await window._supabase.auth.signOut();
             return;
           } else {
-            console.log('[signInUser] Condition NOT met for Edge Function call: Profile was found initially.');
+             console.log('[signInUser] Condition NOT met for Edge Function call: Profile was found initially.');
           }
 
           const isAdmin = profile.is_admin;
