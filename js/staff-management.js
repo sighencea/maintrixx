@@ -206,7 +206,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const addStaffForm = document.getElementById('addStaffForm');
     if (addStaffForm) {
+        console.log('[StaffManagement] addStaffForm found, attaching submit listener.');
         addStaffForm.addEventListener('submit', handleAddStaffFormSubmit);
+    } else {
+        console.error('[StaffManagement] addStaffForm NOT found. Submit listener not attached.');
     }
 
     const editStaffForm = document.getElementById('editStaffForm');
@@ -216,6 +219,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (searchInput) {
         searchInput.addEventListener('input', filterStaff);
+    }
+
+    const saveNewStaffButton = document.getElementById('saveNewStaffBtn');
+    if (saveNewStaffButton) {
+        console.log('[StaffManagement] saveNewStaffBtn found, attaching click listener.');
+        saveNewStaffButton.addEventListener('click', async (e) => {
+            // We prevent default because this button is type="submit".
+            // If we didn't, and the form submit listener also works, the logic might run twice.
+            // By calling processStaffInvitation directly, we control execution.
+            e.preventDefault();
+            console.log('[StaffManagement] saveNewStaffBtn clicked, calling processStaffInvitation...');
+            await processStaffInvitation();
+        });
+    } else {
+        console.error('[StaffManagement] saveNewStaffBtn NOT found. Click listener not attached.');
     }
 
     // Event delegation for view/edit buttons (to be implemented more robustly)
@@ -338,16 +356,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Function to handle Add Staff form submission ---
     async function handleAddStaffFormSubmit(event) {
-        console.log('[handleAddStaffFormSubmit] Function entered.'); // New log
-        event.preventDefault();
-        console.log('Add Staff form submitted');
+        console.log('[handleAddStaffFormSubmit] Function entered via form submit.'); // Existing log
+        if (event) event.preventDefault(); // Prevent default form submission
+        console.log('Add Staff form submitted, calling processStaffInvitation...'); // Existing log, modified
+        await processStaffInvitation();
+    }
 
+    // --- New function to process staff invitation ---
+    async function processStaffInvitation() {
+        console.log('[processStaffInvitation] Function entered.');
         const firstNameInput = document.getElementById('addStaffFirstName');
         const lastNameInput = document.getElementById('addStaffLastName');
         const emailInput = document.getElementById('addStaffEmail');
         const roleInput = document.getElementById('addStaffRole');
         const messageDiv = document.getElementById('addStaffMessage');
-        const saveBtn = document.getElementById('saveNewStaffBtn');
+        const saveBtn = document.getElementById('saveNewStaffBtn'); // This is the button in the modal
 
         if (messageDiv) messageDiv.innerHTML = ''; // Clear previous messages
 
@@ -364,9 +387,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (saveBtn) saveBtn.disabled = true;
 
         try {
-            // const staffDataObject = { firstName, lastName, email, role }; // Not needed for function call directly
-            // const savedData = await saveStaffMember(staffDataObject); // Removed direct save
-
             const { data: inviteData, error: inviteError } = await supabase.functions.invoke('invite-staff-member', {
                 body: {
                     email: email,
@@ -380,28 +400,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error(inviteError.message || 'Error sending invitation. Please try again.');
             }
 
-            // Assuming inviteData might contain useful info, but for now, success is implied if no error
-            displayModalMessage(messageDiv, 'Staff invitation sent successfully!', false); // Updated success message
+            displayModalMessage(messageDiv, 'Staff invitation sent successfully!', false);
 
-            // Refresh staff list - user might appear with "Invited" status
             if (currentAdminProfile && currentAdminProfile.company_id) {
-                    allStaffData = await fetchStaffForCompany(currentAdminProfile.company_id); // adminUserId no longer passed
-                    renderStaffTable(allStaffData);
-                } else {
-                    // Fallback or error if admin profile is somehow lost
-                    console.warn("Admin profile not available to refresh staff list, attempting full re-initialization of list.");
-                    await initializePage(false); // Pass a flag to avoid re-initializing modals if initializePage is adapted
-                }
+                allStaffData = await fetchStaffForCompany(currentAdminProfile.company_id);
+                renderStaffTable(allStaffData);
+            } else {
+                console.warn("Admin profile not available to refresh staff list, attempting full re-initialization of list.");
+                await initializePage(false);
+            }
 
-                setTimeout(() => { // Give user time to see success message
-                    if (addStaffModalInstance) addStaffModalInstance.hide();
-                    if (addStaffForm) addStaffForm.reset();
-                    if (messageDiv) messageDiv.innerHTML = '';
-                }, 1500);
-            // Removed else block for failed save, as inviteError handles failure.
+            setTimeout(() => {
+                if (addStaffModalInstance) addStaffModalInstance.hide();
+                // Ensure addStaffForm is accessible or get it by ID here if not in wider scope for reset
+                const formToReset = document.getElementById('addStaffForm');
+                if (formToReset) formToReset.reset();
+                if (messageDiv) messageDiv.innerHTML = '';
+            }, 1500);
         } catch (error) {
-            console.error('Error during staff invitation process:', error); // Updated error context
-            displayModalMessage(messageDiv, error.message || 'An unexpected error occurred while sending invitation.', true); // Updated error context
+            console.error('Error during staff invitation process:', error);
+            displayModalMessage(messageDiv, error.message || 'An unexpected error occurred while sending invitation.', true);
         } finally {
             if (saveBtn) saveBtn.disabled = false;
         }
