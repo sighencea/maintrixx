@@ -131,16 +131,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         staffList.forEach(staff => {
             const row = staffTableBody.insertRow();
-            const status = staff.user_status || 'N/A';
-            let statusBadgeClass = 'badge-custom-gray'; // Default for N/A or other statuses
-            if (status === 'Active') {
+            let statusText = staff.user_status || 'N/A';
+            let statusBadgeClass = 'badge-custom-gray'; // Default
+
+            console.log('[renderStaffTable] Processing staff:', staff.id, 'is_owner value:', staff.is_owner, 'Type:', typeof staff.is_owner);
+            if (staff.is_owner) {
+                console.log('[renderStaffTable] Staff member IS owner. Setting status to Owner.');
+                statusText = 'Owner'; // Consider i18n: staffPage.status.owner
+                statusBadgeClass = 'badge-custom-purple';
+            } else {
+                console.log('[renderStaffTable] Staff member is NOT owner or is_owner is not true. Proceeding with normal status.');
+                if (statusText === 'Active') {
                 statusBadgeClass = 'badge-custom-green';
-            } else if (status === 'New') { // Assuming 'New' is a possible status
+                statusBadgeClass = 'badge-custom-green';
+            } else if (statusText === 'New') {
                 statusBadgeClass = 'badge-custom-blue';
-            } else if (status === 'Invited') { // Example for another status
-                statusBadgeClass = 'badge-custom-yellow'; // You'd need to define this style
-            } else if (status === 'Inactive') {
+            } else if (statusText === 'Invited') {
+                statusBadgeClass = 'badge-custom-yellow';
+            } else if (statusText === 'Inactive') {
                 statusBadgeClass = 'badge-custom-gray';
+            }
             }
 
             row.innerHTML = `
@@ -148,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td>${staff.first_name || ''} ${staff.last_name || ''}</td>
                 <td>${staff.user_role || 'N/A'}</td>
                 <td class="staff-col-assigned-tasks">${staff.assigned_tasks_count !== undefined ? staff.assigned_tasks_count : 'N/A'}</td>
-                <td class="staff-col-status"><span class="badge-custom-base ${statusBadgeClass}">${status}</span></td>
+                <td class="staff-col-status"><span class="badge-custom-base ${statusBadgeClass}">${statusText}</span></td>
                 <td>
                     <button class="btn btn-link text-primary p-0 me-2 view-staff-btn" data-staff-id="${staff.id}" title="View Details" data-i18n="[title]staffPage.table.actions.viewDetailsTooltip"><i class="bi bi-eye-fill"></i></button>
                     <button class="btn btn-link text-warning p-0 edit-staff-btn" data-staff-id="${staff.id}" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip"><i class="bi bi-pencil-square"></i></button>
@@ -224,13 +234,27 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('viewStaffRole').textContent = staffMember.user_role || 'N/A';
 
                 const statusEl = document.getElementById('viewStaffStatus');
-                const status = staffMember.user_status || 'N/A';
+                let statusText = staffMember.user_status || 'N/A';
                 let badgeClass = 'badge-custom-gray'; // Default
-                if (status === 'Active') badgeClass = 'badge-custom-green';
-                else if (status === 'New') badgeClass = 'badge-custom-blue';
-                else if (status === 'Invited') badgeClass = 'badge-custom-yellow';
-                else if (status === 'Inactive') badgeClass = 'badge-custom-gray';
-                statusEl.innerHTML = `<span class="badge-custom-base ${badgeClass}">${status}</span>`;
+
+                console.log('[viewStaffModal] Processing staffMember:', staffMember.id, 'is_owner value:', staffMember.is_owner, 'Type:', typeof staffMember.is_owner);
+                if (staffMember.is_owner) {
+                    console.log('[viewStaffModal] Staff member IS owner for modal. Setting status to Owner.');
+                    statusText = 'Owner'; // Consider i18n: staffPage.status.owner
+                    badgeClass = 'badge-custom-purple';
+                } else {
+                    console.log('[viewStaffModal] Staff member is NOT owner or is_owner is not true for modal. Proceeding with normal status.');
+                    if (statusText === 'Active') {
+                    badgeClass = 'badge-custom-green';
+                } else if (statusText === 'New') {
+                    badgeClass = 'badge-custom-blue';
+                } else if (statusText === 'Invited') {
+                    badgeClass = 'badge-custom-yellow';
+                } else if (statusText === 'Inactive') {
+                    badgeClass = 'badge-custom-gray';
+                }
+                }
+                statusEl.innerHTML = `<span class="badge-custom-base ${badgeClass}">${statusText}</span>`;
 
                 document.getElementById('viewStaffAssignedTasks').textContent = staffMember.assigned_tasks_count !== undefined ? staffMember.assigned_tasks_count : 'N/A';
 
