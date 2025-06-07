@@ -369,3 +369,63 @@ WITH CHECK (
 );
 
 -- Reminder: Ensure RLS is enabled on the 'profiles' table in Supabase settings if it's not already.
+
+-- Function to handle new user profile setup based on auth.users metadata
+CREATE OR REPLACE FUNCTION public.handle_new_user_profile_setup()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER -- Important to access auth.users table
+AS $$
+DECLARE
+  meta jsonb;
+  user_account_type TEXT;
+  user_first_name TEXT;
+  user_preferred_language TEXT;
+  is_admin_val BOOLEAN;
+BEGIN
+  -- Get metadata from auth.users
+  SELECT raw_user_meta_data INTO meta FROM auth.users WHERE id = NEW.id;
+
+  user_account_type := meta ->> 'account_type';
+  user_first_name := meta ->> 'first_name';
+  user_preferred_language := meta ->> 'preferred_ui_language'; -- Check if you store this in metadata too
+
+  -- Determine is_admin status
+  IF user_account_type = 'agency' THEN
+    is_admin_val := TRUE;
+  ELSE
+    is_admin_val := FALSE;
+  END IF;
+
+  -- Update the newly inserted profiles row
+  UPDATE public.profiles
+  SET
+    is_admin = is_admin_val,
+    has_company_set_up = FALSE,
+    user_status = 'New',
+    -- Only update first_name if it's provided in metadata and different or profile's is null
+    first_name = COALESCE(user_first_name, NEW.first_name),
+    -- Set preferred_ui_language from metadata, fallback to existing (if Supabase set it) or 'en'
+    preferred_ui_language = COALESCE(user_preferred_language, NEW.preferred_ui_language, 'en')
+  WHERE id = NEW.id;
+
+  -- Update NEW record so the calling statement sees the changes if needed,
+  -- though the main effect is the UPDATE above.
+  NEW.is_admin = is_admin_val;
+  NEW.has_company_set_up = FALSE;
+  NEW.user_status = 'New';
+  NEW.first_name = COALESCE(user_first_name, NEW.first_name);
+  NEW.preferred_ui_language = COALESCE(user_preferred_language, NEW.preferred_ui_language, 'en');
+
+  RETURN NEW;
+END;
+$$;
+
+-- Drop the trigger if it already exists to avoid errors on re-creation
+DROP TRIGGER IF EXISTS on_new_user_profile_created ON public.profiles;
+
+-- Create the trigger
+CREATE TRIGGER on_new_user_profile_created
+AFTER INSERT ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_new_user_profile_setup();
