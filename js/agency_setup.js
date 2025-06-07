@@ -161,16 +161,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const companyData = {
                     company_name: companyNameInput.value.trim(),
-                    company_address_street: companyAddressStreetInput.value.trim(),
-                    company_email: companyEmailInput.value.trim(),
-                    company_city: companyCityInput.value.trim(),
-                    company_state: companyStateInput.value.trim(),
-                    company_address_zip: companyPostCodeInput.value.trim(), // Renamed from companyPostCodeInput for consistency
-                    company_phone: companyPhoneInput.value.trim() || null,
-                    company_website: processedWebsiteUrl,
-                    company_tax_id: companyTaxIdInput.value.trim() || null,
+                    address_street: companyAddressStreetInput.value.trim(),
+                    email: companyEmailInput.value.trim(),
+                    address_city: companyCityInput.value.trim(),
+                    address_state: companyStateInput.value.trim(),
+                    address_postal_code: companyPostCodeInput.value.trim(),
+                    phone_number: companyPhoneInput.value.trim() || null,
+                    website_url: processedWebsiteUrl,
+                    tax_id: companyTaxIdInput.value.trim() || null,
                     company_logo_url: companyLogoUrl
                 };
+
+                console.log('[agency_setup.js] Corrected companyData being sent:', JSON.stringify(companyData, null, 2));
 
                 // Invoke Supabase Edge Function
                 const { data: functionResponse, error: functionError } = await window._supabase.functions.invoke('save-company-details', {
