@@ -154,7 +154,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <button class="btn btn-link text-warning p-0 edit-staff-btn" data-staff-id="${staff.id}" title="Edit Profile" data-i18n="[title]staffPage.table.actions.editProfileTooltip"><i class="bi bi-pencil-square"></i></button>
                 </td>
             `;
-            `;
         });
         // Re-apply i18n for dynamically added tooltips if necessary
         if (window.i18next && typeof window.updateUI === 'function') {
