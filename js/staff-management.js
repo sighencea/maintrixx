@@ -363,14 +363,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (saveBtn) saveBtn.disabled = true;
 
         try {
-            const staffDataObject = { firstName, lastName, email, role };
-            const savedData = await saveStaffMember(staffDataObject);
+            // const staffDataObject = { firstName, lastName, email, role }; // Not needed for function call directly
+            // const savedData = await saveStaffMember(staffDataObject); // Removed direct save
 
-            if (savedData && savedData.length > 0) {
-                displayModalMessage(messageDiv, 'Staff member added successfully!', false);
+            const { data: inviteData, error: inviteError } = await supabase.functions.invoke('invite-staff-member', {
+                body: {
+                    email: email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    role: role
+                }
+            });
 
-                // Refresh staff list
-                if (currentAdminProfile && currentAdminProfile.company_id) {
+            if (inviteError) {
+                throw new Error(inviteError.message || 'Error sending invitation. Please try again.');
+            }
+
+            // Assuming inviteData might contain useful info, but for now, success is implied if no error
+            displayModalMessage(messageDiv, 'Staff invitation sent successfully!', false); // Updated success message
+
+            // Refresh staff list - user might appear with "Invited" status
+            if (currentAdminProfile && currentAdminProfile.company_id) {
                     allStaffData = await fetchStaffForCompany(currentAdminProfile.company_id); // adminUserId no longer passed
                     renderStaffTable(allStaffData);
                 } else {
@@ -384,12 +397,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (addStaffForm) addStaffForm.reset();
                     if (messageDiv) messageDiv.innerHTML = '';
                 }, 1500);
-            } else {
-                 displayModalMessage(messageDiv, 'Failed to save staff member. Please try again.', true);
-            }
+            // Removed else block for failed save, as inviteError handles failure.
         } catch (error) {
-            console.error('Error during staff saving process:', error);
-            displayModalMessage(messageDiv, error.message || 'An unexpected error occurred.', true);
+            console.error('Error during staff invitation process:', error); // Updated error context
+            displayModalMessage(messageDiv, error.message || 'An unexpected error occurred while sending invitation.', true); // Updated error context
         } finally {
             if (saveBtn) saveBtn.disabled = false;
         }
