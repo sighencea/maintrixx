@@ -432,5 +432,33 @@
       "activationError": "Fehler beim Aktivieren des Kontos: ",
       "activationSuccess": "Konto aktiviert! Sie können sich jetzt anmelden."
     }
+  },
+  "setPasswordPage": {
+    "title": "Passwort festlegen",
+    "instructions": "Willkommen! Bitte wählen Sie ein sicheres Passwort, um Ihr Konto zu schützen.",
+    "form": {
+      "newPasswordLabel": "Neues Passwort",
+      "passwordHelp": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "confirmPasswordLabel": "Neues Passwort bestätigen",
+      "submitButton": "Passwort festlegen & Anmelden"
+    },
+    "backToSignIn": "Zurück zur Anmeldung",
+    "validation": {
+      "bothFieldsRequired": "Bitte füllen Sie beide Passwortfelder aus.",
+      "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "passwordsMismatch": "Die Passwörter stimmen nicht überein. Bitte versuchen Sie es erneut."
+    },
+    "success": {
+      "passwordUpdated": "Passwort erfolgreich aktualisiert! Sie können sich jetzt anmelden."
+    },
+    "errors": {
+      "criticalError": "Kritischer Fehler: Supabase-Client nicht verfügbar. Passwort kann nicht festgelegt werden.",
+      "formNotFound": "Fehler: Passwortformular auf der Seite nicht gefunden.",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "info": {
+      "readyToSet": "Sie können jetzt Ihr neues Passwort festlegen.",
+      "completeSetup": "Bitte legen Sie Ihr neues Passwort fest, um Ihre Kontoeinrichtung abzuschließen."
+    }
   }
 }
