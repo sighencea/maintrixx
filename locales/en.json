@@ -456,5 +456,33 @@
       "activationError": "Error activating account: ",
       "activationSuccess": "Account activated! You can now sign in."
     }
+  },
+  "setPasswordPage": {
+    "title": "Set Your Password",
+    "instructions": "Welcome! Please choose a strong password to secure your account.",
+    "form": {
+      "newPasswordLabel": "New Password",
+      "passwordHelp": "Password must be at least 6 characters long.",
+      "confirmPasswordLabel": "Confirm New Password",
+      "submitButton": "Set Password & Sign In"
+    },
+    "backToSignIn": "Back to Sign In",
+    "validation": {
+      "bothFieldsRequired": "Please fill in both password fields.",
+      "passwordTooShort": "Password must be at least 6 characters long.",
+      "passwordsMismatch": "Passwords do not match. Please try again."
+    },
+    "success": {
+      "passwordUpdated": "Password updated successfully! You can now sign in."
+    },
+    "errors": {
+      "criticalError": "Critical error: Supabase client not available. Cannot set password.",
+      "formNotFound": "Error: Password form not found on page.",
+      "unexpected": "An unexpected error occurred. Please try again."
+    },
+    "info": {
+      "readyToSet": "You can now set your new password.",
+      "completeSetup": "Please set your new password to complete your account setup."
+    }
   }
 }

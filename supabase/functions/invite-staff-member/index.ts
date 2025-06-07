@@ -105,10 +105,10 @@ serve(async (req: Request) => {
           user_role: role,
           company_id: adminProfile.company_id,
           is_admin: false, // Staff members are not admins by default
-          // user_status: 'Invited', // Supabase handles the initial state; trigger can refine if needed
+          user_status: 'Invited' // Supabase handles the initial state; trigger can refine if needed
                                   // raw_app_meta_data in the trigger will contain this 'data' object
         },
-        // redirectTo: 'https://your-app.com/set-password-page' // Optional: specify a redirect URL after email confirmation
+        redirectTo: 'https://www.afiaro.com/pages/set-password.html'
       }
     );
 
