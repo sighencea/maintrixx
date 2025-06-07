@@ -272,7 +272,7 @@
       "statusInactive": "Status: Inactive"
     },
     "buttons": {
-      "addNewStaff": "Add New Staff Member"
+      "addNewStaff": "+ Staff"
     },
     "table": {
       "header": {
