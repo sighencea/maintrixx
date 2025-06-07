@@ -327,11 +327,35 @@
       },
       "view": {
         "title": "View Staff Details",
-        "bodyPlaceholder": "Staff details will be displayed here."
+        "bodyPlaceholder": "Staff details will be displayed here.",
+        "fields": {
+          "name": "Name",
+          "email": "Email",
+          "role": "Role",
+          "status": "Status",
+          "assignedTasks": "Assigned Tasks"
+        }
       },
       "edit": {
         "title": "Edit Staff Member",
-        "bodyPlaceholder": "Form for editing staff member will be here."
+        "bodyPlaceholder": "Form for editing staff member will be here.",
+        "form": {
+          "firstNameLabel": "First Name",
+          "lastNameLabel": "Last Name",
+          "emailLabel": "Email",
+          "emailHelp": "We'll never share your email with anyone else.",
+          "roleLabel": "Role",
+          "role": {
+            "selectPlaceholder": "Select a role...",
+            "electrician": "Electrician",
+            "plumber": "Plumber",
+            "cleaner": "Cleaner"
+          },
+          "statusLabel": "Status",
+          "status": {
+            "selectPlaceholder": "Select a status..."
+          }
+        }
       }
     }
   },
