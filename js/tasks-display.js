@@ -232,9 +232,7 @@ async function fetchTasksAndRelatedData() {
         task_status,
         task_due_date,
         property_id,
-        // staff_id, // Removed
         properties ( property_name )
-        // profiles ( first_name, last_name ) // Removed
       `);
 
     if (error) {
@@ -254,7 +252,7 @@ async function fetchTasksAndRelatedData() {
       id: task.task_id,
       title: task.task_title,
       property: task.properties ? task.properties.property_name : 'N/A',
-      assignedTo: 'N/A', // Placeholder for now
+      assignedTo: 'N/A',
       status: task.task_status, // Keep original status for logic
       dueDate: task.task_due_date
     }));
