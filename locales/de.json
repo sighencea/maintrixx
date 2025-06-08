@@ -449,16 +449,20 @@
       "passwordsMismatch": "Die Passwörter stimmen nicht überein. Bitte versuchen Sie es erneut."
     },
     "success": {
-      "passwordUpdated": "Passwort erfolgreich aktualisiert! Sie können sich jetzt anmelden."
+      "passwordUpdated": "Passwort erfolgreich aktualisiert! Sie können sich jetzt anmelden.",
+      "activatedAndPasswordUpdated": "Konto aktiviert und Passwort erfolgreich aktualisiert! Sie werden zur Anmeldung weitergeleitet."
     },
     "errors": {
       "criticalError": "Kritischer Fehler: Supabase-Client nicht verfügbar. Passwort kann nicht festgelegt werden.",
       "formNotFound": "Fehler: Passwortformular auf der Seite nicht gefunden.",
-      "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+      "activationFailed": "Passwort festgelegt, aber beim Abschluss der Kontoaktivierung ist ein Problem aufgetreten. Bitte versuchen Sie, sich anzumelden. Wenn die Probleme weiterhin bestehen, wenden Sie sich an den Support.",
+      "activationUnexpected": "Passwort festgelegt, aber während des Kontoabschlusses ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie, sich anzumelden."
     },
     "info": {
       "readyToSet": "Sie können jetzt Ihr neues Passwort festlegen.",
-      "completeSetup": "Bitte legen Sie Ihr neues Passwort fest, um Ihre Kontoeinrichtung abzuschließen."
+      "completeSetup": "Bitte legen Sie Ihr neues Passwort fest, um Ihre Kontoeinrichtung abzuschließen.",
+      "finalizingActivation": "Passwort festgelegt. Kontoaktivierung wird abgeschlossen..."
     }
   }
 }

@@ -80,22 +80,36 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const { data, error } = await supabase.auth.updateUser({ password: password });
+                const { data: updateUserData, error: updateUserError } = await supabase.auth.updateUser({ password: password });
 
-                if (error) {
-                    console.error('Error updating password:', error);
-                    displayMessage(`Error updating password: ${error.message}`, true);
+                if (updateUserError) {
+                    console.error('Error updating password:', updateUserError);
+                    displayMessage(`Error updating password: ${updateUserError.message}`, true);
                 } else {
-                    console.log('Password updated successfully:', data.user);
-                    displayMessage('Password updated successfully! You can now sign in.', false, 'setPasswordPage.success.passwordUpdated');
-                    // Optionally, redirect to login or dashboard after a delay
-                    setTimeout(() => {
-                        window.location.href = '../index.html'; // Redirect to login page
-                    }, 3000);
+                    console.log('Password updated successfully for user:', updateUserData.user);
+                    displayMessage('Password set. Finalizing account activation...', false, 'setPasswordPage.info.finalizingActivation'); // New temp message
+
+                    try {
+                        const { data: activationData, error: activationError } = await supabase.functions.invoke('activate-profile');
+
+                        if (activationError) {
+                            console.error('Error activating profile:', activationError);
+                            displayMessage('Password set, but there was an issue finalizing account activation. Please try signing in. If issues persist, contact support.', true, 'setPasswordPage.errors.activationFailed');
+                        } else {
+                            console.log('Profile activated successfully:', activationData);
+                            displayMessage('Account activated and password updated successfully! You will be redirected to sign in.', false, 'setPasswordPage.success.activatedAndPasswordUpdated'); // New success message
+                            setTimeout(() => {
+                                window.location.href = '../index.html'; // Redirect to login page
+                            }, 3000);
+                        }
+                    } catch (activationCatchError) {
+                        console.error('Unexpected error during profile activation call:', activationCatchError);
+                        displayMessage('Password set, but an unexpected error occurred during account finalization. Please try signing in.', true, 'setPasswordPage.errors.activationUnexpected');
+                    }
                 }
             } catch (err) {
-                console.error('Unexpected error:', err);
-                displayMessage('An unexpected error occurred. Please try again.', true);
+                console.error('Unexpected error during password update process:', err); // Clarified outer catch
+                displayMessage('An unexpected error occurred while setting your password. Please try again.', true, 'setPasswordPage.errors.unexpected'); // Generic for outer
             } finally {
                 if (setPasswordBtn) setPasswordBtn.disabled = false;
             }
