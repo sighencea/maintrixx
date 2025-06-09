@@ -147,7 +147,7 @@ serve(async (req: Request) => {
       task_description: payload.task_description,
       task_due_date: payload.task_due_date || null,
       property_id: payload.property_id,
-      staff_id: payload.staff_id, // This is the profile_id of the staff
+      // staff_id: payload.staff_id, // Removed
       task_status: payload.task_status, // Already exists
       task_priority: payload.task_priority || 'Medium', // Add this, default to 'Medium' if not provided
       company_id: adminCompanyId, // Associate task with the admin's company
