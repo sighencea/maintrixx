@@ -232,7 +232,8 @@ async function fetchTasksAndRelatedData() {
         task_status,
         task_due_date,
         property_id,
-        properties ( property_name )
+        properties ( property_name ),
+        task_assignments ( profiles ( first_name, last_name ) ) // Fetch assignees
       `);
 
     if (error) {
@@ -248,14 +249,38 @@ async function fetchTasksAndRelatedData() {
       return [];
     }
 
-    const mappedTasks = fetchedTasks.map(task => ({
-      id: task.task_id,
-      title: task.task_title,
-      property: task.properties ? task.properties.property_name : 'N/A',
-      assignedTo: 'N/A',
-      status: task.task_status, // Keep original status for logic
-      dueDate: task.task_due_date
-    }));
+    const mappedTasks = fetchedTasks.map(task => {
+      let assignedToText = 'Unassigned'; // Default if no assignments
+      if (task.task_assignments && task.task_assignments.length > 0) {
+          const firstValidAssignment = task.task_assignments.find(ta => ta.profiles); // Find first assignment with a profile
+          if (firstValidAssignment) {
+              assignedToText = `${firstValidAssignment.profiles.first_name || ''} ${firstValidAssignment.profiles.last_name || ''}`.trim();
+              if (!assignedToText) { // Handle case where profile names might be null or empty
+                  assignedToText = 'Unnamed Assignee';
+              }
+              // Count only assignments that have a profile, to be accurate for "+X more"
+              const validAssignmentsCount = task.task_assignments.filter(ta => ta.profiles).length;
+              if (validAssignmentsCount > 1) {
+                  assignedToText += ` (+${validAssignmentsCount - 1} more)`;
+              } else if (validAssignmentsCount === 1 && task.task_assignments.length > 1) {
+                  // Edge case: one valid profile, but other assignments without profiles
+                  assignedToText += ` (+${task.task_assignments.length - 1} other assignments)`;
+              }
+          } else {
+              // Assignments exist but no profiles could be fetched (e.g. RLS on profiles, or bad data)
+              assignedToText = `Assigned (${task.task_assignments.length})`;
+          }
+      }
+
+      return {
+        id: task.task_id,
+        title: task.task_title,
+        property: task.properties ? task.properties.property_name : 'N/A',
+        assignedTo: assignedToText,
+        status: task.task_status, // Keep original status for logic
+        dueDate: task.task_due_date
+      };
+    });
 
     return mappedTasks;
 
