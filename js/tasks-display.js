@@ -233,7 +233,7 @@ async function fetchTasksAndRelatedData() {
         task_due_date,
         property_id,
         properties ( property_name ),
-        task_assignments ( profiles ( first_name, last_name ) ) // Fetch assignees
+        task_assignments ( profiles!task_assignments_user_id_fkey ( first_name, last_name ) )
       `);
 
     if (error) {
