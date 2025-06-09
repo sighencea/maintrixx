@@ -64,36 +64,6 @@ $$;
 -- Assuming it's: CREATE POLICY "Allow individual user read access to their own profile" ON profiles FOR SELECT TO authenticated USING (auth.uid() = id);
 -- This is good. If it doesn't exist, it should be created.
 
--- Policy Name: "Allow users to view colleagues within the same company"
--- This refines/replaces "Users - View Staff List" and parts of "Admins - Full Access" for SELECT.
-CREATE POLICY "Allow users to view colleagues in own company" ON profiles
-FOR SELECT
-TO authenticated
-USING (
-  company_id IS NOT NULL AND
-  company_id = get_my_company_id()
-);
-
--- Policy Name: "Allow agency admin to insert new staff into their company"
-CREATE POLICY "Allow admin to insert staff in own company" ON profiles
-FOR INSERT
-TO authenticated
-WITH CHECK (
-  -- Check 1: The current user must be an admin of a company.
-  EXISTS (
-    SELECT 1
-    FROM profiles p
-    WHERE p.id = auth.uid() AND p.is_admin = TRUE AND p.company_id IS NOT NULL
-  ) AND
-  -- Check 2: The company_id of the new profile must match the admin's company_id.
-  company_id = get_my_company_id() AND
-  -- Check 3: The new profile must not be an admin.
-  is_admin = FALSE AND
-  -- Check 4: The user_status for a new profile is 'New' (enforced by JS, good to have in RLS too)
-  user_status = 'New'
-);
-
-
 -- Policy Name: "Allow users to update their own profile (restricted fields)"
 -- Existing Policy: "Allow individual user update access to their own profile"
 -- To prevent users from changing their own company_id or is_admin status:
@@ -111,33 +81,6 @@ WITH CHECK (
 );
 
 -- Policy Name: "Allow agency admin to update staff profiles in their company"
--- This means an admin can update any profile that shares their company_id.
-CREATE POLICY "Allow admin to update staff in own company" ON profiles
-FOR UPDATE
-TO authenticated
-USING (
-  EXISTS (
-    SELECT 1
-    FROM profiles admin_profile
-    WHERE admin_profile.id = auth.uid() AND admin_profile.is_admin = TRUE AND admin_profile.company_id IS NOT NULL
-  ) AND
-  company_id = (SELECT admin_profile.company_id FROM profiles admin_profile WHERE admin_profile.id = auth.uid() AND admin_profile.is_admin = TRUE)
-)
-WITH CHECK (
-  EXISTS (
-    SELECT 1
-    FROM profiles admin_profile
-    WHERE admin_profile.id = auth.uid() AND admin_profile.is_admin = TRUE AND admin_profile.company_id IS NOT NULL
-  ) AND
-  -- Ensure the profile remains in the same company
-  company_id = (SELECT admin_profile.company_id FROM profiles admin_profile WHERE admin_profile.id = auth.uid() AND admin_profile.is_admin = TRUE) AND
-  -- Admin should not use this policy to accidentally change their own is_admin status to false.
-  -- If they are editing their own profile, is_admin must remain true.
-  -- If editing someone else, this doesn't apply to the target's is_admin status (admin can change others).
-  (id != auth.uid() OR (id = auth.uid() AND is_admin = TRUE))
-);
-
-
 -- RLS Policies for 'companies' table
 
 -- Policy Name: "Allow authenticated users to create new companies"
@@ -239,9 +182,9 @@ USING (
 
 -- It's CRITICAL to DROP existing problematic policies on 'profiles' table before applying these.
 -- For example:
--- DROP POLICY "Allow users to view colleagues in own company" ON profiles;
--- DROP POLICY "Allow admin to insert staff in own company" ON profiles;
--- DROP POLICY "Allow admin to update staff in own company" ON profiles;
+DROP POLICY IF EXISTS "Allow users to view colleagues in own company" ON public.profiles;
+DROP POLICY IF EXISTS "Allow admin to insert staff in own company" ON public.profiles;
+DROP POLICY IF EXISTS "Allow admin to update staff in own company" ON public.profiles;
 -- etc. for any other policies on 'profiles' that might use get_my_company_id() or cause recursion.
 -- The policy "Allow individual user read access to their own profile" (USING (auth.uid() = id))
 -- and "Allow user to update own profile (restricted)" (USING (auth.uid() = id) WITH CHECK (auth.uid() = id AND ...))
