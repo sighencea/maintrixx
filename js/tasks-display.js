@@ -539,8 +539,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           document.getElementById('viewTaskDescription').textContent = taskDetails.task_description || 'N/A';
           document.getElementById('viewTaskNotes').textContent = taskDetails.task_notes || 'No notes yet.';
 
-          document.getElementById('viewTaskCreatedAt').textContent = taskDetails.created_at ? formatDate(taskDetails.created_at) : 'N/A';
-          document.getElementById('viewTaskUpdatedAt').textContent = taskDetails.updated_at ? formatDate(taskDetails.updated_at) : 'N/A';
+          document.getElementById('viewTaskCreatedAt').textContent = taskDetails.task_created_at ? formatDate(taskDetails.task_created_at) : 'N/A';
+          document.getElementById('viewTaskUpdatedAt').textContent = taskDetails.task_updated_at ? formatDate(taskDetails.task_updated_at) : 'N/A';
 
           const imagesList = document.getElementById('viewTaskImagesList');
           imagesList.innerHTML = ''; // Clear loading/previous
