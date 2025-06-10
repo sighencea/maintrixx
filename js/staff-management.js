@@ -429,22 +429,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Function to update a staff member ---
     async function updateStaffMember(staffId, staffUpdateData) {
         console.log('Updating staff member ID:', staffId, 'with data:', staffUpdateData);
-        const { data, error } = await supabase
+        const { error } = await supabase // Only expect error from the direct update
             .from('profiles')
             .update(staffUpdateData)
-            .eq('id', staffId)
-            .select('id') // Changed from .select()
-            .single();
+            .eq('id', staffId);
 
         if (error) {
-            console.error('Error updating staff member:', error);
+            console.error('Error updating staff member (from Supabase client):', error);
             if (error.code === '23505') { // Postgres unique violation for email
-                throw new Error(`Error updating staff: An account with the email ${staffUpdateData.email} already exists.`);
+                 throw new Error(`Error saving staff: An account with the email ${staffUpdateData.email} already exists.`);
             }
+            // Throw a generic error that will be caught by handleEditStaffFormSubmit
             throw new Error(`Error updating staff: ${error.message}`);
         }
-        console.log('Staff member updated:', data);
-        return data;
+        // No explicit data to return, success is implied if no error was thrown
+        // The calling function will check for the absence of an error.
+        // console.log('Staff member update initiated (no data returned by this function).');
+        // No need to log success here as it's just an update call without select.
     }
 
     // --- Function to handle Edit Staff form submission ---
@@ -480,24 +481,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         try {
-            const updatedStaff = await updateStaffMember(staffId, updateData);
+            await updateStaffMember(staffId, updateData); // No 'updatedStaff' variable needed from return
 
-            if (updatedStaff) {
-                // Update the local allStaffData array
-                const index = allStaffData.findIndex(s => s.id === staffId);
-                if (index !== -1) {
-                    allStaffData[index] = { ...allStaffData[index], ...updatedStaff }; // Merge updated fields
-                }
-                renderStaffTable(allStaffData); // Re-render the table with updated data
-
-                displayModalMessage(messageDiv, 'Staff member updated successfully!', false);
-                setTimeout(() => {
-                    if (editStaffModalInstance) editStaffModalInstance.hide();
-                }, 1500);
+            // If updateStaffMember didn't throw, it's a success
+            // Update the local allStaffData array by re-fetching
+            if (currentAdminProfile && currentAdminProfile.company_id) {
+                allStaffData = await fetchStaffForCompany(currentAdminProfile.company_id);
             } else {
-                displayModalMessage(messageDiv, 'Failed to update staff member. Please try again.', true);
+                // Fallback or error if admin profile/company_id isn't available to refresh the list
+                console.warn("Admin profile/company_id not available to refresh staff list post-update. List may be stale.");
+                allStaffData = await fetchStaffForCompany(null); // Or however you fetch initially if companyId might be null
             }
-        } catch (error) {
+            renderStaffTable(allStaffData); // Re-render the table with potentially updated data
+
+            displayModalMessage(messageDiv, 'Staff member updated successfully!', false);
+            setTimeout(() => {
+                if (editStaffModalInstance) editStaffModalInstance.hide();
+            }, 1500);
+
+        } catch (error) { // This catch block was already there
             console.error('Error during staff update process:', error);
             displayModalMessage(messageDiv, error.message || 'An unexpected error occurred while updating.', true);
         } finally {
