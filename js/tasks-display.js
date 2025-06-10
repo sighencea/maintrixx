@@ -1,6 +1,7 @@
 // Global modal instances
 let viewTaskModalInstance = null;
 let editTaskModalInstance = null;
+let filesToDeleteInEditModal = []; // For managing files marked for deletion in edit modal
 let addNewTaskModalInstance = null;
 
 // Asynchronous function to fetch current user's profile (especially admin status)
@@ -578,13 +579,164 @@ document.addEventListener('DOMContentLoaded', async () => {
       const editTarget = event.target.closest('.edit-task-btn');
       if (editTarget && editTaskModalInstance) {
         const taskId = editTarget.getAttribute('data-task-id');
-        const editTaskModalBody = document.getElementById('editTaskModalBody');
-        if (editTaskModalBody) {
-          editTaskModalBody.innerHTML = `<p>Editing Task ID: ${taskId}</p><p><em>(Edit form will go here)</em></p>`;
-        }
+        const editTaskForm = document.getElementById('editTaskForm');
+        const messageDiv = document.getElementById('editTaskMessage');
+
+        if (editTaskForm) editTaskForm.reset();
+        if (messageDiv) messageDiv.innerHTML = '';
+        filesToDeleteInEditModal = []; // Clear the array when modal is opened
+
+        // Set loading states
+        document.getElementById('editTaskId').value = '';
+        document.getElementById('editTaskTitle').value = 'Loading...';
+        document.getElementById('editTaskDescription').value = 'Loading...';
+        document.getElementById('editTaskPropertyDisplay').textContent = 'Loading...';
+        document.getElementById('editTaskAssigneeSelect').innerHTML = '<option value="">Loading staff...</option>';
+        document.getElementById('editTaskStatusSelect').value = '';
+        document.getElementById('editTaskPrioritySelect').value = '';
+        document.getElementById('editTaskDueDateInput').value = '';
+        document.getElementById('editTaskNotesTextarea').value = 'Loading...';
+        document.getElementById('editTaskExistingImagesList').innerHTML = '<small class="text-muted">Loading...</small>';
+        document.getElementById('editTaskExistingDocumentsList').innerHTML = '<small class="text-muted">Loading...</small>';
+
         editTaskModalInstance.show();
+
+        fetchSingleTaskDetails(taskId).then(taskDetails => {
+          document.getElementById('editTaskId').value = taskDetails.task_id;
+          document.getElementById('editTaskTitle').value = taskDetails.task_title || '';
+          document.getElementById('editTaskDescription').value = taskDetails.task_description || '';
+          document.getElementById('editTaskPropertyDisplay').textContent = taskDetails.properties ? taskDetails.properties.property_name : 'N/A';
+
+          let assigneesText = 'Unassigned';
+          if (taskDetails.detailed_task_assignments && taskDetails.detailed_task_assignments.length > 0) {
+            assigneesText = taskDetails.detailed_task_assignments
+              .map(a => `${a.assignee_first_name || ''} ${a.assignee_last_name || ''}`.trim() || 'Unnamed Assignee')
+              .join(', ');
+          }
+          // Placeholder for assignee dropdown. Full population is a future task.
+          // For now, it shows current assignee or "Unassigned". A real dropdown would need options.
+          const assigneeSelect = document.getElementById('editTaskAssigneeSelect');
+          assigneeSelect.innerHTML = `<option value="${taskDetails.detailed_task_assignments && taskDetails.detailed_task_assignments.length > 0 ? taskDetails.detailed_task_assignments[0].assignee_user_id : ''}" selected>${assigneesText} (Re-assignment UI later)</option>`;
+
+
+          document.getElementById('editTaskStatusSelect').value = taskDetails.task_status || 'New';
+          document.getElementById('editTaskPrioritySelect').value = taskDetails.task_priority || 'Medium';
+          document.getElementById('editTaskDueDateInput').value = taskDetails.task_due_date ? taskDetails.task_due_date.split('T')[0] : ''; // Format YYYY-MM-DD for date input
+          document.getElementById('editTaskNotesTextarea').value = taskDetails.task_notes || '';
+
+          const imagesList = document.getElementById('editTaskExistingImagesList');
+          imagesList.innerHTML = ''; // Clear loading
+          const imageFiles = taskDetails.files.filter(f => f.mime_type && f.mime_type.startsWith('image/'));
+          if (imageFiles.length > 0) {
+            imageFiles.forEach(file => {
+              const li = document.createElement('li');
+              const li = document.createElement('li');
+              li.className = 'list-group-item d-flex justify-content-between align-items-center';
+              li.setAttribute('id', `file-item-${file.id}`); // Add ID for easy access
+
+              const fileNameSpan = document.createElement('span');
+              fileNameSpan.textContent = file.file_name;
+              li.appendChild(fileNameSpan);
+
+              const deleteBtn = document.createElement('button');
+              deleteBtn.type = 'button';
+              deleteBtn.className = 'btn btn-sm btn-outline-danger delete-task-file-btn';
+              deleteBtn.setAttribute('data-file-id', file.id);
+              deleteBtn.setAttribute('data-file-name', file.file_name); // Store filename for undo
+              deleteBtn.innerHTML = '<i class="bi bi-trash"></i> Delete';
+
+              deleteBtn.addEventListener('click', function() {
+                const fileId = this.dataset.fileId;
+                const listItem = document.getElementById(`file-item-${fileId}`);
+                const fileNameSpanInItem = listItem.querySelector('span');
+
+                if (filesToDeleteInEditModal.includes(fileId)) {
+                  // Undo deletion
+                  filesToDeleteInEditModal = filesToDeleteInEditModal.filter(id => id !== fileId);
+                  if (fileNameSpanInItem) fileNameSpanInItem.style.textDecoration = 'none';
+                  listItem.style.opacity = '1';
+                  this.innerHTML = '<i class="bi bi-trash"></i> Delete';
+                  this.classList.remove('btn-success');
+                  this.classList.add('btn-outline-danger');
+                } else {
+                  // Mark for deletion
+                  filesToDeleteInEditModal.push(fileId);
+                  if (fileNameSpanInItem) fileNameSpanInItem.style.textDecoration = 'line-through';
+                  listItem.style.opacity = '0.6';
+                  this.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Undo';
+                  this.classList.remove('btn-outline-danger');
+                  this.classList.add('btn-success');
+                }
+              });
+              li.appendChild(deleteBtn);
+              imagesList.appendChild(li);
+            });
+          } else {
+            imagesList.innerHTML = '<small class="text-muted">No images currently attached.</small>';
+          }
+
+          const documentsList = document.getElementById('editTaskExistingDocumentsList');
+          documentsList.innerHTML = ''; // Clear loading
+          const docFiles = taskDetails.files.filter(f => f.mime_type && !f.mime_type.startsWith('image/'));
+          if (docFiles.length > 0) {
+            docFiles.forEach(file => {
+              const li = document.createElement('li');
+              const li = document.createElement('li');
+              li.className = 'list-group-item d-flex justify-content-between align-items-center';
+              li.setAttribute('id', `file-item-${file.id}`); // Add ID for easy access
+
+              const fileNameSpan = document.createElement('span');
+              fileNameSpan.textContent = file.file_name;
+              li.appendChild(fileNameSpan);
+
+              const deleteBtn = document.createElement('button');
+              deleteBtn.type = 'button';
+              deleteBtn.className = 'btn btn-sm btn-outline-danger delete-task-file-btn';
+              deleteBtn.setAttribute('data-file-id', file.id);
+              deleteBtn.setAttribute('data-file-name', file.file_name); // Store filename for undo
+              deleteBtn.innerHTML = '<i class="bi bi-trash"></i> Delete';
+
+              deleteBtn.addEventListener('click', function() {
+                const fileId = this.dataset.fileId;
+                const listItem = document.getElementById(`file-item-${fileId}`);
+                const fileNameSpanInItem = listItem.querySelector('span');
+
+                if (filesToDeleteInEditModal.includes(fileId)) {
+                  // Undo deletion
+                  filesToDeleteInEditModal = filesToDeleteInEditModal.filter(id => id !== fileId);
+                   if (fileNameSpanInItem) fileNameSpanInItem.style.textDecoration = 'none';
+                  listItem.style.opacity = '1';
+                  this.innerHTML = '<i class="bi bi-trash"></i> Delete';
+                  this.classList.remove('btn-success');
+                  this.classList.add('btn-outline-danger');
+                } else {
+                  // Mark for deletion
+                  filesToDeleteInEditModal.push(fileId);
+                  if (fileNameSpanInItem) fileNameSpanInItem.style.textDecoration = 'line-through';
+                  listItem.style.opacity = '0.6';
+                  this.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Undo';
+                  this.classList.remove('btn-outline-danger');
+                  this.classList.add('btn-success');
+                }
+              });
+              li.appendChild(deleteBtn);
+              documentsList.appendChild(li);
+            });
+          } else {
+            documentsList.innerHTML = '<small class="text-muted">No documents currently attached.</small>';
+          }
+
+        }).catch(error => {
+          console.error('Error fetching task details for edit:', error);
+          if (messageDiv) displayModalMessage(messageDiv, `Error loading task details: ${error.message}`, true);
+        });
       }
     });
+  }
+
+  const editTaskForm = document.getElementById('editTaskForm');
+  if (editTaskForm) {
+    editTaskForm.addEventListener('submit', handleEditTaskFormSubmit);
   }
 
   const saveNewTaskButton = document.getElementById('saveNewTaskBtn');
@@ -681,3 +833,192 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 });
+
+// Helper function to display messages in modals (if not already present)
+function displayModalMessage(modalMessageElement, message, isError = false) {
+    if (modalMessageElement) {
+        modalMessageElement.innerHTML = `<div class="alert ${isError ? 'alert-danger' : 'alert-success'}" role="alert">${message}</div>`;
+        // Assuming i18next is used and updateUI function exists for dynamic translations
+        if (window.i18next && typeof window.updateUI === 'function') {
+            window.updateUI();
+        }
+    }
+}
+
+async function handleEditTaskFormSubmit(event) {
+  event.preventDefault();
+  const saveButton = document.getElementById('saveTaskChanges');
+  saveButton.disabled = true;
+  saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+  const messageDiv = document.getElementById('editTaskMessage');
+  messageDiv.innerHTML = '';
+
+  const taskId = document.getElementById('editTaskId').value;
+  const updatedTaskData = {
+    task_title: document.getElementById('editTaskTitle').value.trim(),
+    task_description: document.getElementById('editTaskDescription').value.trim(),
+    // property_id is not editable here
+    // assignee_id will require special handling for task_assignments table
+    task_status: document.getElementById('editTaskStatusSelect').value,
+    task_priority: document.getElementById('editTaskPrioritySelect').value,
+    task_due_date: document.getElementById('editTaskDueDateInput').value || null,
+    task_notes: document.getElementById('editTaskNotesTextarea').value.trim()
+  };
+
+  const newAssigneeUserId = document.getElementById('editTaskAssigneeSelect').value; // This will need proper value if dropdown is populated
+
+  console.log('Saving task:', taskId, 'Data:', updatedTaskData, 'New Assignee ID:', newAssigneeUserId);
+
+  let collectedErrorMessages = [];
+  const supabase = window._supabase;
+
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated. Cannot save changes.');
+    }
+
+    // 1. Process File Deletions
+    if (filesToDeleteInEditModal.length > 0) {
+      console.log('Deleting files:', filesToDeleteInEditModal);
+      for (const fileIdToDelete of filesToDeleteInEditModal) {
+        const { error: deleteFileError } = await supabase
+          .from('task_files')
+          .update({ is_deleted: true, updated_at: new Date().toISOString() }) // Mark as deleted
+          .eq('id', fileIdToDelete);
+        if (deleteFileError) {
+          console.error('Error deleting file record:', deleteFileError);
+          collectedErrorMessages.push(`Failed to delete file ID ${fileIdToDelete}: ${deleteFileError.message}`);
+          // Optionally, decide if you want to stop the whole process or continue
+        }
+      }
+    }
+
+    // 2. Process File Uploads
+    const imageFilesToUpload = document.getElementById('editTaskImageUpload').files;
+    const documentFilesToUpload = document.getElementById('editTaskDocumentUpload').files;
+    const uploadPromises = [];
+
+    for (const file of imageFilesToUpload) {
+      const storagePath = `${user.id}/${taskId}/${Date.now()}_${file.name}`; // Add timestamp for uniqueness
+      uploadPromises.push(
+        supabase.storage.from('task-images').upload(storagePath, file)
+          .then(uploadResult => ({ ...uploadResult, originalFile: file, type: 'image' }))
+      );
+    }
+    for (const file of documentFilesToUpload) {
+      const storagePath = `${user.id}/${taskId}/${Date.now()}_${file.name}`; // Add timestamp for uniqueness
+      uploadPromises.push(
+        supabase.storage.from('task-documents').upload(storagePath, file)
+          .then(uploadResult => ({ ...uploadResult, originalFile: file, type: 'document' }))
+      );
+    }
+
+    if (uploadPromises.length > 0) {
+      const uploadResults = await Promise.all(uploadPromises);
+      const fileInsertPromises = [];
+      uploadResults.forEach(uploadResult => {
+        if (uploadResult.error) {
+          console.error('Error uploading file:', uploadResult.error);
+          collectedErrorMessages.push(`Failed to upload ${uploadResult.originalFile.name}: ${uploadResult.error.message}`);
+        } else if (uploadResult.data) {
+          fileInsertPromises.push(
+            supabase.from('task_files').insert([{
+              task_id: taskId,
+              file_name: uploadResult.originalFile.name,
+              storage_path: uploadResult.data.path,
+              mime_type: uploadResult.originalFile.type,
+              file_size: uploadResult.originalFile.size,
+              uploaded_by: user.id,
+              is_deleted: false
+            }])
+          );
+        }
+      });
+      if (fileInsertPromises.length > 0) {
+        const fileInsertResults = await Promise.all(fileInsertPromises);
+        fileInsertResults.forEach(insertResult => {
+          if (insertResult.error) {
+            console.error('Error inserting file record:', insertResult.error);
+            collectedErrorMessages.push(`Failed to save file metadata: ${insertResult.error.message}`);
+          }
+        });
+      }
+    }
+
+    // 3. Update Core Task Details (including notes)
+    const { error: updateTaskError } = await supabase
+      .from('tasks')
+      .update({ ...updatedTaskData, task_updated_at: new Date().toISOString() })
+      .eq('task_id', taskId);
+
+    if (updateTaskError) {
+      console.error('Error updating task details:', updateTaskError);
+      collectedErrorMessages.push(`Failed to update task details: ${updateTaskError.message}`);
+    }
+
+    // 4. Handle Assignee Change (Simplified: remove all, add new if specified)
+    // This is a placeholder and might need more sophisticated logic for multiple assignees or history.
+    if (newAssigneeUserId !== undefined) { // Check if assignee was meant to be changed
+        const { data: currentAssignments, error: fetchAssignmentsError } = await supabase
+            .from('task_assignments')
+            .select('user_id')
+            .eq('task_id', taskId);
+
+        if (fetchAssignmentsError) {
+            console.error('Error fetching current assignments:', fetchAssignmentsError);
+            collectedErrorMessages.push('Could not verify current assignee. Assignee not changed.');
+        } else {
+            const currentAssigneeIds = currentAssignments.map(a => a.user_id);
+            // If new assignee is different or if current assignments are multiple and new one is single
+            let changeAssignee = false;
+            if (currentAssigneeIds.length !== 1 || currentAssigneeIds[0] !== newAssigneeUserId) {
+                changeAssignee = true;
+            }
+
+            if (changeAssignee) {
+                console.log('Changing assignee. Current:', currentAssigneeIds, 'New:', newAssigneeUserId);
+                const { error: deleteAssignmentsError } = await supabase
+                    .from('task_assignments')
+                    .delete()
+                    .eq('task_id', taskId);
+
+                if (deleteAssignmentsError) {
+                    console.error('Error deleting old assignments:', deleteAssignmentsError);
+                    collectedErrorMessages.push('Failed to update assignee (delete step).');
+                } else if (newAssigneeUserId && newAssigneeUserId !== '') { // Ensure newAssigneeUserId is not empty
+                    const { error: insertAssignmentError } = await supabase
+                        .from('task_assignments')
+                        .insert([{ task_id: taskId, user_id: newAssigneeUserId }]);
+                    if (insertAssignmentError) {
+                        console.error('Error inserting new assignment:', insertAssignmentError);
+                        collectedErrorMessages.push('Failed to update assignee (insert step).');
+                    }
+                }
+            }
+        }
+    }
+
+
+    // 5. Finalize
+    if (collectedErrorMessages.length > 0) {
+      displayModalMessage(messageDiv, 'Task update encountered errors: ' + collectedErrorMessages.join('; '), true);
+    } else {
+      displayModalMessage(messageDiv, 'Task updated successfully!', false);
+      await fetchTasksAndRelatedData().then(renderTasks); // Refresh main list
+      filesToDeleteInEditModal = []; // Clear after successful deletions
+      document.getElementById('editTaskImageUpload').value = ''; // Clear file input
+      document.getElementById('editTaskDocumentUpload').value = ''; // Clear file input
+      setTimeout(() => { // Give user time to read success message
+        if (editTaskModalInstance) editTaskModalInstance.hide();
+      }, 1500);
+    }
+
+  } catch (error) {
+    console.error('Critical error during task update process:', error);
+    displayModalMessage(messageDiv, `An unexpected critical error occurred: ${error.message}`, true);
+  } finally {
+    saveButton.disabled = false;
+    saveButton.innerHTML = 'Save Changes';
+  }
+}

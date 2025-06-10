@@ -158,15 +158,94 @@
           <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <div id="editTaskModalBody">
-            <p>Loading task editor...</p>
+        <form id="editTaskForm"> <!-- Form wraps body and footer -->
+          <div class="modal-body" id="editTaskModalBody"> <!-- ID kept for consistency, though its direct children are now form fields -->
+            <input type="hidden" id="editTaskId">
+
+            <div class="mb-3">
+              <label for="editTaskTitle" class="form-label">Title</label>
+              <input type="text" class="form-control" id="editTaskTitle" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="editTaskDescription" class="form-label">Description</label>
+              <textarea class="form-control" id="editTaskDescription" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Property</label>
+              <p id="editTaskPropertyDisplay" class="form-control-plaintext">N/A</p> <!-- Display only -->
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="editTaskAssigneeSelect" class="form-label">Assigned To</label>
+                <select class="form-select" id="editTaskAssigneeSelect">
+                  <!-- Options to be populated by JS -->
+                  <option value="">Loading staff...</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="editTaskDueDateInput" class="form-label">Due Date</label>
+                <input type="date" class="form-control" id="editTaskDueDateInput">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="editTaskStatusSelect" class="form-label">Status</label>
+                <select class="form-select" id="editTaskStatusSelect" required>
+                  <option value="New">New</option>
+                  <option value="Not started">Not started</option>
+                  <option value="In progress">In progress</option>
+                  <option value="Done">Done</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="editTaskPrioritySelect" class="form-label">Priority</label>
+                <select class="form-select" id="editTaskPrioritySelect" required>
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="editTaskNotesTextarea" class="form-label">Notes</label>
+              <textarea class="form-control" id="editTaskNotesTextarea" rows="3"></textarea>
+            </div>
+
+            <hr>
+            <p class="mb-2"><strong>Attached Images:</strong></p>
+            <div id="editTaskExistingImagesList" class="mb-2">
+              <!-- Existing images will be listed here by JS -->
+              <small class="text-muted">No images currently attached.</small>
+            </div>
+            <div class="mb-3">
+              <label for="editTaskImageUpload" class="form-label">Upload New Images</label>
+              <input class="form-control" type="file" id="editTaskImageUpload" multiple accept="image/*">
+            </div>
+
+            <hr>
+            <p class="mb-2"><strong>Attached Documents:</strong></p>
+            <div id="editTaskExistingDocumentsList" class="mb-2">
+              <!-- Existing documents will be listed here by JS -->
+              <small class="text-muted">No documents currently attached.</small>
+            </div>
+            <div class="mb-3">
+              <label for="editTaskDocumentUpload" class="form-label">Upload New Documents</label>
+              <input class="form-control" type="file" id="editTaskDocumentUpload" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt">
+            </div>
+
+            <div id="editTaskMessage" class="mt-3"></div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" id="saveTaskChanges">Save Changes</button>
-        </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" id="saveTaskChanges">Save Changes</button> <!-- Type is submit -->
+          </div>
+        </form>
       </div>
     </div>
   </div>
