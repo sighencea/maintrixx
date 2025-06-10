@@ -192,6 +192,53 @@ async function populateCreateTaskModalDropdowns() {
   }
 }
 
+async function fetchSingleTaskDetails(taskId) {
+  if (!window._supabase) {
+    console.error("Supabase client is not available.");
+    throw new Error("Supabase client not available.");
+  }
+  if (!taskId) {
+    console.error("Task ID is required to fetch details.");
+    throw new Error("Task ID is required.");
+  }
+
+  // Fetch main task data, property, and assignees
+  const { data: taskData, error: taskError } = await window._supabase
+    .from('tasks')
+    .select(`
+      *,
+      properties ( property_name ),
+      detailed_task_assignments ( assignee_first_name, assignee_last_name, assignee_user_id, assignee_email )
+    `)
+    .eq('task_id', taskId)
+    .single();
+
+  if (taskError) {
+    console.error(`Error fetching task details for ${taskId}:`, taskError);
+    throw taskError;
+  }
+  if (!taskData) {
+    throw new Error("Task not found.");
+  }
+
+  // Fetch related files (non-deleted)
+  const { data: filesData, error: filesError } = await window._supabase
+    .from('task_files')
+    .select('id, file_name, mime_type, storage_path') // Add other fields if needed for display
+    .eq('task_id', taskId)
+    .eq('is_deleted', false);
+
+  if (filesError) {
+    console.error(`Error fetching files for task ${taskId}:`, filesError);
+    // Not throwing error here, task details can still be shown
+    taskData.files = [];
+  } else {
+    taskData.files = filesData || [];
+  }
+
+  return taskData;
+}
+
 // Asynchronous function to fetch tasks and related data from Supabase
 async function fetchTasksAndRelatedData() {
   if (!window._supabase) {
@@ -450,11 +497,82 @@ document.addEventListener('DOMContentLoaded', async () => {
       const viewTarget = event.target.closest('.view-task-btn');
       if (viewTarget && viewTaskModalInstance) {
         const taskId = viewTarget.getAttribute('data-task-id');
-        const viewTaskModalBody = document.getElementById('viewTaskModalBody');
-        if (viewTaskModalBody) {
-          viewTaskModalBody.innerHTML = `<p>Details for Task ID: ${taskId}</p><p><em>(Full details will be loaded here)</em></p>`;
+        const modalBody = document.getElementById('viewTaskModalBody');
+        const modalTitle = document.getElementById('viewTaskModalLabel'); // Assuming the title ID is this
+
+        // Reset to loading state
+        if (modalTitle) modalTitle.textContent = 'View Task Details';
+        if (modalBody) {
+            // Quickly set loading state for all fields
+            document.getElementById('viewTaskTitle').textContent = 'Loading...';
+            document.getElementById('viewTaskProperty').textContent = 'Loading...';
+            document.getElementById('viewTaskAssignees').textContent = 'Loading...';
+            document.getElementById('viewTaskStatus').textContent = 'Loading...';
+            document.getElementById('viewTaskPriority').textContent = 'Loading...';
+            document.getElementById('viewTaskDueDate').textContent = 'Loading...';
+            document.getElementById('viewTaskDescription').textContent = 'Loading...';
+            document.getElementById('viewTaskNotes').textContent = 'Loading...';
+            document.getElementById('viewTaskImagesList').innerHTML = '<li class="list-group-item text-muted">Loading...</li>';
+            document.getElementById('viewTaskDocumentsList').innerHTML = '<li class="list-group-item text-muted">Loading...</li>';
+            document.getElementById('viewTaskCreatedAt').textContent = 'Loading...';
+            document.getElementById('viewTaskUpdatedAt').textContent = 'Loading...';
         }
-        viewTaskModalInstance.show();
+        viewTaskModalInstance.show(); // Show modal immediately with loading state
+
+        fetchSingleTaskDetails(taskId).then(taskDetails => {
+          if (modalTitle) modalTitle.textContent = `Task: ${taskDetails.task_title || 'Details'}`;
+
+          document.getElementById('viewTaskTitle').textContent = taskDetails.task_title || 'N/A';
+          document.getElementById('viewTaskProperty').textContent = taskDetails.properties ? taskDetails.properties.property_name : 'N/A';
+
+          let assigneesText = 'Unassigned';
+          if (taskDetails.detailed_task_assignments && taskDetails.detailed_task_assignments.length > 0) {
+            assigneesText = taskDetails.detailed_task_assignments
+              .map(a => `${a.assignee_first_name || ''} ${a.assignee_last_name || ''}`.trim() || 'Unnamed Assignee')
+              .join(', ');
+          }
+          document.getElementById('viewTaskAssignees').textContent = assigneesText;
+
+          document.getElementById('viewTaskStatus').textContent = taskDetails.task_status || 'N/A';
+          document.getElementById('viewTaskPriority').textContent = taskDetails.task_priority || 'N/A';
+          document.getElementById('viewTaskDueDate').textContent = taskDetails.task_due_date ? formatDate(taskDetails.task_due_date) : 'N/A'; // Assuming formatDate exists
+          document.getElementById('viewTaskDescription').textContent = taskDetails.task_description || 'N/A';
+          document.getElementById('viewTaskNotes').textContent = taskDetails.task_notes || 'No notes yet.';
+
+          document.getElementById('viewTaskCreatedAt').textContent = taskDetails.created_at ? formatDate(taskDetails.created_at) : 'N/A';
+          document.getElementById('viewTaskUpdatedAt').textContent = taskDetails.updated_at ? formatDate(taskDetails.updated_at) : 'N/A';
+
+          const imagesList = document.getElementById('viewTaskImagesList');
+          imagesList.innerHTML = ''; // Clear loading/previous
+          const imageFiles = taskDetails.files.filter(f => f.mime_type && f.mime_type.startsWith('image/'));
+          if (imageFiles.length > 0) {
+            imageFiles.forEach(file => {
+              const li = document.createElement('li');
+              li.className = 'list-group-item';
+              li.textContent = file.file_name; // Placeholder: actual link/thumbnail later
+              imagesList.appendChild(li);
+            });
+          } else {
+            imagesList.innerHTML = '<li class="list-group-item text-muted">No images attached.</li>';
+          }
+
+          const documentsList = document.getElementById('viewTaskDocumentsList');
+          documentsList.innerHTML = ''; // Clear loading/previous
+          const docFiles = taskDetails.files.filter(f => f.mime_type && !f.mime_type.startsWith('image/'));
+          if (docFiles.length > 0) {
+            docFiles.forEach(file => {
+              const li = document.createElement('li');
+              li.className = 'list-group-item';
+              li.textContent = file.file_name; // Placeholder: actual link later
+              documentsList.appendChild(li);
+            });
+          } else {
+            documentsList.innerHTML = '<li class="list-group-item text-muted">No documents attached.</li>';
+          }
+
+        }).catch(error => {
+          if (modalBody) modalBody.innerHTML = `<p class="text-danger">Error loading task details: ${error.message}</p>`;
+        });
       }
 
       const editTarget = event.target.closest('.edit-task-btn');
