@@ -161,3 +161,25 @@ Authentication via Supabase Auth. New agency admins verify and set up company. A
 *   User final review and approval of this document from the repository.
 *   Ensure all database changes (new `task_notes` column, `task_files` table, all RLS policies for tables and storage) are scripted as Supabase migrations for version control and future environment setups.
 *   Ongoing monitoring of application stability and RLS performance.
+
+### Dynamic Dashboard Enhancements
+
+Future updates will focus on making the dashboard (`pages/dashboard.html`) dynamic:
+
+*   **Properties Card:**
+    *   Fetch and display the actual count of properties associated with the admin's company.
+    *   Display a message like "You don't have any properties set up yet." if the count is zero.
+*   **Tasks Card:**
+    *   Fetch and display counts of tasks for the admin's company, broken down by status: 'New', 'In Progress', and 'Completed'.
+    *   Display '0' if a status has no tasks.
+    *   Display a general message if there are no tasks in these categories.
+*   **Staff Card:**
+    *   Fetch and display the total number of staff (non-admins) in the admin's company.
+    *   Display a message like "You don't have any staff members yet." if the total is zero.
+    *   Provide a breakdown of staff counts by specific roles: 'Electrician', 'Plumber', 'Cleaner'.
+    *   Provide a count for 'Contractor' roles separately.
+    *   Display '0' for role counts if applicable.
+*   **Implementation Approach:**
+    *   Three new PostgreSQL RPC functions will be created (`get_company_property_count`, `get_company_task_counts_by_status`, `get_company_staff_counts_by_role`). These will use the existing JWT-based helper functions (`public.current_user_is_admin()`, `public.current_user_company_id()`) to ensure data is scoped to the admin's company.
+    *   The JavaScript file `js/dashboard_check.js` (or a new dedicated dashboard script) will be updated to call these RPCs and populate the dashboard HTML elements.
+*   **Localization:** All new static and dynamic text elements introduced on the dashboard will be added to localization files (`locales/en.json`, `locales/de.json`) for translation.
