@@ -681,7 +681,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (docFiles.length > 0) {
             docFiles.forEach(file => {
               const li = document.createElement('li');
-              const li = document.createElement('li');
+              // const li = document.createElement('li');
               li.className = 'list-group-item d-flex justify-content-between align-items-center';
               li.setAttribute('id', `file-item-${file.id}`); // Add ID for easy access
 
