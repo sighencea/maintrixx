@@ -630,7 +630,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (imageFiles.length > 0) {
             imageFiles.forEach(file => {
               const li = document.createElement('li');
-              const li = document.createElement('li');
               li.className = 'list-group-item d-flex justify-content-between align-items-center';
               li.setAttribute('id', `file-item-${file.id}`); // Add ID for easy access
 
@@ -680,7 +679,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           const docFiles = taskDetails.files.filter(f => f.mime_type && !f.mime_type.startsWith('image/'));
           if (docFiles.length > 0) {
             docFiles.forEach(file => {
-              const li = document.createElement('li');
               const li = document.createElement('li');
               li.className = 'list-group-item d-flex justify-content-between align-items-center';
               li.setAttribute('id', `file-item-${file.id}`); // Add ID for easy access
