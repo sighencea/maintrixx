@@ -159,12 +159,12 @@
         <div class="modal fade" id="editStaffModal" tabindex="-1" aria-labelledby="editStaffModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editStaffModalLabel" data-i18n="staffPage.modals.edit.title">Edit Staff Member</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <form id="editStaffForm">
+              <form id="editStaffForm"> <!-- FORM TAG MOVED TO WRAP HEADER, BODY, FOOTER -->
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editStaffModalLabel" data-i18n="staffPage.modals.edit.title">Edit Staff Member</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                   <input type="hidden" id="editStaffId"> <!-- To store the ID of the staff member being edited -->
                   <div class="mb-3">
                     <label for="editStaffFirstName" class="form-label" data-i18n="staffPage.modals.edit.form.firstNameLabel">First Name</label>
@@ -199,12 +199,12 @@
                     </select>
                   </div>
                   <div id="editStaffMessage" class="mt-3"></div> <!-- For displaying success/error messages -->
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="staffPage.modals.buttons.cancel">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveStaffChangesBtn" data-i18n="staffPage.modals.buttons.saveChanges">Save Changes</button>
-              </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="staffPage.modals.buttons.cancel">Cancel</button>
+                  <button type="submit" class="btn btn-primary" id="saveStaffChangesBtn" data-i18n="staffPage.modals.buttons.saveChanges">Save Changes</button> <!-- TYPE CHANGED TO SUBMIT -->
+                </div>
+              </form> <!-- FORM TAG CLOSES HERE -->
             </div>
           </div>
         </div>
