@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             .from('profiles')
             .update(staffUpdateData)
             .eq('id', staffId)
-            .select()
+            .select('id') // Changed from .select()
             .single();
 
         if (error) {
