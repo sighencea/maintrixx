@@ -267,7 +267,7 @@ const SignInPage = () => {
         <div className="form-floating mb-3"><input type="email" className="form-control" value={signInEmail} onChange={(e)=>setSignInEmail(e.target.value)} placeholder="email" required disabled={authLoading} /><label>Email</label></div>
         <div className="form-floating mb-3"><input type="password" className="form-control" value={signInPassword} onChange={(e)=>setSignInPassword(e.target.value)} placeholder="password" required disabled={authLoading} /><label>Password</label></div>
         {(localMessage.text || authError) && <div className={`alert alert-${localMessage.type || (authError ? 'danger' : 'info')} mt-3`}>{localMessage.text || authError?.message}</div>}
-        <button className="btn btn-primary w-100 py-2 mt-3" type="submit" disabled={authLoading}>{authLoading ? 'Signing In...' : 'Sign In'}</button>
+        <button className="btn btn-primary w-100 py-2 mt-3" type="submit" disabled={authLoading}>{authLoading ? 'Signing In...' : 'Sign In Button'}</button>
       </form>
       <button className="btn btn-link mt-1" onClick={() => {setUserForModals({email: signInEmail}); setIsResendModalOpen(true);}} disabled={authLoading}>Resend Verification?</button>
     </div>
