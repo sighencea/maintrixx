@@ -3,8 +3,8 @@ name: Deploy React app to GitHub Pages
 on:
   push:
     branches:
-      - main  # Or 'master' if that's your default
-  workflow_dispatch:  # 👈 This enables manual trigger
+      - master
+  workflow_dispatch:  # 👈 Enables manual trigger
 
 permissions:
   contents: write
@@ -32,3 +32,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          publish_branch: gh-pages
