@@ -145,6 +145,24 @@
   "tasksPage": {
     "header": "Tasks"
   },
+  "propertyDetailsPage": {
+    "showQrButton": "Show QR Code",
+    "tasksHeader": "Tasks for this Property",
+    "activeTasksTab": "Active Tasks",
+    "completedTasksTab": "Completed Tasks",
+    "tasksTable": {
+      "header": {
+        "title": "Task title",
+        "assignedTo": "Assigned to",
+        "status": "Status",
+        "dueDate": "Due date",
+        "actions": "Actions"
+      },
+      "noTasks": "No tasks found for this property.",
+      "noActiveTasks": "No active tasks found for this property.",
+      "noCompletedTasks": "No completed tasks found for this property."
+    }
+  },
   "notificationsPage": {
     "title": "Notifications - Property Hub",
     "header": "Notifications",
@@ -400,9 +418,6 @@
     "updateError": "Failed to update verification status. Please try again.",
     "success": "Verification successful! Redirecting...",
     "incorrectCode": "Incorrect code. Please try again."
-  },
-  "propertyDetailsPage": {
-    "showQrButton": "Show QR Code"
   },
   "agencySetupPage": {
     "pageTitle": "Agency Company Setup - Property Hub",

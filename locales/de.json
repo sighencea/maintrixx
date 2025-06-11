@@ -145,6 +145,24 @@
   "tasksPage": {
     "header": "Aufgaben"
   },
+  "propertyDetailsPage": {
+    "showQrButton": "QR-Code anzeigen",
+    "tasksHeader": "[DE] Tasks for this Property",
+    "activeTasksTab": "[DE] Active Tasks",
+    "completedTasksTab": "[DE] Completed Tasks",
+    "tasksTable": {
+      "header": {
+        "title": "[DE] Task title",
+        "assignedTo": "[DE] Assigned to",
+        "status": "[DE] Status",
+        "dueDate": "[DE] Due date",
+        "actions": "[DE] Actions"
+      },
+      "noTasks": "[DE] No tasks found for this property.",
+      "noActiveTasks": "[DE] No active tasks found for this property.",
+      "noCompletedTasks": "[DE] No completed tasks found for this property."
+    }
+  },
   "notificationsPage": {
     "title": "Benachrichtigungen - Immobilien Hub",
     "header": "Benachrichtigungen",
@@ -376,9 +394,6 @@
     "updateError": "Aktualisierung des Verifizierungsstatus fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "success": "Verifizierung erfolgreich! Weiterleitung...",
     "incorrectCode": "Falscher Code. Bitte versuchen Sie es erneut."
-  },
-  "propertyDetailsPage": {
-    "showQrButton": "QR-Code anzeigen"
   },
   "agencySetupPage": {
     "pageTitle": "Agentur-Setup - Property Hub",
