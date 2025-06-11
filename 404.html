@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Single Page App Redirect</title>
+    <script>
+      // Store the full path that led to the 404 page.
+      // It should include the base path, e.g., /maintrixx/dashboard
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+
+      // The base path of your application, as configured in vite.config.js
+      var basePath = '/maintrixx'; // Make sure this matches your vite.config.js base
+
+      // Remove the basePath from the start of the path, if present,
+      // because React Router expects paths relative to the application root.
+      var routePath = path;
+      if (path.startsWith(basePath)) {
+        routePath = path.substring(basePath.length);
+      }
+
+      // If routePath is empty, it means we are at the base (e.g. /maintrixx/ itself was 404'd, unlikely but handle)
+      // or if it was /maintrixx, then routePath becomes "" which means "/" for the router.
+      if (routePath === '' || routePath === '/') {
+        routePath = '/'; // Default to root route
+      }
+
+
+      // Store the intended route path, search params, and hash for index.html to pick up.
+      sessionStorage.setItem('spa_redirect_path', routePath);
+      sessionStorage.setItem('spa_redirect_search', search);
+      sessionStorage.setItem('spa_redirect_hash', hash);
+
+      // Redirect to the index.html at the base of your site.
+      // The href should be to the base path, which serves index.html.
+      window.location.replace(basePath + (basePath.endsWith('/') ? '' : '/'));
+
+    </script>
+  </head>
+  <body>
+    <!-- Optional: a message for users if JavaScript is disabled or redirect fails -->
+    <p>If you are not redirected automatically, please navigate to the <a href="/maintrixx/">home page</a>.</p>
+  </body>
+</html>
