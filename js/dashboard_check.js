@@ -1,4 +1,111 @@
 // js/dashboard_check.js
+
+async function rpcGetPropertyCount() {
+  if (!window._supabase) throw new Error("Supabase not initialized");
+  const { data, error } = await window._supabase.rpc('get_company_property_count');
+  if (error) throw error;
+  return data; // Expected to be a single integer
+}
+
+async function rpcGetTaskCounts() {
+  if (!window._supabase) throw new Error("Supabase not initialized");
+  const { data, error } = await window._supabase.rpc('get_company_task_counts_by_status');
+  if (error) throw error;
+  return data; // Expected to be an array of {status: TEXT, count: INTEGER}
+}
+
+async function rpcGetStaffCounts() {
+  if (!window._supabase) throw new Error("Supabase not initialized");
+  const { data, error } = await window._supabase.rpc('get_company_staff_counts_by_role');
+  if (error) throw error;
+  return data; // Expected to be an array of {role_type: TEXT, role_name: TEXT, count: INTEGER}
+}
+
+async function updateDashboardData() {
+  try {
+    // Properties
+    const propCount = await rpcGetPropertyCount();
+    const propertyCountElement = document.getElementById('propertyCount');
+    if (propertyCountElement) {
+      if (propCount === 0) {
+        propertyCountElement.innerHTML = `<small class="text-muted" data-i18n="dashboardPage.cardProperties.noProperties">You don't have any properties set up yet.</small>`;
+      } else {
+        propertyCountElement.textContent = propCount;
+      }
+    }
+
+    // Tasks
+    const taskCounts = await rpcGetTaskCounts();
+    const tasksNewCountEl = document.getElementById('tasksNewCount');
+    const tasksInProgressCountEl = document.getElementById('tasksInProgressCount');
+    const tasksCompletedCountEl = document.getElementById('tasksCompletedCount');
+    const taskCountsContainerEl = document.getElementById('taskCountsContainer');
+    const noTasksMessageEl = document.getElementById('noTasksMessage');
+
+    let totalTasks = 0;
+    const statuses = { New: 0, 'In Progress': 0, Completed: 0 };
+    if (taskCounts) {
+      taskCounts.forEach(item => {
+        if (statuses.hasOwnProperty(item.status)) {
+          statuses[item.status] = item.count;
+          totalTasks += item.count;
+        }
+      });
+    }
+    if (tasksNewCountEl) tasksNewCountEl.textContent = statuses.New;
+    if (tasksInProgressCountEl) tasksInProgressCountEl.textContent = statuses['In Progress'];
+    if (tasksCompletedCountEl) tasksCompletedCountEl.textContent = statuses.Completed;
+
+    if (totalTasks === 0 && taskCountsContainerEl && noTasksMessageEl) {
+      taskCountsContainerEl.style.display = 'none';
+      noTasksMessageEl.style.display = 'block';
+    } else if (taskCountsContainerEl && noTasksMessageEl) {
+      taskCountsContainerEl.style.display = 'block';
+      noTasksMessageEl.style.display = 'none';
+    }
+
+    // Staff
+    const staffCounts = await rpcGetStaffCounts();
+    const totalStaffCountEl = document.getElementById('totalStaffCount');
+    const staffBreakdownContainerEl = document.getElementById('staffBreakdownContainer');
+    const noStaffMessageEl = document.getElementById('noStaffMessage');
+    const roles = { Electrician: 0, Plumber: 0, Cleaner: 0, Contractor: 0 };
+    let totalStaff = 0;
+
+    if (staffCounts) {
+      staffCounts.forEach(item => {
+        if (roles.hasOwnProperty(item.role_name)) {
+          roles[item.role_name] = item.count;
+        }
+        totalStaff += item.count; // Sum up all roles returned by RPC for total
+      });
+    }
+
+    if (document.getElementById('staffElectricianCount')) document.getElementById('staffElectricianCount').textContent = roles.Electrician;
+    if (document.getElementById('staffPlumberCount')) document.getElementById('staffPlumberCount').textContent = roles.Plumber;
+    if (document.getElementById('staffCleanerCount')) document.getElementById('staffCleanerCount').textContent = roles.Cleaner;
+    if (document.getElementById('staffContractorCount')) document.getElementById('staffContractorCount').textContent = roles.Contractor;
+    if (totalStaffCountEl) totalStaffCountEl.textContent = totalStaff;
+
+    if (totalStaff === 0 && staffBreakdownContainerEl && noStaffMessageEl) {
+      staffBreakdownContainerEl.style.display = 'none';
+      noStaffMessageEl.style.display = 'block';
+    } else if (staffBreakdownContainerEl && noStaffMessageEl) {
+      staffBreakdownContainerEl.style.display = 'block';
+      noStaffMessageEl.style.display = 'none';
+    }
+
+    // Re-apply i18n for any new text content if not handled by attribute-only i18n
+    if (window.i18next && typeof window.updateUI === 'function') {
+      window.updateUI();
+    }
+
+  } catch (error) {
+    console.error("Error updating dashboard data:", error);
+    // Optionally display a generic error message on the dashboard
+  }
+}
+
 (async function() {
   async function checkAuthSessionAndRedirect() {
     if (!window._supabase) {
@@ -29,14 +136,14 @@
       console.log('Dashboard Check: Active session found. User can stay.'); 
       const user = data.session.user; // Get the user object
       initializeSignOutButton(); 
-      fetchAndDisplayUserProfile(user); // New function call
+      fetchAndDisplayUserProfile(user);
       if (window.location.pathname.includes('/dashboard.html')) {
-        fetchAndDisplayPropertyCount(user.id);
+        // fetchAndDisplayPropertyCount(user.id); // Old call removed
+        updateDashboardData(); // New call for all stats
       }
     }
   }
 
-  // Add this new function inside the main IIFE, for example, after initializeSignOutButton
   async function fetchAndDisplayUserProfile(user) {
     const welcomeMessageElement = document.getElementById('welcomeMessage');
     if (!welcomeMessageElement) {
@@ -98,46 +205,7 @@
   // If it's different in a way that breaks the patch, manual intervention would be needed.
   // Assuming the duplication is exact or the user wants both patched if they were different but matched the search pattern.
 
-  async function fetchAndDisplayPropertyCount(userId) {
-    const propertyCountElement = document.getElementById('propertyCount');
-    if (!propertyCountElement) {
-        console.error('Property count element not found in dashboard.html');
-        return;
-    }
-
-    try {
-        // 1. Fetch company_id for the user
-        const { data: companyData, error: companyError } = await window._supabase
-            .from('companies')
-            .select('id')
-            .eq('owner_id', userId)
-            .single();
-
-        if (companyError || !companyData) {
-            console.error('Error fetching company for user or no company found:', companyError);
-            propertyCountElement.textContent = '0';
-            return;
-        }
-
-        const companyId = companyData.id;
-
-        // 2. Fetch property count for the company
-        const { count, error: countError } = await window._supabase
-            .from('properties')
-            .select('*', { count: 'exact', head: true }) // Important: head:true makes it not fetch data
-            .eq('company_id', companyId);
-
-        if (countError) {
-            console.error('Error fetching property count:', countError);
-            propertyCountElement.textContent = '0';
-        } else {
-            propertyCountElement.textContent = count || '0';
-        }
-    } catch (error) {
-        console.error('An unexpected error occurred fetching property count:', error);
-        propertyCountElement.textContent = '0'; // Default to 0 on any unexpected error
-    }
-  }
+  // Old fetchAndDisplayPropertyCount function removed
 
   function initializeSignOutButton() {
     const signOutButton = document.getElementById('signOutButton');
