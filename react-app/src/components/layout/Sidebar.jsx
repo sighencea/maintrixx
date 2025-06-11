@@ -10,17 +10,17 @@ const Sidebar = () => {
 
   // Links to hide for non-admins, based on original main.js updateSidebarForPermissions
   const nonAdminHiddenLinks = [
-    '/pages/dashboard.html',
-    '/pages/properties.html', // Assuming properties are admin-only view/manage
-    '/pages/staff.html'
+    '/dashboard',
+    '/properties', // Assuming properties are admin-only view/manage
+    '/staff'
   ];
 
   const navLinks = [
-    { path: '/pages/dashboard.html', icon: 'bi-speedometer2', labelKey: 'nav.dashboard', adminOnly: true },
-    { path: '/pages/properties.html', icon: 'bi-building', labelKey: 'nav.properties', adminOnly: true },
-    { path: '/pages/tasks.html', icon: 'bi-list-check', labelKey: 'nav.tasks', adminOnly: false },
-    { path: '/pages/staff.html', icon: 'bi-people-fill', labelKey: 'nav.staff', adminOnly: true },
-    { path: '/pages/notifications.html', icon: 'bi-bell-fill', labelKey: 'nav.notifications', adminOnly: false },
+    { path: '/dashboard', icon: 'bi-speedometer2', labelKey: 'nav.dashboard', adminOnly: true },
+    { path: '/properties', icon: 'bi-building', labelKey: 'nav.properties', adminOnly: true },
+    { path: '/tasks', icon: 'bi-list-check', labelKey: 'nav.tasks', adminOnly: false },
+    { path: '/staff', icon: 'bi-people-fill', labelKey: 'nav.staff', adminOnly: true },
+    { path: '/notifications', icon: 'bi-bell-fill', labelKey: 'nav.notifications', adminOnly: false },
   ];
 
   return (

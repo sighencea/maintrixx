@@ -29,7 +29,7 @@ function App() {
           element={<ProtectedRoute><MainLayout><DashboardPage /></MainLayout></ProtectedRoute>}
         />
         <Route
-          path="/pages/properties.html"
+          path="/properties"
           element={<ProtectedRoute><MainLayout><PropertiesPage /></MainLayout></ProtectedRoute>}
         />
         <Route
@@ -37,18 +37,22 @@ function App() {
           element={<ProtectedRoute><MainLayout><TasksPage /></MainLayout></ProtectedRoute>}
         />
         <Route
-          path="/pages/staff.html"
+          path="/staff"
           element={<ProtectedRoute><MainLayout><StaffPage /></MainLayout></ProtectedRoute>}
         />
         <Route
-          path="/pages/notifications.html"
+          path="/notifications"
           element={<ProtectedRoute><MainLayout><NotificationsPage /></MainLayout></ProtectedRoute>}
         />
         <Route
-          path="/pages/account.html"
+          path="/account"
           element={<ProtectedRoute><MainLayout><AccountPage /></MainLayout></ProtectedRoute>}
         />
-
+        {/* Property Details Page Route - Placeholder */}
+        <Route
+          path="/property-details/:propertyId"
+          element={<ProtectedRoute><MainLayout><NotFoundPage /></MainLayout></ProtectedRoute>}
+        />
         {/* Agency setup page route */}
         <Route
           path="/agency-setup"
