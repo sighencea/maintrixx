@@ -30,7 +30,7 @@
     // This part is mostly from the original property-details.js logic for the header
     const { data: propertyData, error: propertyError } = await supabase
         .from('properties')
-        .select('property_name,address,property_type,property_details,property_occupier,image_url')
+        .select('property_name,address,property_type,property_details,property_occupier,property_image_url')
         .eq('id', propertyId)
         .single();
 
@@ -44,9 +44,16 @@
         if(document.getElementById('propertyType')) document.getElementById('propertyType').textContent = propertyData.property_type;
         if(document.getElementById('propertyOccupier')) document.getElementById('propertyOccupier').textContent = propertyData.property_occupier;
         if(document.getElementById('propertyDetailsText')) document.getElementById('propertyDetailsText').textContent = propertyData.property_details || 'No additional details provided.';
-        if(document.getElementById('propertyImage')) {
-            document.getElementById('propertyImage').src = propertyData.image_url || 'https://via.placeholder.com/700x400.png?text=No+Image';
-            document.getElementById('propertyImage').alt = propertyData.property_name || 'Property Image';
+
+        const propertyImageElement = document.getElementById('propertyImage');
+        if (propertyImageElement) {
+            if (propertyData.property_image_url) {
+                propertyImageElement.src = propertyData.property_image_url;
+                propertyImageElement.alt = propertyData.property_name || 'Property Image';
+            } else {
+                propertyImageElement.src = `https://via.placeholder.com/700x400.png?text=${encodeURIComponent(propertyData.property_name || 'No Image Available')}`;
+                propertyImageElement.alt = propertyData.property_name || 'No Image Available';
+            }
         }
          // Setup links that depend on propertyId
         const editPropertyLink = document.getElementById('editPropertyLink');
