@@ -25,7 +25,7 @@ function App() {
 
         {/* Protected MainLayout routes */}
         <Route
-          path="/pages/dashboard.html"
+          path="/dashboard"
           element={<ProtectedRoute><MainLayout><DashboardPage /></MainLayout></ProtectedRoute>}
         />
         <Route
@@ -33,7 +33,7 @@ function App() {
           element={<ProtectedRoute><MainLayout><PropertiesPage /></MainLayout></ProtectedRoute>}
         />
         <Route
-          path="/pages/tasks.html"
+          path="/tasks"
           element={<ProtectedRoute><MainLayout><TasksPage /></MainLayout></ProtectedRoute>}
         />
         <Route
@@ -51,7 +51,7 @@ function App() {
 
         {/* Agency setup page route */}
         <Route
-          path="/pages/agency_setup_page.html"
+          path="/agency-setup"
           element={<ProtectedRoute><MainLayout><AgencySetupPage /></MainLayout></ProtectedRoute>}
         />
 

@@ -74,14 +74,14 @@ const SignInPage = () => {
       const isAdmin = authedUser.app_metadata?.is_admin === true;
       if (!isAdmin) {
         localStorage.setItem('onboardingComplete', 'true');
-        navigate('/pages/tasks.html');
+        navigate('/tasks');
       } else {
         if (profile.has_company_set_up === false) {
           localStorage.removeItem('onboardingComplete');
           setIsLanguageModalOpen(true); // Then redirects to agency_setup_page via modal
         } else {
           localStorage.setItem('onboardingComplete', 'true');
-          navigate('/pages/dashboard.html');
+          navigate('/dashboard');
         }
       }
     } else if (profile) { // Profile exists but not verified by code
@@ -200,7 +200,7 @@ const SignInPage = () => {
     localStorage.setItem('preferredLang', lang); // For i18n.js
     // TODO: i18next.changeLanguage(lang);
     setIsLanguageModalOpen(false);
-    navigate('/pages/agency_setup_page.html'); // Navigate to agency setup
+    navigate('/agency-setup'); // Navigate to agency setup
     return { success: true, message: 'Language preference saved.' };
   };
 
