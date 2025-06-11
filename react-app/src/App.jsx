@@ -10,9 +10,11 @@ import TasksPage from './pages/TasksPage';
 import StaffPage from './pages/StaffPage';
 import NotificationsPage from './pages/NotificationsPage';
 import AccountPage from './pages/AccountPage';
+import NotFoundPage from './pages/NotFoundPage'; // Import NotFoundPage
+import AgencySetupPage from './pages/AgencySetupPage'; // Import AgencySetupPage
 
 // Placeholder for agency setup page - will be created if not already.
-const AgencySetupPage = () => <div>Agency Setup Page (TODO) - User should be redirected here if admin and company not set up.</div>;
+// const AgencySetupPage = () => <div>Agency Setup Page (TODO) - User should be redirected here if admin and company not set up.</div>;
 
 function App() {
   return (
@@ -47,7 +49,7 @@ function App() {
           element={<ProtectedRoute><MainLayout><AccountPage /></MainLayout></ProtectedRoute>}
         />
 
-        {/* Placeholder for agency setup page - could also be protected or have its own logic */}
+        {/* Agency setup page route */}
         <Route
           path="/pages/agency_setup_page.html"
           element={<ProtectedRoute><MainLayout><AgencySetupPage /></MainLayout></ProtectedRoute>}
@@ -56,7 +58,8 @@ function App() {
         {/* Redirect index.html to root path if someone tries to access it directly */}
         <Route path="/index.html" element={<Navigate to="/" replace />} />
 
-        {/* TODO: Add a 404 Not Found route: <Route path="*" element={<NotFoundPage />} /> */}
+        {/* 404 Not Found route */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );
