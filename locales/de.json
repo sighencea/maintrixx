@@ -65,10 +65,9 @@
     "cardTasks": {
       "title": "Aufgaben",
       "link": "Aufgaben anzeigen",
-      "inProgress": "In Bearbeitung",
-      "completed": "Abgeschlossen",
-      "overdue": "Überfällig",
       "statusNew": "[DE] New",
+      "statusInProgress": "In Bearbeitung",
+      "statusCompleted": "Abgeschlossen",
       "noTasks": "[DE] You don't have any tasks in these categories yet."
     },
     "cardStaff": {
@@ -142,6 +141,9 @@
       "occupierOwner": "Eigentümer",
       "occupierTenant": "Mieter"
     }
+  },
+  "tasksPage": {
+    "header": "Aufgaben"
   },
   "notificationsPage": {
     "title": "Benachrichtigungen - Immobilien Hub",

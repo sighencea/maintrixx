@@ -110,6 +110,31 @@
         </div>
       </div>
     </div>
+
+    <!-- Tasks Section -->
+    <div class="mt-5"> <!-- Add some top margin -->
+      <h3 class="mb-3" data-i18n="propertyDetailsPage.tasksHeader">Tasks for this Property</h3>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" data-i18n="propertyDetailsPage.tasksTable.header.title">Task title</th>
+              <th scope="col" data-i18n="propertyDetailsPage.tasksTable.header.assignedTo">Assigned to</th>
+              <th scope="col" data-i18n="propertyDetailsPage.tasksTable.header.status">Status</th>
+              <th scope="col" data-i18n="propertyDetailsPage.tasksTable.header.dueDate">Due date</th>
+              <th scope="col" data-i18n="propertyDetailsPage.tasksTable.header.actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="propertyTasksTableBody">
+            <!-- Task rows for this property will be dynamically inserted here by JavaScript -->
+            <tr>
+              <td colspan="5" class="text-center" data-i18n="propertyDetailsPage.tasksTable.noTasks">No tasks found for this property.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- End Tasks Section -->
     </div>
   </div>
 

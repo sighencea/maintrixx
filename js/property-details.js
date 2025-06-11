@@ -1,413 +1,201 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    let loadedPropertyDataForEditing = null;
-    let qrModalInstance = null;
-
-    // Modal initializations
-    const qrModalEl = document.getElementById('qrCodeDisplayModal');
-    if (qrModalEl) {
-        qrModalInstance = new bootstrap.Modal(qrModalEl);
-    }
-
-    const deleteConfirmModalElement = document.getElementById('deleteConfirmModal');
-    const deleteConfirmModal = deleteConfirmModalElement ? new bootstrap.Modal(deleteConfirmModalElement) : null;
-    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-
-    const deleteSuccessModalElement = document.getElementById('deleteSuccessModal');
-    const deleteSuccessModal = deleteSuccessModalElement ? new bootstrap.Modal(deleteSuccessModalElement) : null;
-    const deleteSuccessOkButton = document.getElementById('deleteSuccessOkButton');
-    // const deleteSuccessModalCloseButton = document.getElementById('deleteSuccessModalCloseButton'); // Not strictly needed if using hidden.bs.modal
-
-    const propertyNameElement = document.getElementById('propertyName');
-    const propertyImageElement = document.getElementById('propertyImage');
-    const propertyAddressElement = document.getElementById('propertyAddress');
-    const propertyTypeElement = document.getElementById('propertyType');
-    const propertyOccupierElement = document.getElementById('propertyOccupier');
-    const propertyDetailsTextElement = document.getElementById('propertyDetailsText');
-    // Main content container for showing messages
-    const mainContentContainer = document.querySelector('.container.mt-4');
-    const ACTIVE_TASK_STATUSES = ['New', 'Inactive', 'In Progress', 'Stuck'];
-
-    const backToPropertiesLinkElement = document.getElementById('backToPropertiesLink');
-
-    if (backToPropertiesLinkElement) {
-        backToPropertiesLinkElement.addEventListener('click', () => {
-            window.location.href = 'properties.html'; // Ensure this path is correct relative to the pages directory
-        });
-    } else {
-        console.error('Back to properties link element not found.');
-    }
-
-    function getImagePathFromUrl(imageUrl) {
-      if (!imageUrl) return null;
-      try {
-        const url = new URL(imageUrl);
-        // Pathname looks like /storage/v1/object/public/property-images/users/user_id/image.jpg
-        const pathSegments = url.pathname.split('/');
-        const bucketName = 'property-images'; // Make sure this matches
-        const bucketIndex = pathSegments.findIndex(segment => segment === bucketName);
-        if (bucketIndex !== -1 && bucketIndex < pathSegments.length - 1) {
-          return pathSegments.slice(bucketIndex + 1).join('/');
-        }
-        console.warn('Could not determine image path from URL:', imageUrl);
-        return null; // Or throw an error if path structure is unexpected
-      } catch (e) {
-        console.error('Error parsing image URL to get path:', e, imageUrl);
-        return null;
+(async function() { // IIFE to keep scope clean
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!window._supabase) {
+      console.error('Property Details: Supabase client not available.');
+      const propertyTasksTableBody = document.getElementById('propertyTasksTableBody');
+      if (propertyTasksTableBody) {
+          propertyTasksTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error: Cannot load tasks (Supabase client not found).</td></tr>';
       }
+      return;
+    }
+    const supabase = window._supabase;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const propertyId = urlParams.get('id');
+
+    if (!propertyId) {
+      console.error('Property Details: No property ID found in URL.');
+      const propertyTasksTableBody = document.getElementById('propertyTasksTableBody');
+      if (propertyTasksTableBody) {
+          propertyTasksTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error: Property ID missing. Cannot load tasks.</td></tr>';
+      }
+      // Also update the main property details area if propertyId is missing
+      const propertyNameElement = document.getElementById('propertyName');
+      if (propertyNameElement) propertyNameElement.textContent = 'Property Not Found';
+      // Add similar messages for other main property detail elements if desired
+      return;
     }
 
-    // Function to display messages to the user
-    function showMessage(message, type = 'info') {
-        if (!mainContentContainer) return;
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `alert alert-${type} mt-3`;
-        messageDiv.textContent = message;
-        // Clear previous messages and content before showing a new one
-        mainContentContainer.innerHTML = '';
-        mainContentContainer.appendChild(messageDiv);
-    }
+    // Initial fetch for property name (and other details if needed by this page directly)
+    // This part is mostly from the original property-details.js logic for the header
+    const { data: propertyData, error: propertyError } = await supabase
+        .from('properties')
+        .select('property_name, property_address, property_type, property_details, occupier_type, image_url')
+        .eq('id', propertyId)
+        .single();
 
-    async function fetchAndDisplayTasks(propertyId) {
-        const activeTasksPane = document.getElementById('active-tasks-pane');
-        const completedTasksPane = document.getElementById('completed-tasks-pane');
-
-        if (!activeTasksPane || !completedTasksPane) {
-            console.error('Task panes not found in the DOM.');
-            return;
+    if (propertyError) {
+        console.error('Error fetching property details:', propertyError);
+        document.getElementById('propertyName').textContent = 'Error loading property';
+    } else if (propertyData) {
+        document.getElementById('propertyName').textContent = propertyData.property_name;
+        // Populate other property details if those elements exist from original script
+        if(document.getElementById('propertyAddress')) document.getElementById('propertyAddress').textContent = propertyData.property_address;
+        if(document.getElementById('propertyType')) document.getElementById('propertyType').textContent = propertyData.property_type;
+        if(document.getElementById('propertyOccupier')) document.getElementById('propertyOccupier').textContent = propertyData.occupier_type;
+        if(document.getElementById('propertyDetailsText')) document.getElementById('propertyDetailsText').textContent = propertyData.property_details || 'No additional details provided.';
+        if(document.getElementById('propertyImage')) {
+            document.getElementById('propertyImage').src = propertyData.image_url || 'https://via.placeholder.com/700x400.png?text=No+Image';
+            document.getElementById('propertyImage').alt = propertyData.property_name || 'Property Image';
         }
+         // Setup links that depend on propertyId
+        const editPropertyLink = document.getElementById('editPropertyLink');
+        if (editPropertyLink) editPropertyLink.href = `add-property.html?id=${propertyId}`;
 
-        // Clear initial "Loading..." messages
-        activeTasksPane.innerHTML = '';
-        completedTasksPane.innerHTML = '';
-
-        try {
-            // Fetch tasks for the property
-            const { data: tasks, error: tasksError } = await window._supabase
-                .from('tasks')
-                .select('task_title, task_due_date, task_status, task_priority, staff_id') // Corrected column names
-                .eq('property_id', propertyId)
-                .order('task_due_date', { ascending: true });
-
-            if (tasksError) {
-                console.error('Error fetching tasks:', tasksError);
-                activeTasksPane.innerHTML = '<p class="text-danger">Error loading tasks.</p>';
-                return;
-            }
-
-            if (!tasks || tasks.length === 0) {
-                activeTasksPane.innerHTML = '<p class="text-muted no-tasks-message">No active tasks.</p>';
-                completedTasksPane.innerHTML = '<p class="text-muted no-tasks-message">No completed tasks.</p>';
-                return;
-            }
-
-            // Fetch staff names
-            const staffIds = [...new Set(tasks.map(task => task.staff_id).filter(id => id))];
-            let staffNamesMap = new Map();
-
-            if (staffIds.length > 0) {
-                const { data: profiles, error: profilesError } = await window._supabase
-                    .from('profiles')
-                    .select('id, first_name, last_name')
-                    .in('id', staffIds);
-
-                if (profilesError) {
-                    console.error('Error fetching profiles:', profilesError);
-                    // Continue without staff names, or show partial error
-                } else {
-                    profiles.forEach(profile => {
-                        staffNamesMap.set(profile.id, `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unnamed Staff');
-                    });
-                }
-            }
-
-            let activeTasksHtml = [];
-            let completedTasksHtml = [];
-
-            tasks.forEach(task => {
-                const staffName = task.staff_id ? (staffNamesMap.get(task.staff_id) || 'Assignee N/A') : 'Unassigned';
-                const dueDate = task.task_due_date ? new Date(task.task_due_date).toLocaleDateString() : 'No due date';
-                // Basic card structure for a task
-                const taskCardHtml = `
-                    <div class="card mb-2">
-                        <div class="card-body">
-                            <h6 class="card-title">${task.task_title || 'Untitled Task'}</h6>
-                            <p class="card-text mb-1"><small class="text-muted">Assignee: ${staffName}</small></p>
-                            <p class="card-text mb-1"><small class="text-muted">Due: ${dueDate}</small></p>
-                            <p class="card-text mb-1"><small class="text-muted">Priority: ${task.task_priority || 'N/A'}</small></p>
-                            <p class="card-text mb-0"><small class="text-muted">Status: ${task.task_status || 'N/A'}</small></p>
-                        </div>
-                    </div>
-                `;
-
-                if (task.task_status === 'Completed') {
-                    completedTasksHtml.push(taskCardHtml);
-                } else if (ACTIVE_TASK_STATUSES.includes(task.task_status)) {
-                    activeTasksHtml.push(taskCardHtml);
-                }
+        const addTaskLink = document.getElementById('addTaskLink');
+        if (addTaskLink) {
+            // This might need to open a modal or redirect to a specific "create task for property" page
+            // For now, let's assume it links to the main tasks page with property_id pre-selected if possible
+            // Or opens the create task modal (which would require task modal JS to be on this page or global)
+            addTaskLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                // This is a placeholder; actual task creation UI would be more complex
+                alert(`Placeholder: Add task for property ID ${propertyId}. This should open the task creation modal with property pre-filled.`);
             });
-
-            activeTasksPane.innerHTML = activeTasksHtml.length > 0 ? activeTasksHtml.join('') : '<p class="text-muted no-tasks-message">No active tasks.</p>';
-            completedTasksPane.innerHTML = completedTasksHtml.length > 0 ? completedTasksHtml.join('') : '<p class="text-muted no-tasks-message">No completed tasks.</p>';
-
-        } catch (error) {
-            console.error('Unexpected error in fetchAndDisplayTasks:', error);
-            if (activeTasksPane) activeTasksPane.innerHTML = '<p class="text-danger">Could not load tasks due to an unexpected error.</p>';
         }
+    } else {
+        document.getElementById('propertyName').textContent = 'Property not found';
     }
 
-    async function loadPropertyDataAndRender() {
-        if (!propertyNameElement || !propertyImageElement || !propertyAddressElement || !propertyTypeElement || !propertyOccupierElement || !propertyDetailsTextElement) {
-            console.error('One or more placeholder elements are missing from the page.');
-            showMessage('Error: Page structure is incomplete. Cannot display property details.', 'danger');
-            return;
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const propertyId = urlParams.get('id');
-
-        if (!propertyId) {
-            console.error('Property ID is missing from the URL.');
-            showMessage('Property ID is missing. Cannot load details.', 'warning');
-            return;
-        }
-
-        if (!window._supabase) {
-            console.error('Supabase client is not available.');
-            showMessage('Cannot connect to the database. Supabase client not found.', 'danger');
-            return;
-        }
-
-        try {
-            const { data: propertyDataResult, error } = await window._supabase
-                .from('properties')
-                .select('property_name, address, property_details, property_image_url, property_type, property_occupier, qr_code_image_url') // Added qr_code_image_url
-                .eq('id', propertyId)
-                .single();
-
-            if (error) {
-                console.error('Error fetching property details:', error);
-                showMessage(`Error loading property: ${error.message}`, 'danger');
-                return;
-            }
-
-            if (propertyDataResult) {
-                const imagePath = getImagePathFromUrl(propertyDataResult.property_image_url);
-                loadedPropertyDataForEditing = {
-                    ...propertyDataResult,
-                    id: propertyId,
-                    property_image_path: imagePath 
-                    // qr_code_image_url is now directly available in propertyDataResult and thus in loadedPropertyDataForEditing
-                };
-
-                propertyNameElement.textContent = propertyDataResult.property_name || 'N/A';
-                document.title = propertyDataResult.property_name ? `${propertyDataResult.property_name} - Property Details` : 'Property Details';
-
-                propertyImageElement.src = propertyDataResult.property_image_url || 'https://via.placeholder.com/700x400.png?text=No+Image+Available';
-                propertyImageElement.alt = propertyDataResult.property_name || 'Property Image';
-
-                propertyAddressElement.textContent = propertyDataResult.address || 'N/A';
-                propertyTypeElement.textContent = propertyDataResult.property_type || 'N/A';
-                propertyOccupierElement.textContent = propertyDataResult.property_occupier || 'N/A';
-                propertyDetailsTextElement.textContent = propertyDataResult.property_details || 'No additional details provided.';
-
-                if (propertyId) {
-                    fetchAndDisplayTasks(propertyId);
-                }
-
-                // Dynamically add "Show QR Code" button to dropdown if URL exists
-                const propertyActionsContainer = document.querySelector('.d-flex.justify-content-between.align-items-center.mb-3');
-                const dropdownMenu = propertyActionsContainer ? propertyActionsContainer.querySelector('.dropdown-menu.dropdown-menu-end') : null;
-                
-                if (dropdownMenu && loadedPropertyDataForEditing.qr_code_image_url) {
-                    const existingQrButton = document.getElementById('showQrCodeDropdownButton');
-                    if (existingQrButton) existingQrButton.parentElement.remove(); 
-
-                    const newLi = document.createElement('li');
-                    const newLink = document.createElement('a');
-                    newLink.className = 'dropdown-item';
-                    newLink.href = '#';
-                    newLink.id = 'showQrCodeDropdownButton';
-                    newLink.innerHTML = `<i class="bi bi-qr-code-scan"></i> <span data-i18n="propertyDetailsPage.showQrButton">Show QR Code</span>`;
-                    
-                    if (typeof i18next !== 'undefined' && typeof i18next.t === 'function') {
-                        newLink.querySelector('span').textContent = i18next.t('propertyDetailsPage.showQrButton', {defaultValue: 'Show QR Code'});
-                    }
-
-                    newLi.appendChild(newLink);
-
-                    const divider = dropdownMenu.querySelector('hr.dropdown-divider');
-                    if (divider) {
-                        dropdownMenu.insertBefore(newLi, divider.parentElement);
-                    } else {
-                        dropdownMenu.appendChild(newLi);
-                    }
-
-                    newLink.addEventListener('click', (event) => {
-                        event.preventDefault();
-                        if (qrModalInstance && loadedPropertyDataForEditing && loadedPropertyDataForEditing.qr_code_image_url) {
-                            const qrCodeModalImage = document.getElementById('qrCodeModalImage');
-                            const qrCodeDownloadLink = document.getElementById('qrCodeDownloadLink');
-                            
-                            if (qrCodeModalImage) qrCodeModalImage.src = loadedPropertyDataForEditing.qr_code_image_url;
-                            if (qrCodeDownloadLink) {
-                                qrCodeDownloadLink.href = loadedPropertyDataForEditing.qr_code_image_url;
-                                const propertyName = loadedPropertyDataForEditing.property_name || 'property';
-                                qrCodeDownloadLink.download = `qr_code_${propertyName.replace(/\s+/g, '_')}.png`;
-                            }
-                            qrModalInstance.show();
-                        } else {
-                            console.error('QR Modal or QR data missing for property.');
-                            alert('Could not display QR code. Data may be missing or modal not initialized.');
-                        }
-                    });
-                }
-
-            } else {
-                console.warn('Property not found for ID:', propertyId);
-                showMessage('Property not found. The link may be outdated or incorrect.', 'warning');
-            }
-        } catch (err) {
-            console.error('An unexpected error occurred:', err);
-            showMessage('An unexpected error occurred while trying to load property details.', 'danger');
-        }
+    // Back to properties link
+    const backLink = document.getElementById('backToPropertiesLink');
+    if (backLink) {
+        backLink.href = 'properties.html';
     }
 
-    window.loadPropertyDetails = loadPropertyDataAndRender; // Expose globally
 
-    // Initial load
-    await loadPropertyDataAndRender();
+    // Fetch and render tasks for this property
+    await fetchAndRenderPropertyTasks(propertyId, supabase);
 
-    // Event listeners for the new dropdown menu items
-    const editPropertyLink = document.getElementById('editPropertyLink');
-    const addTaskLink = document.getElementById('addTaskLink');
-    const deletePropertyLink = document.getElementById('deletePropertyLink');
+    const propertyTasksTableBody = document.getElementById('propertyTasksTableBody');
+    if (propertyTasksTableBody) {
+        propertyTasksTableBody.addEventListener('click', function(event) {
+            const viewButton = event.target.closest('.view-property-task-btn');
+            const editButton = event.target.closest('.edit-property-task-btn');
 
-    if (editPropertyLink) {
-        editPropertyLink.addEventListener('click', (event) => {
-            event.preventDefault(); 
-            if (loadedPropertyDataForEditing) {
-                const modalData = {
-                    id: loadedPropertyDataForEditing.id, 
-                    property_name: loadedPropertyDataForEditing.property_name,
-                    address: loadedPropertyDataForEditing.address,
-                    property_type: loadedPropertyDataForEditing.property_type,
-                    property_occupier: loadedPropertyDataForEditing.property_occupier,
-                    property_details: loadedPropertyDataForEditing.property_details,
-                    property_image_url: loadedPropertyDataForEditing.property_image_url,
-                    old_image_path: loadedPropertyDataForEditing.property_image_path 
-                };
-                if (typeof window.openEditModal === 'function') {
-                    window.openEditModal(modalData);
-                } else {
-                    console.error('openEditModal function is not defined. Make sure addProperty.js is loaded and modal HTML is present.');
-                    alert('Edit functionality is currently unavailable. (openEditModal not found)');
-                }
-            } else {
-                console.error('Property data not available for editing or not loaded yet.');
-                alert('Could not load property data for editing. Please ensure details are fully loaded or try again.');
+            if (viewButton) {
+                const taskId = viewButton.dataset.taskId;
+                console.log(`View button clicked for task ID: ${taskId} on property ${propertyId}`);
+                // This should ideally open the main View Task Modal from tasks.html or a shared component
+                // For now, it's an alert. If tasks.html modals are used, need to ensure they are loaded/accessible.
+                alert(`Placeholder: View task ${taskId}. This would normally open a modal with task details.`);
+            }
+
+            if (editButton) {
+                const taskId = editButton.dataset.taskId;
+                console.log(`Edit button clicked for task ID: ${taskId} on property ${propertyId}`);
+                // This should ideally open the main Edit Task Modal from tasks.html or a shared component
+                alert(`Placeholder: Edit task ${taskId}. This would normally open a modal to edit the task.`);
             }
         });
     }
+  });
 
-    if (addTaskLink) {
-        addTaskLink.addEventListener('click', (event) => {
-            event.preventDefault(); 
-            console.log('Add Task clicked');
-            // Future implementation: Redirect to add task page or open modal
-        });
+  async function fetchTasksForProperty(propertyId, supabase) {
+    console.log(`Fetching tasks for property ID: ${propertyId}`);
+    const { data, error } = await supabase
+      .from('tasks')
+      .select(`
+        task_id,
+        task_title,
+        task_status,
+        task_due_date,
+        detailed_task_assignments (
+          assignee_first_name,
+          assignee_last_name
+        )
+      `)
+      .eq('property_id', propertyId);
+
+    if (error) {
+      console.error('Error fetching tasks for property:', error);
+      throw error;
+    }
+    console.log('Tasks fetched for property:', data);
+    return data || [];
+  }
+
+  function renderPropertyTasks(tasks, tableBodyElement) {
+    tableBodyElement.innerHTML = '';
+
+    if (!tasks || tasks.length === 0) {
+      tableBodyElement.innerHTML = '<tr><td colspan="5" class="text-center" data-i18n="propertyDetailsPage.tasksTable.noTasks">No tasks found for this property.</td></tr>';
+      if (window.i18next && typeof window.updateUI === 'function') {
+           window.updateUI();
+      }
+      return;
     }
 
-    if (deletePropertyLink) {
-        deletePropertyLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            if (!loadedPropertyDataForEditing || !loadedPropertyDataForEditing.id) {
-                showMessage('Property data not loaded or incomplete. Cannot delete.', 'warning');
-                return;
-            }
-            if (deleteConfirmModal) {
-                deleteConfirmModal.show();
-            } else {
-                console.error("Delete confirmation modal instance not found.");
-                alert("Error: Delete confirmation dialog is missing.");
-            }
-        });
-    }
+    tasks.forEach(task => {
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-task-id', task.task_id);
 
-    if (confirmDeleteButton && deleteConfirmModal) {
-        confirmDeleteButton.addEventListener('click', async () => {
-            deleteConfirmModal.hide(); 
+      let assignedToText = 'Unassigned';
+      if (task.detailed_task_assignments && task.detailed_task_assignments.length > 0) {
+        assignedToText = task.detailed_task_assignments
+          .map(a => `${a.assignee_first_name || ''} ${a.assignee_last_name || ''}`.trim() || 'Unnamed Assignee')
+          .join(', ');
+      }
 
-            if (!loadedPropertyDataForEditing || !loadedPropertyDataForEditing.id) {
-                showMessage('Critical: Property data became unavailable before deletion confirmation.', 'danger');
-                return;
-            }
+      let dueDateFormatted = 'N/A';
+      if (task.task_due_date) {
+          try {
+              // Ensure date is treated as UTC to avoid timezone shifts during formatting
+              const dateParts = task.task_due_date.split('-');
+              const dateObj = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
+              dueDateFormatted = dateObj.toLocaleDateString(document.documentElement.lang || 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase().replace(/ /g, '/');
+          } catch (e) { console.error('Error formatting due date:', e); }
+      }
 
-            const propertyId = loadedPropertyDataForEditing.id;
-            let imagePath = loadedPropertyDataForEditing.property_image_path; 
+      let statusHTML = `<span class="badge bg-secondary">${task.task_status || 'N/A'}</span>`;
+      const lowerCaseStatus = (task.task_status || '').toLowerCase();
+       if (lowerCaseStatus === 'new') statusHTML = `<span class="badge badge-custom-base badge-custom-blue">${task.task_status}</span>`;
+       else if (lowerCaseStatus === 'in progress') statusHTML = `<span class="badge badge-custom-base badge-custom-yellow">${task.task_status}</span>`;
+       else if (lowerCaseStatus === 'completed' || lowerCaseStatus === 'done') statusHTML = `<span class="badge badge-custom-base badge-custom-green">${task.task_status}</span>`;
+       else if (lowerCaseStatus === 'cancelled') statusHTML = `<span class="badge badge-custom-base badge-custom-red">${task.task_status}</span>`;
+       else if (lowerCaseStatus === 'not started') statusHTML = `<span class="badge badge-custom-base" style="background-color: #F1F3F4; color: #666666;">${task.task_status}</span>`;
 
-            if (!imagePath && loadedPropertyDataForEditing.property_image_url) {
-                imagePath = getImagePathFromUrl(loadedPropertyDataForEditing.property_image_url);
-            }
+      tr.innerHTML = `
+        <td>${task.task_title || 'N/A'}</td>
+        <td>${assignedToText}</td>
+        <td>${statusHTML}</td>
+        <td>${dueDateFormatted}</td>
+        <td>
+          <button class="btn btn-sm btn-info me-1 view-property-task-btn" data-task-id="${task.task_id}" aria-label="View Task"><i class="bi bi-eye"></i></button>
+          <button class="btn btn-sm btn-warning edit-property-task-btn" data-task-id="${task.task_id}" aria-label="Edit Task"><i class="bi bi-pencil"></i></button>
+        </td>
+      `;
+      tableBodyElement.appendChild(tr);
+    });
+  }
 
-            const payload = {
-                property_id: propertyId,
-                property_image_path: imagePath 
-            };
+  async function fetchAndRenderPropertyTasks(propertyId, supabase) {
+       const propertyTasksTableBody = document.getElementById('propertyTasksTableBody');
+       if (!propertyTasksTableBody) {
+           console.error('propertyTasksTableBody element not found for rendering tasks.');
+           return;
+       }
+       propertyTasksTableBody.innerHTML = '<tr><td colspan="5" class="text-center" data-i18n="propertyDetailsPage.tasksTable.loading">Loading tasks...</td></tr>';
+       if (window.i18next && typeof window.updateUI === 'function') { // For the loading text
+            window.updateUI();
+       }
 
-            try {
-                confirmDeleteButton.disabled = true;
-
-                const { data, error: invokeError } = await window._supabase.functions.invoke('delete-property', {
-                    body: payload
-                });
-
-                if (invokeError) {
-                    throw new Error(`Function invocation error: ${invokeError.message}`);
-                }
-
-                if (data.error) { 
-                    throw new Error(`Deletion failed: ${data.error}`);
-                }
-                
-                if (data.success) {
-                    if (deleteSuccessModal) {
-                        deleteSuccessModal.show();
-                    } else {
-                        alert("Property deleted successfully!");
-                        window.location.href = 'properties.html';
-                    }
-                } else {
-                    throw new Error('Property deletion failed due to an unknown server response.');
-                }
-
-            } catch (err) {
-                console.error('Error during property deletion process:', err);
-                showMessage('Error deleting property: ' + err.message, 'danger');
-            } finally {
-                 confirmDeleteButton.disabled = false; 
-            }
-        });
-    }
-    
-    if (deleteSuccessModalElement && deleteSuccessModal) {
-        deleteSuccessModalElement.addEventListener('hidden.bs.modal', () => {
-            if (window.location.href.includes('property-details.html')) { 
-                 window.location.href = 'properties.html';
-            }
-        });
-    }
-
-    if (deleteSuccessOkButton && deleteSuccessModal) {
-        deleteSuccessOkButton.addEventListener('click', () => {
-            deleteSuccessModal.hide();
-        });
-    }
-
-    const deleteSuccessModalDirectCloseButton = document.getElementById('deleteSuccessModalCloseButton');
-    if (deleteSuccessModalDirectCloseButton && deleteSuccessModal) {
-        deleteSuccessModalDirectCloseButton.addEventListener('click', () => {
-            deleteSuccessModal.hide();
-        });
-    }
-
-});
+       try {
+           const tasks = await fetchTasksForProperty(propertyId, supabase);
+           renderPropertyTasks(tasks, propertyTasksTableBody);
+       } catch (error) {
+           console.error('Failed to fetch and render tasks for property:', error);
+           propertyTasksTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading tasks: ${error.message}</td></tr>`;
+       }
+  }
+})();

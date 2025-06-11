@@ -65,10 +65,9 @@
     "cardTasks": {
       "title": "Tasks",
       "link": "View Tasks",
-      "inProgress": "In Progress",
-      "completed": "Completed",
-      "overdue": "Overdue",
       "statusNew": "New",
+      "statusInProgress": "In Progress",
+      "statusCompleted": "Completed",
       "noTasks": "You don't have any tasks in these categories yet."
     },
     "cardStaff": {
@@ -142,6 +141,9 @@
       "occupierOwner": "Owner",
       "occupierTenant": "Tenant"
     }
+  },
+  "tasksPage": {
+    "header": "Tasks"
   },
   "notificationsPage": {
     "title": "Notifications - Property Hub",
