@@ -304,7 +304,7 @@ const SignInPage = () => {
   // Main Render
   return (
     <>
-      <div className="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-start p-5 text-white position-relative" style={{ backgroundImage: "url('/assets/images/auth-background.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <div className="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-start p-5 text-white position-relative" style={{ backgroundImage: `url(${import.meta.env.BASE_URL}assets/images/auth-background.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="position-absolute top-0 start-0 w-100 h-100" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}></div>
         <div className="position-relative"><h1 className="display-4 fw-bold mb-3">Property Hub</h1><p className="lead">DEBUG TEST - Manage property maintenance tasks with ease. Schedule services, track tasks, and get real-time updates. All in one app!</p></div>
       </div>
