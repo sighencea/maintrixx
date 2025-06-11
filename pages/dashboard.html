@@ -70,9 +70,12 @@
                 <h5 class="card-title mb-0" data-i18n="dashboardPage.cardTasks.title">Tasks</h5>
                 <a href="tasks.html" class="card-link" data-i18n="dashboardPage.cardTasks.link">View Tasks</a>
               </div>
-              <p class="card-text">12 <small class="text-muted fw-normal" data-i18n="dashboardPage.cardTasks.inProgress">In Progress</small></p>
-              <p class="card-text">45 <small class="text-muted fw-normal" data-i18n="dashboardPage.cardTasks.completed">Completed</small></p>
-              <p class="card-text">3 <small class="text-danger fw-normal" data-i18n="dashboardPage.cardTasks.overdue">Overdue</small></p>
+              <div id="taskCountsContainer">
+                <p class="card-text mb-1"><span id="tasksNewCount" class="fw-bold">0</span> <small class="text-muted fw-normal" data-i18n="dashboardPage.cardTasks.statusNew">New</small></p>
+                <p class="card-text mb-1"><span id="tasksInProgressCount" class="fw-bold">0</span> <small class="text-muted fw-normal" data-i18n="dashboardPage.cardTasks.statusInProgress">In Progress</small></p>
+                <p class="card-text"><span id="tasksCompletedCount" class="fw-bold">0</span> <small class="text-muted fw-normal" data-i18n="dashboardPage.cardTasks.statusCompleted">Completed</small></p>
+              </div>
+              <p id="noTasksMessage" class="card-text" style="display:none;" data-i18n="dashboardPage.cardTasks.noTasks">You don't have any tasks in these categories yet.</p>
             </div>
           </div>
         </div>
@@ -83,9 +86,20 @@
                 <h5 class="card-title mb-0" data-i18n="dashboardPage.cardStaff.title">Staff</h5>
                 <a href="staff.html" class="card-link" data-i18n="dashboardPage.cardStaff.link">View Staff</a>
               </div>
-              <p class="display-4">28</p>
-              <p class="card-text mt-3">23 <small class="text-muted" data-i18n="dashboardPage.cardStaff.employeeLabel">Employees</small></p>
-              <p class="card-text">5 <small class="text-muted" data-i18n="dashboardPage.cardStaff.contractorLabel">Contractors</small></p>
+              <p class="display-4" id="totalStaffCount">0</p>
+              <div id="staffBreakdownContainer">
+                <p class="card-text mt-3 mb-1" data-i18n="dashboardPage.cardStaff.staffLabel" style="font-weight:bold;">Staff:</p>
+                <ul style="list-style-type: none; padding-left: 15px; margin-bottom: 0.5rem;">
+                  <li><span id="staffElectricianCount" class="fw-bold">0</span> <small class="text-muted" data-i18n="dashboardPage.cardStaff.roleElectrician">Electrician(s)</small></li>
+                  <li><span id="staffPlumberCount" class="fw-bold">0</span> <small class="text-muted" data-i18n="dashboardPage.cardStaff.rolePlumber">Plumber(s)</small></li>
+                  <li><span id="staffCleanerCount" class="fw-bold">0</span> <small class="text-muted" data-i18n="dashboardPage.cardStaff.roleCleaner">Cleaner(s)</small></li>
+                </ul>
+                <p class="card-text mt-2 mb-1" data-i18n="dashboardPage.cardStaff.contractorsLabel" style="font-weight:bold;">Contractors:</p>
+                <ul style="list-style-type: none; padding-left: 15px;">
+                  <li><span id="staffContractorCount" class="fw-bold">0</span> <small class="text-muted" data-i18n="dashboardPage.cardStaff.roleContractor">Contractor(s)</small></li>
+                </ul>
+              </div>
+              <p id="noStaffMessage" class="card-text" style="display:none;" data-i18n="dashboardPage.cardStaff.noStaff">You don't have any staff members yet.</p>
             </div>
           </div>
         </div>

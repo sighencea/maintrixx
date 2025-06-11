@@ -59,20 +59,30 @@
     "header": "Dashboard",
     "cardProperties": {
       "title": "Properties",
-      "link": "View Properties"
+      "link": "View Properties",
+      "noProperties": "You don't have any properties set up yet."
     },
     "cardTasks": {
       "title": "Tasks",
       "link": "View Tasks",
       "inProgress": "In Progress",
       "completed": "Completed",
-      "overdue": "Overdue"
+      "overdue": "Overdue",
+      "statusNew": "New",
+      "noTasks": "You don't have any tasks in these categories yet."
     },
     "cardStaff": {
       "title": "Staff",
       "link": "View Staff",
       "employeeLabel": "Employees",
-      "contractorLabel": "Contractors"
+      "contractorLabel": "Contractors",
+      "staffLabel": "Staff:",
+      "roleElectrician": "Electrician(s)",
+      "rolePlumber": "Plumber(s)",
+      "roleCleaner": "Cleaner(s)",
+      "contractorsLabel": "Contractors:",
+      "roleContractor": "Contractor(s)",
+      "noStaff": "You don't have any staff members yet."
     },
     "recentActivity": {
       "title": "Recent Activity"

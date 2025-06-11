@@ -19,6 +19,7 @@ Property Hub is a web application designed for property management agencies and 
     *   **File Attachments:** Ability to upload multiple images (e.g., for proof of work) and multiple documents (e.g., certificates) per task. Ability to soft-delete these attachments.
 *   User Profile Management: Users can edit their own profile information.
 *   Role-Based Access Control: Strict permissions differentiate what admins and staff members can see and do, enforced by Supabase Row Level Security (RLS).
+*   Dynamic Dashboard: Admin dashboard displays real-time counts of company properties, tasks (by status: New, In Progress, Completed), and staff (total and by key roles like Electrician, Plumber, Cleaner, Contractor). Shows conditional messages for zero-count states.
 *   Internationalization (i18n): Supports multiple languages for the user interface.
 
 ### 1.3. User Roles
@@ -119,6 +120,7 @@ This cycle focused on a critical overhaul of Row Level Security (RLS) policies t
 *   **Robust Admin Functionality:** Admins can correctly view and manage staff, tasks, and task assignments within their company.
 *   **Corrected User Self-Service:** Users can edit their own profiles; new user/agency signup verification works.
 *   **Staff Invitation Flow:** Confirmed working.
+*   **Enhanced Admin Dashboard:** Implemented dynamic data display for counts of properties, tasks (by status), and staff (total and by role), replacing static placeholders.
 
 ### 2.5. Summary of Key Active RLS Policies
 *   **`public.profiles`:**

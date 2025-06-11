@@ -59,20 +59,30 @@
     "header": "Dashboard",
     "cardProperties": {
       "title": "Immobilien",
-      "link": "Immobilien anzeigen"
+      "link": "Immobilien anzeigen",
+      "noProperties": "[DE] You don't have any properties set up yet."
     },
     "cardTasks": {
       "title": "Aufgaben",
       "link": "Aufgaben anzeigen",
       "inProgress": "In Bearbeitung",
       "completed": "Abgeschlossen",
-      "overdue": "Überfällig"
+      "overdue": "Überfällig",
+      "statusNew": "[DE] New",
+      "noTasks": "[DE] You don't have any tasks in these categories yet."
     },
     "cardStaff": {
       "title": "Mitarbeiter",
       "link": "Mitarbeiter anzeigen",
       "employeeLabel": "Mitarbeiter",
-      "contractorLabel": "Auftragnehmer"
+      "contractorLabel": "Auftragnehmer",
+      "staffLabel": "[DE] Staff:",
+      "roleElectrician": "[DE] Electrician(s)",
+      "rolePlumber": "[DE] Plumber(s)",
+      "roleCleaner": "[DE] Cleaner(s)",
+      "contractorsLabel": "[DE] Contractors:",
+      "roleContractor": "[DE] Contractor(s)",
+      "noStaff": "[DE] You don't have any staff members yet."
     },
     "recentActivity": {
       "title": "Letzte Aktivitäten"
