@@ -5,6 +5,53 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React</title>
+    <script type="text/javascript">
+      (function() {
+        const routePath = sessionStorage.getItem('spa_redirect_path');
+        if (routePath) {
+          const search = sessionStorage.getItem('spa_redirect_search') || '';
+          const hash = sessionStorage.getItem('spa_redirect_hash') || '';
+
+          sessionStorage.removeItem('spa_redirect_path');
+          sessionStorage.removeItem('spa_redirect_search');
+          sessionStorage.removeItem('spa_redirect_hash');
+
+          // The `routePath` from 404.html is relative to the app's base (e.g., "/dashboard").
+          // `window.location.pathname` when index.html loads after redirect from 404.html will be the base path (e.g., "/maintrixx/").
+          // We want to replace history to be 'basePath + routePath'.
+          // `history.replaceState` takes a path relative to the domain.
+
+          const basePath = '/maintrixx'; // This MUST match your vite.config.js base
+
+          // Ensure basePath ends with a slash if it's not empty, and routePath doesn't start with one
+          // to avoid double slashes or missing slashes.
+          let normalizedBasePath = basePath;
+          if (normalizedBasePath && !normalizedBasePath.endsWith('/')) {
+            normalizedBasePath += '/';
+          }
+          if (normalizedBasePath === '/') { // If base is just root, don't add leading slash to routePath if it's already there
+              normalizedBasePath = '';
+          }
+
+          const normalizedRoutePath = routePath.startsWith('/') ? routePath.substring(1) : routePath;
+
+          let fullPath = normalizedBasePath + normalizedRoutePath + search + hash;
+
+          // If the original path was just the base path (e.g. /maintrixx/ which becomes routePath='/'),
+          // ensure we don't end up with /maintrixx//
+          if (routePath === '/' && fullPath.endsWith('//')) {
+              fullPath = fullPath.substring(0, fullPath.length -1);
+          }
+
+
+          if (window.location.pathname !== fullPath.split('?')[0].split('#')[0] ||
+              window.location.search !== search ||
+              window.location.hash !== hash) {
+            window.history.replaceState(null, '', fullPath);
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
