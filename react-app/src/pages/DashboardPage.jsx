@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // To ensure user is loaded, though ProtectedRoute handles auth
 import { supabase } from '../supabaseClient';
 
@@ -109,9 +110,9 @@ const DashboardPage = () => {
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="card-title mb-0" data-i18n="dashboardPage.cardProperties.title">Properties</h5>
-                  {/* <Link to="/pages/properties.html" className="card-link" data-i18n="dashboardPage.cardProperties.link">View Properties</Link> */}
+                  {/* <Link to="/properties" className="card-link" data-i18n="dashboardPage.cardProperties.link">View Properties</Link> */}
                   {/* Replaced with simple <a> for now if Link causes issues before full page setup */}
-                  <a href="/maintrixx/pages/properties.html" className="card-link" data-i18n="dashboardPage.cardProperties.link">View Properties</a>
+                  <Link to="/properties" className="card-link" data-i18n="dashboardPage.cardProperties.link">View Properties</Link>
 
                 </div>
                 {loadingProps && <p data-i18n="dashboardPage.loading">Loading...</p>}
@@ -131,7 +132,7 @@ const DashboardPage = () => {
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="card-title mb-0" data-i18n="dashboardPage.cardTasks.title">Tasks</h5>
-                  <a href="/maintrixx/pages/tasks.html" className="card-link" data-i18n="dashboardPage.cardTasks.link">View Tasks</a>
+                  <Link to="/tasks" className="card-link" data-i18n="dashboardPage.cardTasks.link">View Tasks</Link>
                 </div>
                 {loadingTasks && <p data-i18n="dashboardPage.loading">Loading...</p>}
                 {errorTasks && <p className="text-danger" data-i18n="dashboardPage.error">Error: {errorTasks}</p>}
@@ -156,7 +157,7 @@ const DashboardPage = () => {
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="card-title mb-0" data-i18n="dashboardPage.cardStaff.title">Staff</h5>
-                  <a href="/maintrixx/pages/staff.html" className="card-link" data-i18n="dashboardPage.cardStaff.link">View Staff</a>
+                  <Link to="/staff" className="card-link" data-i18n="dashboardPage.cardStaff.link">View Staff</Link>
                 </div>
                 {loadingStaff && <p data-i18n="dashboardPage.loading">Loading...</p>}
                 {errorStaff && <p className="text-danger" data-i18n="dashboardPage.error">Error: {errorStaff}</p>}

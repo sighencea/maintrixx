@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext'; // To check admin role for CRUD
 import AddEditPropertyModal from '../components/modals/AddEditPropertyModal';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -143,7 +143,7 @@ const PropertiesPage = () => {
                   <p className="card-text text-muted small">
                     {property.address_street || 'N/A'}, {property.address_city || 'N/A'}
                   </p>
-                  <a href={`/maintrixx/pages/property-details.html?id=${property.id}`} className="text-primary small mt-auto align-self-start">View Details</a>
+                  <Link to={`/property-details/${property.id}`} className="text-primary small mt-auto align-self-start">View Details</Link>
                 </div>
                 {isAdmin && ( // Show Edit/Delete only to admins
                   <div className="card-footer bg-light d-flex justify-content-end">

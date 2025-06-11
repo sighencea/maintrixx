@@ -27,19 +27,29 @@ const TopBar = () => {
 
   useEffect(() => {
     const pathTitleMapping = {
-      '/pages/dashboard.html': 'Dashboard',
-      '/pages/properties.html': 'Properties',
-      '/pages/tasks.html': 'Tasks',
-      '/pages/staff.html': 'Staff',
-      '/pages/notifications.html': 'Notifications',
-      '/pages/account.html': 'Account Settings',
-      '/pages/agency_setup_page.html': 'Agency Setup'
+      '/dashboard': 'Dashboard',
+      '/properties': 'Properties',
+      '/tasks': 'Tasks',
+      '/staff': 'Staff',
+      '/notifications': 'Notifications',
+      '/account': 'Account Settings',
+      '/agency-setup': 'Agency Setup',
+      '/property-details/:propertyId': 'Property Details'
     };
-    setPageTitle(pathTitleMapping[location.pathname] || 'Property Hub');
+    // Match dynamic routes like /property-details/:propertyId
+    let title = 'Property Hub';
+    for (const key in pathTitleMapping) {
+      const regex = new RegExp(`^${key.replace(/:\w+/g, '[^/]+')}$`);
+      if (regex.test(location.pathname)) {
+        title = pathTitleMapping[key];
+        break;
+      }
+    }
+    setPageTitle(title);
   }, [location.pathname]);
 
   // Access Denied Modal Logic (remains the same as it relies on Bootstrap JS)
-  const adminOnlyPages = ['/pages/dashboard.html', '/pages/properties.html', '/pages/staff.html'];
+  const adminOnlyPages = ['/dashboard', '/properties', '/staff'];
   // Use isAdmin from context now
   const isAccessingAdminPageAsNonAdmin = user && !isAdmin && adminOnlyPages.includes(location.pathname);
 
@@ -61,7 +71,8 @@ const TopBar = () => {
     }
     const redirectToTasksBtn = document.getElementById('redirectToTasksBtn');
     if(redirectToTasksBtn) {
-        redirectToTasksBtn.onclick = () => { navigate('/pages/tasks.html'); }; // Use React Router navigate
+        // This button might not exist in the new TopBar structure, but if it does, update its navigation
+        redirectToTasksBtn.onclick = () => { navigate('/tasks'); }; // Use React Router navigate
     }
   }, [isAccessingAdminPageAsNonAdmin, navigate]);
 
@@ -81,14 +92,14 @@ const TopBar = () => {
         <span data-i18n={`${pageTitle.toLowerCase().replace(' ', '')}Page.header`}>{pageTitle}</span>
       </div>
       <div className="top-bar-icons d-flex align-items-center">
-        <Link to="/pages/notifications.html"><i className="bi bi-bell-fill"></i></Link>
+        <Link to="/notifications"><i className="bi bi-bell-fill"></i></Link>
         <div className="dropdown">
           <a className="dropdown-toggle dropdown-toggle-no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i className="bi bi-person-gear"></i>
           </a>
           <ul className="dropdown-menu dropdown-menu-end">
             <li>
-              <Link className="dropdown-item" to="/pages/account.html">
+              <Link className="dropdown-item" to="/account">
                 <i className="bi bi-gear-fill me-2"></i>Account Settings
               </Link>
             </li>
