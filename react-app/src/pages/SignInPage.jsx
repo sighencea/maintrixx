@@ -262,7 +262,7 @@ const SignInPage = () => {
   };
 
   const renderSignInForm = () => (
-     <div> <h2 className="h3 mb-1 fw-semibold">Sign In</h2> <p className="text-muted mb-4">Welcome back!</p>
+     <div> <h2 className="h3 mb-1 fw-semibold">Sign In Button</h2> <p className="text-muted mb-4">Welcome back!</p>
       <form onSubmit={handleSignInSubmit}>
         <div className="form-floating mb-3"><input type="email" className="form-control" value={signInEmail} onChange={(e)=>setSignInEmail(e.target.value)} placeholder="email" required disabled={authLoading} /><label>Email</label></div>
         <div className="form-floating mb-3"><input type="password" className="form-control" value={signInPassword} onChange={(e)=>setSignInPassword(e.target.value)} placeholder="password" required disabled={authLoading} /><label>Password</label></div>
