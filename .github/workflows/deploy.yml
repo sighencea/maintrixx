@@ -3,7 +3,8 @@ name: Deploy React app to GitHub Pages
 on:
   push:
     branches:
-      - main  # or 'master' if your default branch is named that
+      - main  # Or 'master' if that's your default
+  workflow_dispatch:  # 👈 This enables manual trigger
 
 permissions:
   contents: write
