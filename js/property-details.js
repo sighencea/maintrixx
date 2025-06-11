@@ -30,7 +30,7 @@
     // This part is mostly from the original property-details.js logic for the header
     const { data: propertyData, error: propertyError } = await supabase
         .from('properties')
-        .select('property_name, property_address, property_type, property_details, occupier_type, image_url')
+        .select('property_name,address,property_type,property_details,occupier_type,image_url')
         .eq('id', propertyId)
         .single();
 
@@ -40,7 +40,7 @@
     } else if (propertyData) {
         document.getElementById('propertyName').textContent = propertyData.property_name;
         // Populate other property details if those elements exist from original script
-        if(document.getElementById('propertyAddress')) document.getElementById('propertyAddress').textContent = propertyData.property_address;
+        if(document.getElementById('propertyAddress')) document.getElementById('propertyAddress').textContent = propertyData.address;
         if(document.getElementById('propertyType')) document.getElementById('propertyType').textContent = propertyData.property_type;
         if(document.getElementById('propertyOccupier')) document.getElementById('propertyOccupier').textContent = propertyData.occupier_type;
         if(document.getElementById('propertyDetailsText')) document.getElementById('propertyDetailsText').textContent = propertyData.property_details || 'No additional details provided.';
