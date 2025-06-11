@@ -257,7 +257,7 @@ const SignInPage = () => {
     if (currentView === 'signIn') {
       return ( <> <span className="text-muted me-2">Don't have an account yet?</span> <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView('signUp_accountType'); setLocalMessage({text:'', type:''}); setAuthError(null); }} className="fw-bold text-decoration-none">Sign up</a> </> );
     } else {
-      return ( <> <span className="text-muted me-2">Already have an account?</span> <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView('signIn'); setLocalMessage({text:'', type:''}); setAuthError(null); }} className="fw-bold text-decoration-none">Sign In</a> </> );
+      return ( <> <span className="text-muted me-2">Already have an account?</span> <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView('signIn'); setLocalMessage({text:'', type:''}); setAuthError(null); }} className="fw-bold text-decoration-none">Sign In Button</a> </> );
     }
   };
 
