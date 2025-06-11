@@ -1,60 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useAuth } from '../../context/AuthContext'; // Import useAuth
 
 const TopBar = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // For redirection
+  const { user, isAdmin, signOut } = useAuth(); // Get signOut from AuthContext
+
   const [pageTitle, setPageTitle] = useState('Dashboard');
-  // Placeholder for admin status - replace with actual auth context or prop
-  const isAdmin = localStorage.getItem('userIsAdmin') === 'true';
+  // const isAdmin = localStorage.getItem('userIsAdmin') === 'true'; // Now using isAdmin from useAuth()
 
   const handleSidebarToggle = () => {
-    // This is a direct DOM manipulation, common in transitioning vanilla JS.
-    // A more React-idiomatic way would involve state management if Sidebar visibility affects other parts.
     document.getElementById('sidebar')?.classList.toggle('active');
     document.querySelector('.sidebar-overlay')?.classList.toggle('active');
   };
 
   const handleSignOut = async () => {
-    console.log('Sign out clicked - TODO: Implement Supabase sign out and redirect');
-    // Example:
-    // if (window._supabase) { // Access Supabase client appropriately
-    //   const { error } = await window._supabase.auth.signOut();
-    //   if (error) console.error("Error signing out:", error);
-    //   localStorage.removeItem('userIsAdmin');
-    //   window.location.href = '/maintrixx/'; // Or use React Router navigate
-    // }
+    const { error } = await signOut(); // Call signOut from AuthContext
+    if (error) {
+      console.error('Error signing out:', error);
+      // Optionally display an error to the user using a toast or alert component
+    } else {
+      navigate('/'); // Redirect to SignIn page (root) after sign out
+    }
   };
 
   useEffect(() => {
-    // Update page title based on route
     const pathTitleMapping = {
       '/pages/dashboard.html': 'Dashboard',
       '/pages/properties.html': 'Properties',
       '/pages/tasks.html': 'Tasks',
       '/pages/staff.html': 'Staff',
       '/pages/notifications.html': 'Notifications',
-      '/pages/account.html': 'Account Settings'
+      '/pages/account.html': 'Account Settings',
+      '/pages/agency_setup_page.html': 'Agency Setup'
     };
     setPageTitle(pathTitleMapping[location.pathname] || 'Property Hub');
   }, [location.pathname]);
 
-  // Determine if the current page is an admin-only page that a non-admin is trying to access.
-  // This is a simplified check. Proper route protection should be used.
+  // Access Denied Modal Logic (remains the same as it relies on Bootstrap JS)
   const adminOnlyPages = ['/pages/dashboard.html', '/pages/properties.html', '/pages/staff.html'];
-  const isAccessingAdminPageAsNonAdmin = !isAdmin && adminOnlyPages.includes(location.pathname);
+  // Use isAdmin from context now
+  const isAccessingAdminPageAsNonAdmin = user && !isAdmin && adminOnlyPages.includes(location.pathname);
 
   useEffect(() => {
-    // Show/hide access denied modal (simplified version of admin-page-guard.js)
     const accessDeniedModalEl = document.getElementById('accessDeniedModal');
-    if (accessDeniedModalEl) { // Check if modal is on the page (it's in MainLayout)
-        // Ensure Bootstrap's Modal class is available
+    if (accessDeniedModalEl) {
         if (typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined') {
             const modalInstance = bootstrap.Modal.getInstance(accessDeniedModalEl) || new bootstrap.Modal(accessDeniedModalEl);
             if (isAccessingAdminPageAsNonAdmin) {
-                modalInstance.show();
+                if(modalInstance && typeof modalInstance.show === 'function') modalInstance.show();
             } else {
-                // Check if modal is shown before trying to hide, to prevent errors if not initialized or already hidden
-                if (accessDeniedModalEl.classList.contains('show')) {
+                if (modalInstance && typeof modalInstance.hide === 'function' && accessDeniedModalEl.classList.contains('show')) {
                      modalInstance.hide();
                 }
             }
@@ -62,17 +59,11 @@ const TopBar = () => {
             console.warn('Bootstrap Modal JS not available for accessDeniedModal control.');
         }
     }
-    // Add redirect logic for the modal button
     const redirectToTasksBtn = document.getElementById('redirectToTasksBtn');
     if(redirectToTasksBtn) {
-        redirectToTasksBtn.onclick = () => {
-            // Use React Router navigation if available and preferred
-            // For simplicity here, using window.location.href to match original potential behavior
-            window.location.href = '/maintrixx/pages/tasks.html';
-        };
+        redirectToTasksBtn.onclick = () => { navigate('/pages/tasks.html'); }; // Use React Router navigate
     }
-
-  }, [isAccessingAdminPageAsNonAdmin]);
+  }, [isAccessingAdminPageAsNonAdmin, navigate]);
 
 
   return (
@@ -87,7 +78,7 @@ const TopBar = () => {
         <i className="bi bi-list"></i>
       </button>
       <div className="page-title">
-        <span data-i18n={`${pageTitle.toLowerCase()}Page.header`}>{pageTitle}</span>
+        <span data-i18n={`${pageTitle.toLowerCase().replace(' ', '')}Page.header`}>{pageTitle}</span>
       </div>
       <div className="top-bar-icons d-flex align-items-center">
         <Link to="/pages/notifications.html"><i className="bi bi-bell-fill"></i></Link>

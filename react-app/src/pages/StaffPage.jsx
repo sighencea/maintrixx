@@ -100,7 +100,7 @@ const StaffPage = () => {
                 <td>{staff.full_name || 'N/A'}</td><td>{staff.email}</td><td>{staff.role || 'N/A'}</td>
                 <td className="text-center">{staff.task_assignments && staff.task_assignments.length > 0 ? staff.task_assignments[0].count : 0}</td>
                 <td><span className={`badge bg-${staff.user_status === 'Active' ? 'success' : (staff.user_status === 'Invited' || staff.user_status === 'New' ? 'warning text-dark' : 'secondary')}`}>{staff.user_status || 'N/A'}</span></td>
-                <td>{isAdmin && (<> <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => handleOpenEditModal(staff)} title="Edit"><i className="bi bi-pencil"></i></button> <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteStaff(staff)} title="Deactivate"><i className="bi bi-person-x"></i></button </>)}</td>
+                <td>{isAdmin && (<span> <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => handleOpenEditModal(staff)} title="Edit"><i className="bi bi-pencil"></i></button> <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteStaff(staff)} title="Deactivate"><i className="bi bi-person-x"></i></button> </span>)}</td>
             </tr>))}</tbody>
         </table></div>)}
       {/* Pagination (simplified for brevity) */}
