@@ -8,6 +8,7 @@ const TopBar = () => {
   const { user, isAdmin, signOut } = useAuth(); // Get signOut from AuthContext
 
   const [pageTitle, setPageTitle] = useState('Dashboard');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   // const isAdmin = localStorage.getItem('userIsAdmin') === 'true'; // Now using isAdmin from useAuth()
 
   const handleSidebarToggle = () => {
@@ -94,18 +95,18 @@ const TopBar = () => {
       <div className="top-bar-icons d-flex align-items-center">
         <Link to="/notifications"><i className="bi bi-bell-fill"></i></Link>
         <div className="dropdown">
-          <a className="dropdown-toggle dropdown-toggle-no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a className="dropdown-toggle dropdown-toggle-no-caret" href="#!" role="button" onClick={(e) => { e.preventDefault(); setIsDropdownOpen(!isDropdownOpen); }} aria-expanded={isDropdownOpen}>
             <i className="bi bi-person-gear"></i>
           </a>
-          <ul className="dropdown-menu dropdown-menu-end">
+          <ul className={`dropdown-menu dropdown-menu-end ${isDropdownOpen ? 'show' : ''}`}>
             <li>
-              <Link className="dropdown-item" to="/account">
+              <Link className="dropdown-item" to="/account" onClick={() => setIsDropdownOpen(false)}>
                 <i className="bi bi-gear-fill me-2"></i>Account Settings
               </Link>
             </li>
             <li><hr className="dropdown-divider" /></li>
             <li>
-              <button className="dropdown-item" onClick={handleSignOut} style={{ color: 'red' }}>
+              <button className="dropdown-item" onClick={() => { handleSignOut(); setIsDropdownOpen(false); }} style={{ color: 'red' }}>
                 <i className="bi bi-box-arrow-right me-2"></i>Sign Out
               </button>
             </li>
